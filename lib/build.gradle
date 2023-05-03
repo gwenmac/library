@@ -11,14 +11,19 @@ repositories {
 
 dependencies {
     // Spring
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation 'org.springframework.boot:spring-boot-starter-web'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    implementation 'mysql:mysql-connector-java:8.0.33'
 
     // This dependency is exported to consumers, that is to say found on their compile classpath.
     api 'org.apache.commons:commons-math3:3.6.1'
 
     // This dependency is used internally, and not exposed to consumers on their own compile classpath.
     implementation 'com.google.guava:guava:31.1-jre'
+
+    implementation 'org.hibernate:hibernate-java8:5.6.15.Final'
 }
 
 application {

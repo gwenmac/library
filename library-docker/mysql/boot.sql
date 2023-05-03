@@ -8,7 +8,7 @@ CREATE DATABASE library;
 
 USE library;
 
-CREATE TABLE languages (
+CREATE TABLE language (
      id INT NOT NULL AUTO_INCREMENT,
      name VARCHAR(255) UNIQUE NOT NULL,
      PRIMARY KEY (id)
@@ -22,6 +22,7 @@ CREATE TABLE status (
 
 CREATE TABLE series (
     id INT NOT NULL AUTO_INCREMENT,
+    name VARCHAR(255) UNIQUE NOT NULL,
     ongoing BOOLEAN NOT NULL,
     available_count TINYINT NOT NULL,
     read_all_owned BOOLEAN NOT NULL,
@@ -30,7 +31,7 @@ CREATE TABLE series (
     PRIMARY KEY (id)
 );
 
-CREATE TABLE books (
+CREATE TABLE book (
     id INT NOT NULL AUTO_INCREMENT,
     series_id INT,
     title VARCHAR(255) NOT NULL,
@@ -46,6 +47,6 @@ CREATE TABLE books (
     doe TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     PRIMARY KEY (id),
     FOREIGN KEY (series_id) REFERENCES series(id),
-    FOREIGN KEY (language_id) REFERENCES languages(id),
+    FOREIGN KEY (language_id) REFERENCES language(id),
     FOREIGN KEY (status_id) REFERENCES status(id)
 );
