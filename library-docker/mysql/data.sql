@@ -10,3 +10,7 @@ INSERT INTO book (series_id, title, vol_num, language_id, furigana, ln_level, en
     VALUES
         (1, "Test", 1, 1, NULL, NULL, "test", 1, NULL, NULL)
 ;
+
+INSERT INTO tag (name) VALUES ("ebook");
+
+INSERT INTO book_tag (book_id, tag_id) VALUES (1, 1);

@@ -15,7 +15,7 @@ public class LibraryController {
         return String.format("Hello!");
     }
 
-    @GetMapping("/getBooks")
+    @GetMapping("/books")
     public String getBooks() {
         return bookRepository.findAll().get(0).getTitle();
     }

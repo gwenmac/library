@@ -50,3 +50,18 @@ CREATE TABLE book (
     FOREIGN KEY (language_id) REFERENCES language(id),
     FOREIGN KEY (status_id) REFERENCES status(id)
 );
+
+CREATE TABLE tag (
+    id INT NOT NULL AUTO_INCREMENT,
+    name VARCHAR(255) UNIQUE NOT NULL,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE book_tag (
+    id INT NOT NULL AUTO_INCREMENT,
+    book_id INT NOT NULL,
+    tag_id INT NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (book_id) REFERENCES book(id),
+    FOREIGN KEY (tag_id) REFERENCES tag(id)
+);
