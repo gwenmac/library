@@ -1,7 +1,7 @@
 package library.repositories;
 
 import library.entities.Language;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.CrudRepository;
 
-public interface LanguageRepository extends JpaRepository<Language, Long> {
+public interface LanguageRepository extends CrudRepository<Language, Long> {
 }

@@ -1,7 +1,7 @@
 package library.repositories;
 
 import library.entities.BookTag;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.CrudRepository;
 
-public interface BookTagRepository extends JpaRepository<BookTag, Long> {
+public interface BookTagRepository extends CrudRepository<BookTag, Long> {
 }
