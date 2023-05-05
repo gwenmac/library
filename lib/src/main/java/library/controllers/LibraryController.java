@@ -3,6 +3,7 @@ package library.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -12,7 +13,7 @@ import java.util.List;
 @RestController
 public abstract class LibraryController<T> {
 
-    protected CrudRepository repository;
+    protected JpaRepository repository;
     ObjectMapper mapper = new ObjectMapper();
 
     @GetMapping(value = "/get", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -36,8 +37,8 @@ public abstract class LibraryController<T> {
         }
     }
 
-    @PostMapping(value = "/new", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void addTest(@RequestBody T t) {
+    @PutMapping(value = "/upsert", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public void save(@RequestBody T t) {
         repository.save(t);
     }
 }
