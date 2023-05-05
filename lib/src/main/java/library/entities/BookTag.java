@@ -6,9 +6,9 @@ import javax.persistence.*;
 @Table(name = "book_tag")
 public class BookTag {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private Integer id;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "book_id")
@@ -18,11 +18,11 @@ public class BookTag {
     @JoinColumn(name = "tag_id")
     private Tag tag;
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

@@ -24,6 +24,8 @@ dependencies {
     implementation 'com.google.guava:guava:31.1-jre'
 
     implementation 'org.hibernate:hibernate-java8:5.6.15.Final'
+
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.15.0'
 }
 
 application {
