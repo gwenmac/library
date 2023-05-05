@@ -4,6 +4,8 @@ import library.entities.Book;
 import library.repositories.BookRepository;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/book")
 public class BookController extends LibraryController<Book> {
@@ -12,9 +14,11 @@ public class BookController extends LibraryController<Book> {
         this.repository = repository;
     }
 
-    @PostMapping("/find")
-    public String findBooks() {
-        // search based on multiple optional search parameters
-        return "todo";
+    @DeleteMapping("/delete")
+    public void delete(@RequestParam List<Long> ids) {
+        if (ids != null) {
+            //todo: Delete all bookTags where book_id = id
+        }
+        super.delete(ids);
     }
 }
