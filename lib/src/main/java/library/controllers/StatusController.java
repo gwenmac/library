@@ -16,7 +16,7 @@ public class StatusController extends LibraryController<Status> {
 
     @DeleteMapping("/delete")
     public void delete(@RequestParam List<Long> ids) {
-        //todo: only delete if status is not in use
+        //todo: only delete if status is not in use in the book table
         super.delete(ids);
     }
 }

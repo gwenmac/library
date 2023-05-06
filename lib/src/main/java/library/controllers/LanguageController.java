@@ -16,7 +16,7 @@ public class LanguageController extends LibraryController<Language> {
 
     @DeleteMapping("/delete")
     public void delete(@RequestParam List<Long> ids) {
-        //todo: only delete if language is not in use
+        //todo: only delete if language is not in use in the book table
         super.delete(ids);
     }
 }
