@@ -29,6 +29,6 @@ export default {
 
 <template>
   <a href="#/">Home</a> |
-  <a href="#/tag/list">Tag List</a>
+  <a href="#/tag/list">Tags</a>
   <component :is="currentView" />
 </template>
