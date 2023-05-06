@@ -1,6 +1,6 @@
 <script>
 import Home from './Home.vue'
-import TagList from './components/tag/List.vue'
+import TagList from './tag/List.vue'
 import NotFound from './NotFound.vue'
 
 const routes = {

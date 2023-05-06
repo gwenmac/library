@@ -1,5 +1,5 @@
 <script>
-import DataTable from '../DataTable.vue'
+import DataTable from '../components/DataTable.vue'
 
 export default {
   components: {
