@@ -1,30 +1,34 @@
 <script>
-import DataTable from './components/DataTable.vue'
+import Home from './Home.vue'
+import TagList from './components/tag/List.vue'
+import NotFound from './NotFound.vue'
+
+const routes = {
+  '/': Home,
+  '/tag/list': TagList
+}
 
 export default {
-  components: {
-    DataTable
+  data() {
+    return {
+      currentPath: window.location.hash
+    }
   },
-  data: () => ({
-    searchQuery: '',
-    gridColumns: ['name', 'power'],
-    gridData: [
-      { name: 'Chuck Norris', power: Infinity },
-      { name: 'Bruce Lee', power: 9000 },
-      { name: 'Jackie Chan', power: 7000 },
-      { name: 'Jet Li', power: 8000 }
-    ]
-  })
+  computed: {
+    currentView() {
+      return routes[this.currentPath.slice(1) || '/'] || NotFound
+    }
+  },
+  mounted() {
+    window.addEventListener('hashchange', () => {
+      this.currentPath = window.location.hash
+    })
+  }
 }
 </script>
 
 <template>
-  <form id="search">
-    Search <input name="query" v-model="searchQuery">
-  </form>
-  <DataTable
-      :data="gridData"
-      :columns="gridColumns"
-      :filter-key="searchQuery">
-  </DataTable>
+  <a href="#/">Home</a> |
+  <a href="#/tag/list">Tag List</a>
+  <component :is="currentView" />
 </template>
