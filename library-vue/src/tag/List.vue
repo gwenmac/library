@@ -12,10 +12,7 @@ export default {
   }),
   methods: {
     async getData() {
-      const config = {
-        headers: {'Content-Type': 'application/json', 'Access-Control-Request-Headers': 'Content-Type, Authorization'}
-      }
-      const res = await fetch("http://localhost:8080/tag/get", config);
+      const res = await fetch("http://localhost:8080/tag/get");
       const finalRes = await res.json();
       this.tableData = finalRes;
     }
