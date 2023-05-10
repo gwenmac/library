@@ -7,7 +7,7 @@ export default {
   },
   data: () => ({
     searchQuery: '',
-    tableColumns: ['id', 'name'],
+    tableColumns: ['name'],
     tableData: []
   }),
   methods: {

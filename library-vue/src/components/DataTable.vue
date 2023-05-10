@@ -1,4 +1,6 @@
 <script>
+import router from "../router";
+
 export default {
   props: {
     data: Array,
@@ -41,6 +43,14 @@ export default {
     },
     capitalize(str) {
       return str.charAt(0).toUpperCase() + str.slice(1)
+    },
+    deleteItem(entry) {
+      if (confirm("Are you sure you want to delete " + entry.name + "?")) {
+        const requestOptions = { method: "DELETE" };
+        const deletePath = "http://localhost:8080" + this.$route.path.replace("list", "delete") + "?ids=" + entry.id;
+        fetch(deletePath, requestOptions)
+            .then(res => router.go(0));
+      }
     }
   }
 }
@@ -64,8 +74,10 @@ export default {
       <td v-for="key in columns">
         {{entry[key]}}
       </td>
-      <!--      Create the action buttons on each row-->
-      <router-link :to="`edit/${entry['id']}`">Edit</router-link>
+      <!--      Create the edit button on each row-->
+      <router-link :to="`edit/${entry['id']}`"><button>Edit</button></router-link>
+      <!--      Create the delete button on each row-->
+      <button @click="deleteItem(entry)">Delete</button>
     </tr>
     </tbody>
   </table>

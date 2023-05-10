@@ -7,7 +7,7 @@ export default {
   },
   data: () => ({
     searchQuery: '',
-    tableColumns: ['id', 'name', 'ongoing', 'availableCount', 'readAllOwned', 'ownAll', 'finished'],
+    tableColumns: ['name', 'ongoing', 'availableCount', 'readAllOwned', 'ownAll', 'finished'],
     tableData: []
   }),
   methods: {
