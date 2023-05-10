@@ -17,14 +17,14 @@ export default {
         this.name = resJson[0].name;
       }
     },
-    save() {
+    async save() {
       const requestOptions = {
         method: "PUT",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({id: this.id, name: this.name})
       };
-      fetch("http://localhost:8080/status/upsert", requestOptions)
-          .then(res => router.push('/status/list'));
+      await fetch("http://localhost:8080/status/upsert", requestOptions)
+      await router.push('/status/list');
     }
   },
   mounted() {

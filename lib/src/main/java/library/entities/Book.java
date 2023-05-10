@@ -1,5 +1,8 @@
 package library.entities;
 
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import javax.persistence.*;
 import java.sql.Timestamp;
 
@@ -44,10 +47,12 @@ public class Book {
     @Column(name = "complete_ts")
     private Timestamp completeTs;
 
-    @Column(name = "dlu")
+    @UpdateTimestamp
+    @Column(name = "dlu", insertable=false)
     private Timestamp dlu;
 
-    @Column(name = "doe")
+    @CreationTimestamp
+    @Column(name = "doe", updatable = false)
     private Timestamp doe;
 
     public Long getId() {
@@ -148,9 +153,5 @@ public class Book {
 
     public Timestamp getDoe() {
         return doe;
-    }
-
-    public void setDoe(Timestamp doe) {
-        this.doe = doe;
     }
 }

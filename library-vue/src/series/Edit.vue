@@ -26,7 +26,7 @@ export default {
         this.finished = resJson[0].finished;
       }
     },
-    save() {
+    async save() {
       const requestOptions = {
         method: "PUT",
         headers: {"Content-Type": "application/json"},
@@ -42,8 +42,8 @@ export default {
             }
         )
       };
-      fetch("http://localhost:8080/series/upsert", requestOptions)
-          .then(res => router.push('/series/list'));
+      await fetch("http://localhost:8080/series/upsert", requestOptions)
+      await router.push('/series/list');
     }
   },
   mounted() {

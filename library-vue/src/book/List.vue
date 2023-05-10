@@ -15,9 +15,7 @@ export default {
       'furigana',
       'lnLevel',
       'englishSortName',
-      'status',
-      'startTs',
-      'completeTs'
+      'status'
     ],
     tableData: []
   }),

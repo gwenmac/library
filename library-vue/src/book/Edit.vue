@@ -14,14 +14,13 @@ export default {
         title: "",
         series: null,
         volNum: 0,
-        language: 0,
+        language: null,
         furigana: false,
         lnLevel: 0,
         englishSortName: "",
-        status: 0,
+        status: null,
         startTs: '',
-        completeTs: '',
-        doe: ''
+        completeTs: ''
       },
       languageOptions: [],
       statusOptions: [],
@@ -44,7 +43,6 @@ export default {
         this.entry.status = resJson[0].status;
         this.entry.startTs = resJson[0].startTs;
         this.entry.completeTs = resJson[0].completeTs;
-        this.entry.doe = resJson[0].doe;
       }
     },
     async getLanguages() {
@@ -62,9 +60,9 @@ export default {
       const resJson = await res.json();
       this.seriesOptions = resJson;
     },
-    save() {
-      const bookObject =
-          {
+    async save() {
+      console.log(this.entry.language);
+      const bookObject = {
             id: this.entry.id,
             title: this.entry.title,
             series: this.entry.series,
@@ -75,17 +73,16 @@ export default {
             englishSortName: this.entry.englishSortName,
             status: this.entry.status,
             startTs: this.entry.startTs,
-            completeTs: this.entry.completeTs,
-            doe: this.entry.doe
+            completeTs: this.entry.completeTs
           };
-      console.log(bookObject);
+      console.log(this.entry);
       const requestOptions = {
         method: "PUT",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify(bookObject)
       };
-      fetch("http://localhost:8080/book/upsert", requestOptions)
-          .then(res => router.push('/book/list'));
+      await fetch("http://localhost:8080/book/upsert", requestOptions)
+      await router.push('/book/list');
     }
   },
   mounted() {
@@ -99,7 +96,8 @@ export default {
 
 <template>
   <form>
-    <label>Book Title: <input v-model="entry.series"></label><br>
+    <label>Book Title: <input v-model="entry.title"></label><br>
+
     <label>Series: <model-list-select name="series"
                                       :list="seriesOptions"
                                       v-model="entry.series"
