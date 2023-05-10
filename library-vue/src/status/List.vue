@@ -27,6 +27,7 @@ export default {
   <form id="search">
     Search <input name="query" v-model="searchQuery">
   </form>
+  <router-link to="/status/edit">New</router-link>
   <DataTable
       :data="tableData"
       :columns="tableColumns"
