@@ -7,7 +7,7 @@ export default {
   },
   data: () => ({
     searchQuery: '',
-    tableColumns: ['id', 'name'],
+    tableColumns: ['name'],
     tableData: []
   }),
   methods: {
@@ -27,6 +27,7 @@ export default {
   <form id="search">
     Search <input name="query" v-model="searchQuery">
   </form>
+  <router-link to="/language/edit">New</router-link>
   <DataTable
       :data="tableData"
       :columns="tableColumns"

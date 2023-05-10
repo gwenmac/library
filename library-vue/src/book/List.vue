@@ -8,7 +8,6 @@ export default {
   data: () => ({
     searchQuery: '',
     tableColumns: [
-      'id',
       'title',
       'series',
       'volNum',
@@ -26,7 +25,6 @@ export default {
     async getData() {
       const res = await fetch("http://localhost:8080/book/get");
       const rawJsonRes = await res.json();
-      console.log(rawJsonRes)
       this.tableData = rawJsonRes.map(row => {
         return {
           id: row.id,

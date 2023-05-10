@@ -55,7 +55,7 @@ export default {
           :class="{ active: sortKey == key }">
         {{ capitalize(key) }}
         <span class="arrow" :class="sortOrders[key] > 0 ? 'asc' : 'dsc'">
-          </span>
+        </span>
       </th>
     </tr>
     </thead>
