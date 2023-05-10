@@ -52,6 +52,7 @@ export default {
   <form id="search">
     Search <input name="query" v-model="searchQuery">
   </form>
+  <router-link to="/book/edit">New</router-link>
   <DataTable
       :data="tableData"
       :columns="tableColumns"

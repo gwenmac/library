@@ -71,7 +71,7 @@ export default {
     <input type="checkbox" id="finished" v-model="finished" /><br>
 
     <div class="buttons">
-      <button type="submit" :value="name" @click="save">Save</button><br>
+      <button type="submit" @click="save">Save</button><br>
     </div>
   </form>
 </template>

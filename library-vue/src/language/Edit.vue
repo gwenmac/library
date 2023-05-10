@@ -37,7 +37,7 @@ export default {
   <form>
     <label>Language Name: <input v-model="name"></label>
     <div class="buttons">
-      <button type="submit" :value="name" @click="save">Save</button>
+      <button type="submit" @click="save">Save</button>
     </div>
   </form>
 </template>
