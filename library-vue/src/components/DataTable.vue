@@ -64,6 +64,8 @@ export default {
       <td v-for="key in columns">
         {{entry[key]}}
       </td>
+      <!--      Create the action buttons on each row-->
+      <router-link :to="`edit/${entry['id']}`">Edit</router-link>
     </tr>
     </tbody>
   </table>

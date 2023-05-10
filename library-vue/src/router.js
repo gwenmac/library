@@ -12,7 +12,7 @@ const routes = [
     { path: '/', component: Home },
     { path: '/book/list', component: BookList },
     { path: '/language/list', component: LanguageList },
-    { path: '/language/edit:id?', component: LanguageEdit },
+    { path: '/language/edit/:id?', component: LanguageEdit },
     { path: '/series/list', component: SeriesList },
     { path: '/status/list', component: StatusList },
     { path: '/tag/list', component: TagList },

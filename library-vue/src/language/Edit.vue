@@ -10,8 +10,12 @@ export default {
   },
   methods: {
     async getData() {
-      //todo get the id from the url if it exists, otherwise leave blank
-      // should be able to get value from the router thingy
+      if (this.$route.params.id) {
+        const res = await fetch("http://localhost:8080/language/get?ids=" + this.$route.params.id)
+        const resJson = await res.json();
+        this.id = resJson[0].id;
+        this.name = resJson[0].name;
+      }
     },
     save() {
       const requestOptions = {
