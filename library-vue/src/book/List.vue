@@ -9,12 +9,12 @@ export default {
     searchQuery: '',
     tableColumns: [
       'title',
+      'englishSortName',
       'series',
       'volNum',
       'language',
       'furigana',
       'lnLevel',
-      'englishSortName',
       'status'
     ],
     tableData: []

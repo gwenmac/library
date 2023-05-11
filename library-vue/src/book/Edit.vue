@@ -63,24 +63,26 @@ export default {
     async save() {
       console.log(this.entry.language);
       const bookObject = {
-            title: this.entry.title,
-            series: this.entry.series,
-            volNum: this.entry.volNum,
-            language: this.entry.language,
-            furigana: this.entry.furigana,
-            lnLevel: this.entry.lnLevel,
-            englishSortName: this.entry.englishSortName,
-            status: this.entry.status,
-            startTs: this.entry.startTs,
-            completeTs: this.entry.completeTs
-          };
+        id: this.entry.id,
+        title: this.entry.title,
+        series: this.entry.series,
+        volNum: this.entry.volNum,
+        language: this.entry.language,
+        furigana: this.entry.furigana,
+        lnLevel: this.entry.lnLevel,
+        englishSortName: this.entry.englishSortName,
+        status: this.entry.status,
+        startTs: this.entry.startTs,
+        completeTs: this.entry.completeTs
+      };
       console.log(this.entry);
       const requestOptions = {
         method: "PUT",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify(bookObject)
       };
-      await fetch("http://localhost:8080/book/insert", requestOptions)
+      if (this.entry.id == null) await fetch("http://localhost:8080/book/insert", requestOptions)
+      else await fetch("http://localhost:8080/book/upsert", requestOptions)
       await router.push('/book/list');
     }
   },
