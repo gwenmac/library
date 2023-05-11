@@ -45,7 +45,7 @@ export default {
       return str.charAt(0).toUpperCase() + str.slice(1)
     },
     deleteItem(entry) {
-      if (confirm("Are you sure you want to delete " + entry.name + "?")) {
+      if (confirm("Are you sure you want to delete?")) {
         const requestOptions = { method: "DELETE" };
         const deletePath = "http://localhost:8080" + this.$route.path.replace("list", "delete") + "?ids=" + entry.id;
         fetch(deletePath, requestOptions)

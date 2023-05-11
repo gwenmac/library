@@ -27,7 +27,7 @@ export default {
         return {
           id: row.id,
           title: row.title,
-          series: row.series.name,
+          series: (row.series? row.series.name : null),
           volNum: row.volNum,
           language: row.language.name,
           furigana: row.furigana,

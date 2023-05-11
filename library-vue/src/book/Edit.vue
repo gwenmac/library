@@ -13,14 +13,14 @@ export default {
         id: null,
         title: "",
         series: null,
-        volNum: 0,
+        volNum: null,
         language: null,
         furigana: false,
-        lnLevel: 0,
+        lnLevel: null,
         englishSortName: "",
         status: null,
-        startTs: '',
-        completeTs: ''
+        startTs: null,
+        completeTs: null
       },
       languageOptions: [],
       statusOptions: [],
@@ -63,7 +63,6 @@ export default {
     async save() {
       console.log(this.entry.language);
       const bookObject = {
-            id: this.entry.id,
             title: this.entry.title,
             series: this.entry.series,
             volNum: this.entry.volNum,
@@ -81,7 +80,7 @@ export default {
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify(bookObject)
       };
-      await fetch("http://localhost:8080/book/upsert", requestOptions)
+      await fetch("http://localhost:8080/book/insert", requestOptions)
       await router.push('/book/list');
     }
   },

@@ -3,7 +3,6 @@ package library.controllers;
 import library.entities.Book;
 import library.repositories.BookRepository;
 import org.springframework.http.MediaType;
-import org.springframework.util.NumberUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,20 +25,35 @@ public class BookController extends LibraryController<Book> {
     }
 
     @PutMapping(value = "/insert", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void insertBook(@RequestBody Map<String, String> jsonBody) {
-        // todo verify the fields are correctly filled out before saving
-        System.out.println(jsonBody);
+    public void insertBook(@RequestBody Map<String, String> json) {
+        System.out.println(json);
         ((BookRepository) repository).insertBook(
-                jsonBody.getOrDefault("title", "title not given"),
-                jsonBody.containsKey("series") ? Integer.valueOf(jsonBody.get("series")) : null,
-                jsonBody.containsKey("volNum") ? Integer.valueOf(jsonBody.get("series")) : null,
-                jsonBody.containsKey("language") ? Integer.valueOf(jsonBody.get("language")) : null,
-                jsonBody.containsKey("furigana") ? Boolean.valueOf(jsonBody.get("furigana")) : null,
-                jsonBody.containsKey("lnLevel") ? Integer.valueOf(jsonBody.get("lnLevel")) : null,
-                jsonBody.getOrDefault("englishSortName", null),
-                jsonBody.containsKey("status") ? Integer.valueOf(jsonBody.get("status")) : null,
+                json.getOrDefault("title", "not given"),
+                getIntFromJson("series", json),
+                getIntFromJson("volNum", json),
+                getIntFromJson("language", json),
+                getBoolFromJson("forigana", json),
+                getIntFromJson("lnLevel", json),
+                json.getOrDefault("englishSortName", "not given"),
+                getIntFromJson("status", json),
                 null,
                 null
         );
+    }
+
+    private Integer getIntFromJson(String key, Map<String, String> json) {
+        if (json.containsKey(key)) {
+            return json.get(key) == null ? null : Integer.valueOf(json.get(key));
+        } else {
+            return null;
+        }
+    }
+
+    private Boolean getBoolFromJson(String key, Map<String, String> json) {
+        if (json.containsKey(key)) {
+            return json.get(key) == null ? null : Boolean.valueOf(json.get(key));
+        } else {
+            return null;
+        }
     }
 }
