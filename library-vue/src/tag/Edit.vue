@@ -23,7 +23,7 @@ export default {
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({id: this.id, name: this.name})
       };
-      await fetch("http://localhost:8080/tag/upsert", requestOptions)
+      await fetch("http://localhost:8080/tag/update", requestOptions)
       await router.push('/tag/list');
     }
   },

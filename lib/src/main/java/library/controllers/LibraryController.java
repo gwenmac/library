@@ -37,7 +37,7 @@ public abstract class LibraryController<T> {
         }
     }
 
-    @PutMapping(value = "/upsert", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/update", consumes = MediaType.APPLICATION_JSON_VALUE)
     public void save(@RequestBody T t) {
         repository.save(t);
     }

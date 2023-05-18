@@ -7,14 +7,25 @@ export default {
   },
   data: () => ({
     searchQuery: '',
-    tableColumns: ['name', 'ongoing', 'availableCount', 'readAllOwned', 'ownAll', 'finished'],
+    tableColumns: ['title', 'englishSortTitle',  'ongoing', 'availableCount', 'readAllOwned', 'ownAll', 'finished'],
     tableData: []
   }),
   methods: {
     async getData() {
       const res = await fetch("http://localhost:8080/series/get");
       const finalRes = await res.json();
-      this.tableData = finalRes;
+      this.tableData = finalRes.map(row => {
+        return {
+          id: row.id,
+          title: row.title,
+          englishSortTitle: row.englishSortTitle,
+          ongoing: row.ongoing,
+          availableCount: row.availableCount,
+          readAllOwned: row.readAllOwned,
+          ownAll: row.ownAll,
+          finished: row.finished
+        }
+      });
     }
   },
   mounted() {

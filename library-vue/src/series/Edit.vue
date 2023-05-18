@@ -1,11 +1,17 @@
 <script>
 import router from "../router";
+import { ModelListSelect } from 'vue-search-select';
+import "vue-search-select/dist/VueSearchSelect.css";
 
 export default {
+  components: {
+    ModelListSelect
+  },
   data() {
     return {
       id: null,
-      name: "",
+      title: "",
+      englishSortTitle: "",
       ongoing: false,
       availableCount: 0,
       readAllOwned: false,
@@ -19,10 +25,12 @@ export default {
         const res = await fetch("http://localhost:8080/series/get?ids=" + this.$route.params.id)
         const resJson = await res.json();
         this.id = resJson[0].id;
-        this.name = resJson[0].name;
+        this.title = resJson[0].title;
+        this.englishSortTitle = resJson[0].englishSortTitle;
         this.ongoing = resJson[0].ongoing;
         this.availableCount = resJson[0].availableCount;
         this.readAllOwned = resJson[0].readAllOwned;
+        this.ownAll = resJson[0].ownAll;
         this.finished = resJson[0].finished;
       }
     },
@@ -33,7 +41,8 @@ export default {
         body: JSON.stringify(
             {
               id: this.id,
-              name: this.name,
+              title: this.title,
+              englishSortTitle: this.englishSortTitle,
               ongoing: this.ongoing,
               availableCount: this.availableCount,
               readAllOwned: this.readAllOwned,
@@ -42,7 +51,8 @@ export default {
             }
         )
       };
-      await fetch("http://localhost:8080/series/upsert", requestOptions)
+      if (this.id == null) await fetch("http://localhost:8080/series/insert", requestOptions)
+      else await fetch("http://localhost:8080/series/update", requestOptions)
       await router.push('/series/list');
     }
   },
@@ -54,7 +64,9 @@ export default {
 
 <template>
   <form>
-    <label>Series Name: <input v-model="name"></label><br>
+    <label>Series Title: <input v-model="title"></label><br>
+
+    <label>English Sort Title: <input v-model="englishSortTitle"></label><br>
 
     <label for="ongoing">Ongoing?</label>
     <input type="checkbox" id="ongoing" v-model="ongoing" /><br>

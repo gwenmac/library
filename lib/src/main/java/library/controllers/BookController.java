@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+import static library.util.JsonUtil.getBoolFromJson;
+import static library.util.JsonUtil.getIntFromJson;
+
 @RestController
 @RequestMapping("/book")
 public class BookController extends LibraryController<Book> {
@@ -26,34 +29,20 @@ public class BookController extends LibraryController<Book> {
 
     @PutMapping(value = "/insert", consumes = MediaType.APPLICATION_JSON_VALUE)
     public void insertBook(@RequestBody Map<String, String> json) {
-        System.out.println(json);
         ((BookRepository) repository).insertBook(
                 json.getOrDefault("title", "not given"),
+                json.getOrDefault("englishSortTitle", "not given"),
                 getIntFromJson("series", json),
                 getIntFromJson("volNum", json),
                 getIntFromJson("language", json),
                 getBoolFromJson("forigana", json),
                 getIntFromJson("lnLevel", json),
-                json.getOrDefault("englishSortName", "not given"),
-                getIntFromJson("status", json),
-                null,
-                null
+                getIntFromJson("status", json)
         );
     }
 
-    private Integer getIntFromJson(String key, Map<String, String> json) {
-        if (json.containsKey(key)) {
-            return json.get(key) == null ? null : Integer.valueOf(json.get(key));
-        } else {
-            return null;
-        }
-    }
-
-    private Boolean getBoolFromJson(String key, Map<String, String> json) {
-        if (json.containsKey(key)) {
-            return json.get(key) == null ? null : Boolean.valueOf(json.get(key));
-        } else {
-            return null;
-        }
+    @PutMapping(value = "/bulkadd", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public void bulkInsertBook(@RequestBody Map<String, String> json) {
+        System.out.println(json);
     }
 }

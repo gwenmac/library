@@ -22,7 +22,8 @@ CREATE TABLE status (
 
 CREATE TABLE series (
     id INT NOT NULL AUTO_INCREMENT,
-    name VARCHAR(255) UNIQUE NOT NULL,
+    title VARCHAR(255) UNIQUE NOT NULL,
+    english_sort_title VARCHAR(255) NOT NULL,
     ongoing BOOLEAN NOT NULL,
     available_count TINYINT NOT NULL,
     read_all_owned BOOLEAN NOT NULL,
@@ -33,17 +34,17 @@ CREATE TABLE series (
 
 CREATE TABLE book (
     id INT NOT NULL AUTO_INCREMENT,
-    series_id INT,
     title VARCHAR(255) NOT NULL,
+    english_sort_title VARCHAR(255) NOT NULL,
+    series_id INT,
     vol_num TINYINT,
     language_id INT NOT NULL,
     furigana BOOLEAN,
     ln_level BOOLEAN,
-    english_sort_name VARCHAR(255) NOT NULL,
     status_id INT NOT NULL,
-    start_ts TIMESTAMP,
-    complete_ts TIMESTAMP,
-    dlu DATETIME ON UPDATE CURRENT_TIMESTAMP,
+    start_ts TIMESTAMP DEFAULT NULL,
+    complete_ts TIMESTAMP DEFAULT NULL,
+    dlu TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     doe TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     PRIMARY KEY (id),
     FOREIGN KEY (series_id) REFERENCES series(id),

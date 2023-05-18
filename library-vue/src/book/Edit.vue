@@ -12,13 +12,13 @@ export default {
       entry: {
         id: null,
         title: "",
+        englishSortTitle: "",
         series: null,
         volNum: null,
-        language: null,
+        language: 1,
         furigana: false,
         lnLevel: null,
-        englishSortName: "",
-        status: null,
+        status: 1,
         startTs: null,
         completeTs: null
       },
@@ -34,12 +34,12 @@ export default {
         const resJson = await res.json();
         this.entry.id = resJson[0].id;
         this.entry.title = resJson[0].title;
+        this.entry.englishSortTitle = resJson[0].englishSortTitle;
         this.entry.series = resJson[0].series;
         this.entry.volNum = resJson[0].volNum;
         this.entry.language = resJson[0].language;
         this.entry.furigana = resJson[0].furigana;
         this.entry.lnLevel = resJson[0].lnLevel;
-        this.entry.englishSortName = resJson[0].englishSortName;
         this.entry.status = resJson[0].status;
         this.entry.startTs = resJson[0].startTs;
         this.entry.completeTs = resJson[0].completeTs;
@@ -61,16 +61,15 @@ export default {
       this.seriesOptions = resJson;
     },
     async save() {
-      console.log(this.entry.language);
       const bookObject = {
         id: this.entry.id,
         title: this.entry.title,
+        englishSortTitle: this.entry.englishSortTitle,
         series: this.entry.series,
         volNum: this.entry.volNum,
         language: this.entry.language,
         furigana: this.entry.furigana,
         lnLevel: this.entry.lnLevel,
-        englishSortName: this.entry.englishSortName,
         status: this.entry.status,
         startTs: this.entry.startTs,
         completeTs: this.entry.completeTs
@@ -82,7 +81,7 @@ export default {
         body: JSON.stringify(bookObject)
       };
       if (this.entry.id == null) await fetch("http://localhost:8080/book/insert", requestOptions)
-      else await fetch("http://localhost:8080/book/upsert", requestOptions)
+      else await fetch("http://localhost:8080/book/update", requestOptions)
       await router.push('/book/list');
     }
   },
@@ -103,7 +102,7 @@ export default {
                                       :list="seriesOptions"
                                       v-model="entry.series"
                                       option-value="id"
-                                      option-text="name">
+                                      option-text="title">
     </model-list-select></label><br>
 
     <label>Language:<model-list-select name="language"
@@ -130,7 +129,7 @@ export default {
     <label for="furigana">Has Furigana?</label>
     <input type="checkbox" id="furigana" v-model="entry.furigana" /><br>
     <label>LearnNatively Level: <input v-model="entry.lnLevel"></label><br>
-    <label>English Version of Title: <input v-model="entry.englishSortName"></label>
+    <label>English Version of Title: <input v-model="entry.englishSortTitle"></label>
 
     <div class="buttons">
       <button type="submit" @click="save">Save</button>

@@ -1,13 +1,16 @@
 package library.controllers;
 
 import library.entities.Series;
+import library.repositories.BookRepository;
 import library.repositories.SeriesRepository;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+
+import static library.util.JsonUtil.getBoolFromJson;
+import static library.util.JsonUtil.getIntFromJson;
 
 @RestController
 @RequestMapping("/series")
@@ -23,5 +26,18 @@ public class SeriesController extends LibraryController<Series> {
             //todo: Delete all books with this series id
         }
         super.delete(ids);
+    }
+
+    @PutMapping(value = "/insert", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public void insertSeries(@RequestBody Map<String, String> json) {
+        ((SeriesRepository) repository).insertSeries(
+                json.getOrDefault("title", "not given"),
+                json.getOrDefault("englishSortTitle", "not given"),
+                getBoolFromJson("ongoing", json),
+                getIntFromJson("availableCount", json),
+                getBoolFromJson("readAllOwned", json),
+                getBoolFromJson("ownAll", json),
+                getBoolFromJson("finished", json)
+        );
     }
 }

@@ -34,8 +34,8 @@ public class Book {
     @Column(name = "ln_level")
     private Integer lnLevel;
 
-    @Column(name = "english_sort_name")
-    private String englishSortName;
+    @Column(name = "english_sort_title")
+    private String englishSortTitle;
 
     @ManyToOne
     @JoinColumn(name = "status_id")
@@ -111,12 +111,12 @@ public class Book {
         this.lnLevel = lnLevel;
     }
 
-    public String getEnglishSortName() {
-        return englishSortName;
+    public String getEnglishSortTitle() {
+        return englishSortTitle;
     }
 
-    public void setEnglishSortName(String englishSortName) {
-        this.englishSortName = englishSortName;
+    public void setEnglishSortTitle(String englishSortTitle) {
+        this.englishSortTitle = englishSortTitle;
     }
 
     public Status getStatus() {

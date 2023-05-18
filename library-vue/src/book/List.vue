@@ -9,7 +9,7 @@ export default {
     searchQuery: '',
     tableColumns: [
       'title',
-      'englishSortName',
+      'englishSortTitle',
       'series',
       'volNum',
       'language',
@@ -27,12 +27,12 @@ export default {
         return {
           id: row.id,
           title: row.title,
-          series: (row.series? row.series.name : null),
+          englishSortTitle: row.englishSortTitle,
+          series: (row.series? row.series.title : null),
           volNum: row.volNum,
           language: row.language.name,
           furigana: row.furigana,
           lnLevel: row.lnLevel,
-          englishSortName: row.englishSortName,
           status: row.status.name,
           startTs: row.startTs,
           completeTs: row.completeTs

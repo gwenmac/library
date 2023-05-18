@@ -10,8 +10,8 @@ public class Series {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "name")
-    private String name;
+    @Column(name = "title")
+    private String title;
 
     @Column(name = "ongoing")
     private Boolean ongoing;
@@ -25,6 +25,9 @@ public class Series {
     @Column(name = "own_all")
     private Boolean ownAll;
 
+    @Column(name = "english_sort_title")
+    private String englishSortTitle;
+
     @Column(name = "finished")
     private Boolean finished;
 
@@ -36,12 +39,12 @@ public class Series {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getTitle() {
+        return title;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public Boolean getOngoing() {
@@ -82,5 +85,13 @@ public class Series {
 
     public void setFinished(Boolean finished) {
         this.finished = finished;
+    }
+
+    public String getEnglishSortTitle() {
+        return englishSortTitle;
+    }
+
+    public void setEnglishSortTitle(String englishSortTitle) {
+        this.englishSortTitle = englishSortTitle;
     }
 }

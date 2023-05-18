@@ -2,15 +2,14 @@ USE library;
 
 INSERT INTO language (name) VALUES ("English"), ("日本語");
 
-INSERT INTO status (name) VALUES ("Unread"), ("In Progress"), ("Read");
+INSERT INTO status (name) VALUES ("Unread"), ("In Progress"), ("Read"), ("Stopped");
 
-INSERT INTO series (name, ongoing, available_count, read_all_owned, own_all, finished) VALUES ("series name", true, 19, false, false, false);
+INSERT INTO series (title, english_sort_title, ongoing, available_count, read_all_owned, own_all, finished)
+    VALUES ("Ajin", "ajin", false, 17, true, true, true);
 
-INSERT INTO book (series_id, title, vol_num, language_id, furigana, ln_level, english_sort_name, status_id, start_ts, complete_ts)
-    VALUES
-        (1, "Test", 1, 1, NULL, NULL, "test", 1, NULL, NULL)
-;
+INSERT INTO book (title, english_sort_title, series_id, vol_num, language_id, furigana, ln_level, status_id)
+    VALUES("Ajin", "ajin", 1, 1, 1, NULL, NULL, 1);
 
-INSERT INTO tag (name) VALUES ("ebook");
+INSERT INTO tag (name) VALUES ("manga");
 
 INSERT INTO book_tag (book_id, tag_id) VALUES (1, 1);
