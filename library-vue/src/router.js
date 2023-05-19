@@ -12,6 +12,7 @@ import StatusList from "./status/List.vue";
 import StatusEdit from "./status/Edit.vue";
 import TagList from "./tag/List.vue";
 import TagEdit from "./tag/Edit.vue";
+import AddTagToBook from "./tag/addToBook.vue";
 
 const routes = [
     { path: '/', component: Home },
@@ -25,7 +26,8 @@ const routes = [
     { path: '/status/list', component: StatusList },
     { path: '/status/edit/:id?', component: StatusEdit },
     { path: '/tag/list', component: TagList },
-    { path: '/tag/edit/:id?', component: TagEdit }
+    { path: '/tag/edit/:id?', component: TagEdit },
+    { path: '/tag/addToBook/:id', component: AddTagToBook }
 ];
 
 const router = createRouter({

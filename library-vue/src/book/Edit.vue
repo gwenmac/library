@@ -107,8 +107,8 @@ export default {
     <label>Language:<model-list-select name="language"
                        :list="languageOptions"
                        v-model="entry.language"
-                      option-value="id"
-                      option-text="name">
+                       option-value="id"
+                       option-text="name">
   </model-list-select></label><br>
 
     <label>Status:<model-list-select name="status"
