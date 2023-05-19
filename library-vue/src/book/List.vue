@@ -50,7 +50,8 @@ export default {
   <form id="search">
     Search <input name="query" v-model="searchQuery">
   </form>
-  <router-link to="/book/edit">New</router-link>
+  <router-link to="/book/edit">New</router-link><br>
+  <router-link to="/book/bulkAdd">Bulk Add</router-link>
   <DataTable
       :data="tableData"
       :columns="tableColumns"

@@ -74,7 +74,6 @@ export default {
         startTs: this.entry.startTs,
         completeTs: this.entry.completeTs
       };
-      console.log(this.entry);
       const requestOptions = {
         method: "PUT",
         headers: {"Content-Type": "application/json"},

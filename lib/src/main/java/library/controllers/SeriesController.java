@@ -30,7 +30,7 @@ public class SeriesController extends LibraryController<Series> {
 
     @PutMapping(value = "/insert", consumes = MediaType.APPLICATION_JSON_VALUE)
     public void insertSeries(@RequestBody Map<String, String> json) {
-        ((SeriesRepository) repository).insertSeries(
+        seriesRepository.insertSeries(
                 json.getOrDefault("title", "not given"),
                 json.getOrDefault("englishSortTitle", "not given"),
                 getBoolFromJson("ongoing", json),

@@ -3,6 +3,11 @@ package library.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
+import library.repositories.BookRepository;
+import library.repositories.LanguageRepository;
+import library.repositories.SeriesRepository;
+import library.repositories.StatusRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +19,14 @@ import java.util.List;
 public abstract class LibraryController<T> {
 
     protected JpaRepository repository;
+    @Autowired
+    protected BookRepository bookRepository;
+    @Autowired
+    protected SeriesRepository seriesRepository;
+    @Autowired
+    protected LanguageRepository languageRepository;
+    @Autowired
+    protected StatusRepository statusRepository;
     ObjectMapper mapper = new ObjectMapper();
 
     @GetMapping(value = "/get", produces = MediaType.APPLICATION_JSON_VALUE)

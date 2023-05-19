@@ -3,6 +3,7 @@ import { createRouter, createWebHashHistory} from 'vue-router';
 import Home from "./Home.vue";
 import BookList from "./book/List.vue";
 import BookEdit from "./book/Edit.vue";
+import BulkAdd from "./book/bulkAdd.vue";
 import LanguageList from "./language/List.vue";
 import LanguageEdit from "./language/Edit.vue";
 import SeriesList from "./series/List.vue";
@@ -16,6 +17,7 @@ const routes = [
     { path: '/', component: Home },
     { path: '/book/list', component: BookList },
     { path: '/book/edit/:id?', component: BookEdit },
+    { path: '/book/bulkAdd', component: BulkAdd },
     { path: '/language/list', component: LanguageList },
     { path: '/language/edit/:id?', component: LanguageEdit },
     { path: '/series/list', component: SeriesList },
