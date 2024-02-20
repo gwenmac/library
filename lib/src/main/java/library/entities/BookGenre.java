@@ -3,20 +3,20 @@ package library.entities;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "book_tag")
-public class BookTag {
+@Table(name = "book_genre")
+public class BookGenre {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "book_id")
+    @JoinColumn(name = "book")
     private Book book;
 
     @ManyToOne
-    @JoinColumn(name = "tag_id")
-    private Tag tag;
+    @JoinColumn(name = "genre")
+    private Genre genre;
 
     public Long getId() {
         return id;
@@ -34,11 +34,11 @@ public class BookTag {
         this.book = book;
     }
 
-    public Tag getTag() {
-        return tag;
+    public Genre getGenre() {
+        return genre;
     }
 
-    public void setTag(Tag tag) {
-        this.tag = tag;
+    public void setGenre(Genre genre) {
+        this.genre = genre;
     }
 }

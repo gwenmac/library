@@ -13,23 +13,14 @@ public class Series {
     @Column(name = "title")
     private String title;
 
-    @Column(name = "ongoing")
-    private Boolean ongoing;
-
-    @Column(name = "available_count")
-    private Integer availableCount;
-
-    @Column(name = "read_all_owned")
-    private Boolean readAllOwned;
-
-    @Column(name = "own_all")
-    private Boolean ownAll;
-
     @Column(name = "english_sort_title")
     private String englishSortTitle;
 
-    @Column(name = "finished")
-    private Boolean finished;
+    @Column(name = "is_ongoing")
+    private Boolean isOngoing;
+
+    @Column(name = "num_available")
+    private Integer numAvailable;
 
     public Long getId() {
         return id;
@@ -47,51 +38,27 @@ public class Series {
         this.title = title;
     }
 
-    public Boolean getOngoing() {
-        return ongoing;
-    }
-
-    public void setOngoing(Boolean ongoing) {
-        this.ongoing = ongoing;
-    }
-
-    public Integer getAvailableCount() {
-        return availableCount;
-    }
-
-    public void setAvailableCount(Integer availableCount) {
-        this.availableCount = availableCount;
-    }
-
-    public Boolean getReadAllOwned() {
-        return readAllOwned;
-    }
-
-    public void setReadAllOwned(Boolean readAllOwned) {
-        this.readAllOwned = readAllOwned;
-    }
-
-    public Boolean getOwnAll() {
-        return ownAll;
-    }
-
-    public void setOwnAll(Boolean ownAll) {
-        this.ownAll = ownAll;
-    }
-
-    public Boolean getFinished() {
-        return finished;
-    }
-
-    public void setFinished(Boolean finished) {
-        this.finished = finished;
-    }
-
     public String getEnglishSortTitle() {
         return englishSortTitle;
     }
 
     public void setEnglishSortTitle(String englishSortTitle) {
         this.englishSortTitle = englishSortTitle;
+    }
+
+    public Boolean getOngoing() {
+        return isOngoing;
+    }
+
+    public void setOngoing(Boolean ongoing) {
+        isOngoing = ongoing;
+    }
+
+    public Integer getNumAvailable() {
+        return numAvailable;
+    }
+
+    public void setNumAvailable(Integer numAvailable) {
+        this.numAvailable = numAvailable;
     }
 }
