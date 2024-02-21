@@ -16,7 +16,8 @@ export default {
       },
       tagOptions: [],
       currentTags: [],
-      newTagId: null
+      newTagId: null,
+      removeTagId: null
     }
   },
   methods: {
@@ -39,6 +40,11 @@ export default {
       this.tagOptions = resJson;
     },
     async save() {
+      await this.saveNewTag();
+      await this.deleteTag();
+      await router.go(0);
+    },
+    async saveNewTag() {
       const tagBookObject = {
         bookId: this.entry.id,
         tagId: this.newTagId
@@ -48,8 +54,19 @@ export default {
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify(tagBookObject)
       };
-      await fetch("http://localhost:8080/bookTag/insert", requestOptions)
-      await router.go(0);
+      await fetch("http://localhost:8080/bookTag/insert", requestOptions);
+    },
+    async deleteTag() {
+      const tagBookObject = {
+        bookId: this.entry.id,
+        tagId: this.removeTagId
+      }
+      const requestOptions = {
+        method: "PUT",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(tagBookObject)
+      };
+      await fetch("http://localhost:8080/bookTag/delete", requestOptions);
     }
   },
   mounted() {
@@ -70,6 +87,13 @@ export default {
                                        v-model="newTagId"
                                        option-value="id"
                                        option-text="name">
+    </model-list-select></label><br>
+
+    <label>Tag to remove:<model-list-select name="removeTagId"
+                                         :list=tagOptions
+                                         v-model="removeTagId"
+                                         option-value="id"
+                                         option-text="name">
     </model-list-select></label><br>
 
     <div class="buttons">

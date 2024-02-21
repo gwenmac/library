@@ -25,7 +25,7 @@ public abstract class LibraryController<T> {
     @Autowired
     protected StatusRepository statusRepository;
     @Autowired
-    protected TagRepository tagRepository;
+    protected GenreRepository genreRepository;
     ObjectMapper mapper = new ObjectMapper();
 
     @GetMapping(value = "/get", produces = MediaType.APPLICATION_JSON_VALUE)

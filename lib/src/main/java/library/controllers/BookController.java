@@ -62,10 +62,6 @@ public class BookController extends LibraryController<Book> {
         series.setTitle(title);
         series.setEnglishSortTitle(englishSortTitle);
         series.setOngoing(ongoing);
-        series.setAvailableCount(availableCount);
-        series.setReadAllOwned(readAllOwned);
-        series.setOwnAll(ownAll);
-        series.setFinished(finished);
         seriesRepository.save(series);
 
         Long languageId = getLongFromJson("language", json);
@@ -80,8 +76,6 @@ public class BookController extends LibraryController<Book> {
             book.setSeries(series);
             book.setVolNum(Integer.valueOf(volNum));
             book.setLanguage(language);
-            book.setFurigana(furigana);
-            book.setLnLevel(lnLevel);
             book.setStatus(statusRepository.getReferenceById(1L));
             bookRepository.save(book);
         });
@@ -92,8 +86,6 @@ public class BookController extends LibraryController<Book> {
             book.setSeries(series);
             book.setVolNum(Integer.valueOf(volNum));
             book.setLanguage(language);
-            book.setFurigana(furigana);
-            book.setLnLevel(lnLevel);
             book.setStatus(statusRepository.getReferenceById(2L));
             bookRepository.save(book);
         });
@@ -104,8 +96,6 @@ public class BookController extends LibraryController<Book> {
             book.setSeries(series);
             book.setVolNum(Integer.valueOf(volNum));
             book.setLanguage(language);
-            book.setFurigana(furigana);
-            book.setLnLevel(lnLevel);
             book.setStatus(statusRepository.getReferenceById(3L));
             bookRepository.save(book);
         });

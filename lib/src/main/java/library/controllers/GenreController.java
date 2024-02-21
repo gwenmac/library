@@ -1,17 +1,17 @@
 package library.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import library.entities.Tag;
-import library.repositories.TagRepository;
+import library.entities.Genre;
+import library.repositories.GenreRepository;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/tag")
-public class TagController extends LibraryController<Tag> {
+@RequestMapping("/genre")
+public class GenreController extends LibraryController<Genre> {
 
-    TagController(TagRepository repository) {
+    GenreController(GenreRepository repository) {
         this.repository = repository;
     }
 
@@ -26,7 +26,7 @@ public class TagController extends LibraryController<Tag> {
     @GetMapping(value = "search")
     public String search(@RequestParam String name) {
         try {
-            return mapper.writeValueAsString(((TagRepository) repository).findByName(name));
+            return mapper.writeValueAsString(((GenreRepository) repository).findByName(name));
         } catch (JsonProcessingException e) {
             return "Error processing json";
         }
