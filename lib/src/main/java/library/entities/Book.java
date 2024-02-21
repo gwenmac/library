@@ -35,14 +35,14 @@ public class Book {
     private Integer volNum;
 
     @ManyToOne
-    @JoinColumn(name = "language")
+    @JoinColumn(name = "language_id")
     private Language language;
 
     @Column(name = "has_furigana")
     @Nullable
     private Boolean hasFurigana;
 
-    @Column(name = "level")
+    @Column(name = "reading_level")
     @Nullable
     private Integer level;
 

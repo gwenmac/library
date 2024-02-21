@@ -4,12 +4,23 @@ INSERT INTO language (name) VALUES ("English"), ("日本語");
 
 INSERT INTO status (name) VALUES ("Unread"), ("In Progress"), ("Read"), ("Stopped");
 
-INSERT INTO series (title, english_sort_title, ongoing, available_count, read_all_owned, own_all, finished)
-    VALUES ("Ajin", "ajin", false, 17, true, true, true);
+INSERT INTO genre (name) VALUES ("Drama"), ("Slice of Life"), ("BL"), ("Action");
 
-INSERT INTO book (title, english_sort_title, series_id, vol_num, language_id, furigana, ln_level, status_id)
-    VALUES("Ajin", "ajin", 1, 1, 1, NULL, NULL, 1);
+INSERT INTO series (title, english_sort_title, is_ongoing, num_available, num_owned, num_read)
+    VALUES ("Acid Town", "acid town", true, 3, 3, 3);
 
-INSERT INTO tag (name) VALUES ("manga");
+INSERT INTO book (title, english_sort_title, series_id, vol_num, language_id, furigana, ln_level, status_id) VALUES
+    ("5 Centimeters Per Second", "5 centimeters per second", NULL, 1, 1, NULL, NULL, 2),
+    ("Acid Town 1", "acid town 1", 1, 1, 1, NULL, NULL, 2),
+    ("Acid Town 2", "acid town 2", 1, 2, 1, NULL, NULL, 2),
+    ("Acid Town 3", "acid town 3", 1, 3, 1, NULL, NULL, 2);
 
-INSERT INTO book_tag (book_id, tag_id) VALUES (1, 1);
+INSERT INTO book_genre (book, genre) VALUES
+     (1, 1),
+     (1, 2),
+     (2, 3),
+     (2, 4),
+     (3, 3),
+     (3, 4),
+     (4, 3),
+     (4, 4);
