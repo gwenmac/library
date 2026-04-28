@@ -3,31 +3,13 @@ import { createRouter, createWebHashHistory} from 'vue-router';
 import Home from "./Home.vue";
 import BookList from "./book/List.vue";
 import BookEdit from "./book/Edit.vue";
-import BulkAdd from "./book/bulkAdd.vue";
-import LanguageList from "./language/List.vue";
-import LanguageEdit from "./language/Edit.vue";
-import SeriesList from "./series/List.vue";
-import SeriesEdit from "./series/Edit.vue";
-import StatusList from "./status/List.vue";
-import StatusEdit from "./status/Edit.vue";
-import TagList from "./tag/List.vue";
-import TagEdit from "./tag/Edit.vue";
-import AddTagToBook from "./tag/addToBook.vue";
+import BookNew from "./book/New.vue";
 
 const routes = [
     { path: '/', component: Home },
     { path: '/book/list', component: BookList },
-    { path: '/book/edit/:id?', component: BookEdit },
-    { path: '/book/bulkAdd', component: BulkAdd },
-    { path: '/language/list', component: LanguageList },
-    { path: '/language/edit/:id?', component: LanguageEdit },
-    { path: '/series/list', component: SeriesList },
-    { path: '/series/edit/:id?', component: SeriesEdit },
-    { path: '/status/list', component: StatusList },
-    { path: '/status/edit/:id?', component: StatusEdit },
-    { path: '/tag/list', component: TagList },
-    { path: '/tag/edit/:id?', component: TagEdit },
-    { path: '/tag/addToBook/:id', component: AddTagToBook }
+    { path: '/book/new', component: BookNew },
+    { path: '/book/edit/:id', component: BookEdit }
 ];
 
 const router = createRouter({

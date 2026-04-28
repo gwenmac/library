@@ -1,64 +1,60 @@
 package library.entities;
 
-import javax.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
+
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "series")
 public class Series {
+
+    @EqualsAndHashCode.Include
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private Long id;
 
-    @Column(name = "title")
-    private String title;
+    @Column(nullable = false, unique = true)
+    private String name;
 
-    @Column(name = "english_sort_title")
-    private String englishSortTitle;
+    @JsonIgnore
+    @OneToMany(mappedBy = "series", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Book> books = new HashSet<>();
 
-    @Column(name = "is_ongoing")
-    private Boolean isOngoing;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private SeriesStatus status = SeriesStatus.NOT_STARTED;
 
-    @Column(name = "num_available")
-    private Integer numAvailable;
+    // Called automatically when the Series is loaded from the DB
+    @PostLoad
+    public void recalculateStatus() {
+        if (books == null || books.isEmpty()) {
+            this.status = SeriesStatus.NOT_STARTED;
+            return;
+        }
 
-    public Long getId() {
-        return id;
-    }
+        long completed = books.stream()
+                .filter(b -> b.getBookStatus() != null &&
+                        "Completed".equalsIgnoreCase(b.getBookStatus().getStatus().getName()))
+                .count();
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+        boolean anyStarted = books.stream()
+                .anyMatch(b -> b.getBookStatus() != null);
 
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getEnglishSortTitle() {
-        return englishSortTitle;
-    }
-
-    public void setEnglishSortTitle(String englishSortTitle) {
-        this.englishSortTitle = englishSortTitle;
-    }
-
-    public Boolean getOngoing() {
-        return isOngoing;
-    }
-
-    public void setOngoing(Boolean ongoing) {
-        isOngoing = ongoing;
-    }
-
-    public Integer getNumAvailable() {
-        return numAvailable;
-    }
-
-    public void setNumAvailable(Integer numAvailable) {
-        this.numAvailable = numAvailable;
+        if (completed == books.size()) {
+            this.status = SeriesStatus.COMPLETED;
+        } else if (anyStarted) {
+            this.status = SeriesStatus.IN_PROGRESS;
+        } else {
+            this.status = SeriesStatus.NOT_STARTED;
+        }
     }
 }

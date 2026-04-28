@@ -1,5 +1,3 @@
-@import './base.css';
-
 table {
   border: 2px solid #42b983;
   border-radius: 3px;
@@ -50,4 +48,59 @@ th.active .arrow {
   border-left: 4px solid transparent;
   border-right: 4px solid transparent;
   border-top: 4px solid #fff;
+}
+
+/* ── Nav bar ──────────────────────────────────── */
+
+#nav {
+  display: flex;
+  align-items: center;
+  background-color: #2c3e50;
+  padding: 0 24px;
+  height: 52px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+#nav .nav-brand {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #fff;
+  margin-right: 32px;
+  white-space: nowrap;
+}
+
+#nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 4px;
+}
+
+#nav ul li a {
+  display: block;
+  color: rgba(255, 255, 255, 0.7);
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: color 0.2s, background-color 0.2s;
+  border-radius: 6px;
+}
+
+#nav ul li a:hover {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+#nav ul li a.router-link-exact-active {
+  color: #42b983;
+}
+
+/* ── Page wrapper ────────────────────────────── */
+
+.page-content {
+  max-width: 1100px;
+  margin: 24px auto;
+  padding: 0 16px;
 }

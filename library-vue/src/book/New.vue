@@ -1,11 +1,10 @@
 <template>
   <div class="book-edit">
-    <h2>Edit Book</h2>
+    <h2>Add New Book</h2>
 
     <p v-if="error" class="error">{{ error }}</p>
-    <p v-else-if="loading">Loading...</p>
 
-    <form v-else @submit.prevent="save">
+    <form @submit.prevent="save">
       <div class="field">
         <label for="title">Title</label>
         <input id="title" v-model="form.title" required />
@@ -40,13 +39,13 @@
         </div>
       </div>
 
-      <div class="field" v-if="form.seriesId">
+      <div class="field" v-if="form.seriesId || creatingNewSeries">
         <label for="seriesOrder">Order in Series</label>
         <input id="seriesOrder" v-model.number="form.seriesOrder" type="number" min="1" />
       </div>
 
       <div class="actions">
-        <button type="submit" :disabled="saving">{{ saving ? 'Saving...' : 'Save' }}</button>
+        <button type="submit" :disabled="saving">{{ saving ? 'Saving...' : 'Add Book' }}</button>
         <button type="button" @click="$router.push('/book/list')">Cancel</button>
       </div>
     </form>
@@ -68,39 +67,18 @@ export default {
       seriesList: [],
       creatingNewSeries: false,
       newSeriesName: '',
-      loading: true,
       saving: false,
       error: null
     }
   },
   async mounted() {
-    const id = this.$route.params.id
     try {
-      const [bookRes, seriesRes] = await Promise.all([
-        fetch('/api/books/' + id),
-        fetch('/api/series/all')
-      ])
-
-      if (!bookRes.ok) {
-        this.error = 'Book not found (API returned ' + bookRes.status + ')'
-        return
-      }
-
-      const book = await bookRes.json()
-      this.form.title = book.title
-      this.form.authors = book.authors || ''
-      this.form.description = book.description || ''
-      this.form.pageCount = book.pageCount
-      this.form.seriesId = book.series ? book.series.id : null
-      this.form.seriesOrder = book.seriesOrder
-
-      if (seriesRes.ok) {
-        this.seriesList = await seriesRes.json()
+      const res = await fetch('/api/series/all')
+      if (res.ok) {
+        this.seriesList = await res.json()
       }
     } catch (err) {
-      this.error = 'Failed to load book: ' + err.message
-    } finally {
-      this.loading = false
+      console.error('Failed to load series:', err)
     }
   },
   methods: {
@@ -116,7 +94,6 @@ export default {
     async save() {
       this.saving = true
       this.error = null
-      const id = this.$route.params.id
       try {
         // If creating a new series, do that first
         if (this.creatingNewSeries && this.newSeriesName.trim()) {
@@ -133,18 +110,18 @@ export default {
           this.form.seriesId = newSeries.id
         }
 
-        const res = await fetch('/api/books/' + id, {
-          method: 'PUT',
+        const res = await fetch('/api/books', {
+          method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(this.form)
         })
         if (!res.ok) {
-          this.error = 'Save failed (API returned ' + res.status + ')'
+          this.error = 'Failed to add book (API returned ' + res.status + ')'
           return
         }
         this.$router.push('/book/list')
       } catch (err) {
-        this.error = 'Save failed: ' + err.message
+        this.error = 'Failed to add book: ' + err.message
       } finally {
         this.saving = false
       }

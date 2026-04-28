@@ -1,6 +1,5 @@
 package library.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,8 +10,8 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
-@Table(name = "genres")
-public class Genre {
+@Table(name = "authors")
+public class Author {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,7 +20,6 @@ public class Genre {
     @Column(nullable = false, unique = true)
     private String name;
 
-    @JsonIgnore
-    @ManyToMany(mappedBy = "genres")
+    @ManyToMany(mappedBy = "authors")
     private Set<Book> books = new HashSet<>();
 }

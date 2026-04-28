@@ -1,11 +1,14 @@
 <template>
-  <div id = "nav">
-    <router-link to="/">Home</router-link> |
-    <router-link to="/book/list">Books</router-link> |
-    <router-link to="/language/list">Languages</router-link> |
-    <router-link to="/series/list">Series</router-link> |
-    <router-link to="/status/list">Statuses</router-link> |
-    <router-link to="/tag/list">Tags</router-link>
-  </div>
-  <router-view/>
+  <nav id="nav">
+    <div class="nav-brand">📚 Library</div>
+    <ul>
+      <li><router-link to="/">Home</router-link></li>
+      <li><router-link to="/book/list">Books</router-link></li>
+    </ul>
+  </nav>
+  <main class="page-content">
+    <router-view/>
+  </main>
 </template>
+<script setup lang="ts">
+</script>

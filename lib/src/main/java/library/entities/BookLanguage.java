@@ -8,8 +8,8 @@ import javax.persistence.*;
 @Getter
 @Setter
 @Entity
-@Table(name = "book_genre")
-public class BookGenre {
+@Table(name = "book_language")
+public class BookLanguage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -20,6 +20,6 @@ public class BookGenre {
     private Book book;
 
     @ManyToOne
-    @JoinColumn(name = "genre")
-    private Genre genre;
+    @JoinColumn(name = "language")
+    private Language language;
 }

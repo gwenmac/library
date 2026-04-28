@@ -1,31 +1,30 @@
 package library.entities;
 
-import javax.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Getter;
+import lombok.Setter;
 
+import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
+
+@Getter
+@Setter
 @Entity
-@Table(name = "language")
+@Table(name = "languages")
 public class Language {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private Long id;
 
-    @Column(name = "name")
+    @Column(nullable = false, unique = true)
     private String name;
 
-    public Long getId() {
-        return id;
-    }
+    @Column(nullable = false, unique = true, length = 10)
+    private String code;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
+    @JsonIgnore
+    @ManyToMany(mappedBy = "languages")
+    private Set<Book> books = new HashSet<>();
 }

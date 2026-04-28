@@ -1,159 +1,92 @@
 package library.entities;
 
-import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import library.util.JapaneseUtil;
+import lombok.Getter;
+import lombok.Setter;
 
-import javax.annotation.Nullable;
 import javax.persistence.*;
-import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
+@Getter
+@Setter
 @Entity
-@Table(name = "book")
+@Table(name = "books")
 public class Book {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private Long id;
 
-    @Column(name = "title")
+    @Column(nullable = false)
     private String title;
 
-    @Column(name = "english_sort_title")
-    private String englishSortTitle;
+    @Column(nullable = false)
+    private String authors;
 
-    @Column(name = "author")
-    private String author;
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
+    @Column(name = "page_count")
+    private Integer pageCount;
+
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt = LocalDateTime.now();
+
+    @ManyToMany
+    @JoinTable(
+            name = "book_genres",
+            joinColumns = @JoinColumn(name = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "genre_id")
+    )
+    private Set<Genre> genres = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "book_languages",
+            joinColumns = @JoinColumn(name = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "language_id")
+    )
+    private Set<Language> languages = new HashSet<>();
+
+    @OneToOne(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
+    private BookStatus bookStatus;
+
+    @OneToOne(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Review review;
 
     @ManyToOne
-    @JoinColumn (name = "series")
-    @Nullable
+    @JoinColumn(name = "series_id")  // nullable — not every book belongs to a series
     private Series series;
 
-    @Column(name = "vol_num")
-    @ColumnDefault("1")
-    private Integer volNum;
+    @Column(name = "series_order")
+    private Integer seriesOrder; // e.g. 1, 2, 3 — null if not in a series
 
-    @ManyToOne
-    @JoinColumn(name = "language_id")
-    private Language language;
+    @Column(name = "sort_title")
+    private String sortTitle;
 
-    @Column(name = "has_furigana")
-    @Nullable
-    private Boolean hasFurigana;
+    private void populateSortName() {
+        if (title == null) return;
 
-    @Column(name = "reading_level")
-    @Nullable
-    private Integer level;
-
-    @ManyToOne
-    @JoinColumn(name = "status")
-    private Status status;
-
-    @UpdateTimestamp
-    @Column(name = "dlu", insertable=false)
-    private Timestamp dlu;
-
-    @CreationTimestamp
-    @Column(name = "doe", updatable = false)
-    private Timestamp doe;
-
-    public Long getId() {
-        return id;
+        if (JapaneseUtil.containsJapanese(title)) {
+            this.sortTitle = JapaneseUtil.toRomaji(title);
+        } else {
+            this.sortTitle = title;
+        }
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    @PrePersist
+    @PreUpdate
+    private void onBookChange() {
+        populateSortName();
 
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getEnglishSortTitle() {
-        return englishSortTitle;
-    }
-
-    public void setEnglishSortTitle(String englishSortTitle) {
-        this.englishSortTitle = englishSortTitle;
-    }
-
-    public String getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
-    @Nullable
-    public Series getSeries() {
-        return series;
-    }
-
-    public void setSeries(@Nullable Series series) {
-        this.series = series;
-    }
-
-    public Integer getVolNum() {
-        return volNum;
-    }
-
-    public void setVolNum(Integer volNum) {
-        this.volNum = volNum;
-    }
-
-    public Language getLanguage() {
-        return language;
-    }
-
-    public void setLanguage(Language language) {
-        this.language = language;
-    }
-
-    @Nullable
-    public Boolean getHasFurigana() {
-        return hasFurigana;
-    }
-
-    public void setHasFurigana(@Nullable Boolean hasFurigana) {
-        this.hasFurigana = hasFurigana;
-    }
-
-    @Nullable
-    public Integer getLevel() {
-        return level;
-    }
-
-    public void setLevel(@Nullable Integer level) {
-        this.level = level;
-    }
-
-    public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
-    }
-
-    public Timestamp getDlu() {
-        return dlu;
-    }
-
-    public void setDlu(Timestamp dlu) {
-        this.dlu = dlu;
-    }
-
-    public Timestamp getDoe() {
-        return doe;
-    }
-
-    public void setDoe(Timestamp doe) {
-        this.doe = doe;
+        if (series != null) {
+            series.recalculateStatus();
+        }
     }
 }

@@ -1,103 +1,104 @@
 package library.controllers;
 
 import library.entities.Book;
-import library.entities.Language;
 import library.entities.Series;
-import library.repositories.BookRepository;
-import org.springframework.http.MediaType;
+import library.repositories.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Arrays;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-
-import static library.util.JsonUtil.*;
 
 @RestController
-@RequestMapping("/book")
-public class BookController extends LibraryController<Book> {
+@CrossOrigin(origins = "http://localhost:5173")
+public class BookController {
 
-    BookController(BookRepository repository) {
-        this.repository = repository;
+    private final BookRepository bookRepository;
+    private final SeriesRepository seriesRepository;
+
+    public BookController(BookRepository bookRepository, SeriesRepository seriesRepository) {
+        this.bookRepository = bookRepository;
+        this.seriesRepository = seriesRepository;
     }
 
-    @DeleteMapping("/delete")
-    public void delete(@RequestParam List<Long> ids) {
-        if (ids != null) {
-            //todo: Delete all bookTags where book_id = id
+    @GetMapping("/all")
+    public List<Book> getAll() {
+        return bookRepository.findAll();
+    }
+
+    @PostMapping("/books")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Book create(@RequestBody Map<String, Object> body) {
+        Book book = new Book();
+        book.setTitle((String) body.get("title"));
+        book.setAuthors((String) body.get("authors"));
+        book.setDescription((String) body.get("description"));
+        if (body.get("pageCount") != null) {
+            book.setPageCount(((Number) body.get("pageCount")).intValue());
         }
-        super.delete(ids);
+        if (body.get("seriesId") != null) {
+            Long seriesId = ((Number) body.get("seriesId")).longValue();
+            Series series = seriesRepository.findById(seriesId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Series not found"));
+            book.setSeries(series);
+        }
+        if (body.get("seriesOrder") != null) {
+            book.setSeriesOrder(((Number) body.get("seriesOrder")).intValue());
+        }
+        book.setCreatedAt(LocalDateTime.now());
+        book.setUpdatedAt(LocalDateTime.now());
+        return bookRepository.save(book);
     }
 
-    @PutMapping(value = "/insert", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void insertBook(@RequestBody Map<String, String> json) {
-        bookRepository.insertBook(
-                json.getOrDefault("title", "not given"),
-                json.getOrDefault("englishSortTitle", "not given"),
-                getIntFromJson("series", json),
-                getIntFromJson("volNum", json),
-                getIntFromJson("language", json),
-                getBoolFromJson("furigana", json),
-                getIntFromJson("lnLevel", json),
-                getIntFromJson("status", json)
-        );
+    @GetMapping("/books/{id}")
+    public Book getById(@PathVariable Long id) {
+        return bookRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Book not found"));
     }
 
-    @PutMapping(value = "/bulkAdd", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void bulkAdd(@RequestBody Map<String, String> json) {
-        List<String> unreadVols = Arrays.stream(json.getOrDefault("unreadVols", "").split(",")).filter(x -> !x.isEmpty()).collect(Collectors.toList());
-        List<String> inProgressVols = Arrays.stream(json.getOrDefault("inProgressVols", "").split(",")).filter(x -> !x.isEmpty()).collect(Collectors.toList());
-        List<String> readVols = Arrays.stream(json.getOrDefault("readVols", "").split(",")).filter(x -> !x.isEmpty()).collect(Collectors.toList());
+    @PutMapping("/books/{id}")
+    public Book update(@PathVariable Long id, @RequestBody Map<String, Object> body) {
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Book not found"));
 
-        String title = json.getOrDefault("title", "not given");
-        String englishSortTitle = json.getOrDefault("englishSortTitle", "not given");
-        Boolean ongoing = getBoolFromJson("ongoing", json);
-        Integer availableCount = getIntFromJson("availableCount", json);
-        Boolean readAllOwned = unreadVols.size() == 0;
-        Boolean ownAll = availableCount == (readVols.size() + inProgressVols.size() + unreadVols.size());
-        Boolean finished = availableCount == readVols.size();
+        if (body.containsKey("title")) {
+            book.setTitle((String) body.get("title"));
+        }
+        if (body.containsKey("authors")) {
+            book.setAuthors((String) body.get("authors"));
+        }
+        if (body.containsKey("description")) {
+            book.setDescription((String) body.get("description"));
+        }
+        if (body.containsKey("pageCount")) {
+            book.setPageCount(body.get("pageCount") != null ? ((Number) body.get("pageCount")).intValue() : null);
+        }
+        if (body.containsKey("seriesId")) {
+            if (body.get("seriesId") != null) {
+                Long seriesId = ((Number) body.get("seriesId")).longValue();
+                Series series = seriesRepository.findById(seriesId)
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Series not found"));
+                book.setSeries(series);
+            } else {
+                book.setSeries(null);
+            }
+        }
+        if (body.containsKey("seriesOrder")) {
+            book.setSeriesOrder(body.get("seriesOrder") != null ? ((Number) body.get("seriesOrder")).intValue() : null);
+        }
 
-        Series series = new Series();
-        series.setTitle(title);
-        series.setEnglishSortTitle(englishSortTitle);
-        series.setOngoing(ongoing);
-        seriesRepository.save(series);
+        book.setUpdatedAt(LocalDateTime.now());
+        return bookRepository.save(book);
+    }
 
-        Long languageId = getLongFromJson("language", json);
-        Language language = languageRepository.getReferenceById(languageId);
-        Boolean furigana = getBoolFromJson("furigana", json);
-        Integer lnLevel = getIntFromJson("lnLevel", json);
-
-        unreadVols.forEach(volNum -> {
-            Book book = new Book();
-            book.setTitle(title);
-            book.setEnglishSortTitle(englishSortTitle);
-            book.setSeries(series);
-            book.setVolNum(Integer.valueOf(volNum));
-            book.setLanguage(language);
-            book.setStatus(statusRepository.getReferenceById(1L));
-            bookRepository.save(book);
-        });
-        inProgressVols.forEach(volNum -> {
-            Book book = new Book();
-            book.setTitle(title);
-            book.setEnglishSortTitle(englishSortTitle);
-            book.setSeries(series);
-            book.setVolNum(Integer.valueOf(volNum));
-            book.setLanguage(language);
-            book.setStatus(statusRepository.getReferenceById(2L));
-            bookRepository.save(book);
-        });
-        readVols.forEach(volNum -> {
-            Book book = new Book();
-            book.setTitle(title);
-            book.setEnglishSortTitle(englishSortTitle);
-            book.setSeries(series);
-            book.setVolNum(Integer.valueOf(volNum));
-            book.setLanguage(language);
-            book.setStatus(statusRepository.getReferenceById(3L));
-            bookRepository.save(book);
-        });
+    @DeleteMapping("/books/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        if (!bookRepository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Book not found");
+        }
+        bookRepository.deleteById(id);
     }
 }

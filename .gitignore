@@ -28,3 +28,12 @@ replay_pid*
 
 # Ignore Gradle build output directory
 build
+
+# IntelliJ
+**/.idea/*
+!**/.idea/codeStyles
+/*.iml
+/classes
+/*/out
+.idea_modules/
+.idea
