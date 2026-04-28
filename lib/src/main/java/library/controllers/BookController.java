@@ -5,12 +5,12 @@ import library.entities.Book;
 import library.entities.Series;
 import library.repositories.*;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:5173")
@@ -26,17 +26,34 @@ public class BookController {
         this.authorRepository = authorRepository;
     }
 
+    // ── Author endpoints ────────────────────────────────────
+
+    @GetMapping("/authors/all")
+    public List<Author> getAllAuthors() {
+        return authorRepository.findAll();
+    }
+
+    @PostMapping("/authors")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Author createAuthor(@RequestBody Map<String, String> body) {
+        Author author = new Author();
+        author.setName(body.get("name"));
+        return authorRepository.save(author);
+    }
+
+    // ── Book endpoints ──────────────────────────────────────
+
     @GetMapping("/all")
     public List<Book> getAll() {
         return bookRepository.findAll();
     }
 
+    @Transactional
     @PostMapping("/books")
     @ResponseStatus(HttpStatus.CREATED)
     public Book create(@RequestBody Map<String, Object> body) {
         Book book = new Book();
         book.setTitle((String) body.get("title"));
-        book.setAuthors(resolveAuthors(body.get("authors")));
         book.setDescription((String) body.get("description"));
         if (body.get("pageCount") != null) {
             book.setPageCount(((Number) body.get("pageCount")).intValue());
@@ -50,6 +67,9 @@ public class BookController {
         if (body.get("seriesOrder") != null) {
             book.setSeriesOrder(((Number) body.get("seriesOrder")).intValue());
         }
+        if (body.get("authorIds") != null) {
+            book.setAuthors(resolveAuthorIds(body.get("authorIds")));
+        }
         book.setCreatedAt(LocalDateTime.now());
         book.setUpdatedAt(LocalDateTime.now());
         return bookRepository.save(book);
@@ -61,6 +81,7 @@ public class BookController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Book not found"));
     }
 
+    @Transactional
     @PutMapping("/books/{id}")
     public Book update(@PathVariable Long id, @RequestBody Map<String, Object> body) {
         Book book = bookRepository.findById(id)
@@ -69,8 +90,9 @@ public class BookController {
         if (body.containsKey("title")) {
             book.setTitle((String) body.get("title"));
         }
-        if (body.containsKey("authors")) {
-            book.setAuthors(resolveAuthors(body.get("authors")));
+        if (body.containsKey("authorIds")) {
+            book.getAuthors().clear();
+            book.getAuthors().addAll(resolveAuthorIds(body.get("authorIds")));
         }
         if (body.containsKey("description")) {
             book.setDescription((String) body.get("description"));
@@ -105,38 +127,17 @@ public class BookController {
         bookRepository.deleteById(id);
     }
 
-    /**
-     * Accepts either a JSON array of author name strings, e.g. ["Author A", "Author B"],
-     * or a single comma-separated string, e.g. "Author A, Author B".
-     * Returns a Set of Author entities, creating any that don't already exist.
-     */
+    // ── Helpers ─────────────────────────────────────────────
+
     @SuppressWarnings("unchecked")
-    private Set<Author> resolveAuthors(Object raw) {
+    private Set<Author> resolveAuthorIds(Object raw) {
         if (raw == null) return new HashSet<>();
-
-        List<String> names;
-        if (raw instanceof List) {
-            names = ((List<Object>) raw).stream()
-                    .map(Object::toString)
-                    .map(String::trim)
-                    .filter(s -> !s.isEmpty())
-                    .collect(Collectors.toList());
-        } else {
-            names = Arrays.stream(raw.toString().split(","))
-                    .map(String::trim)
-                    .filter(s -> !s.isEmpty())
-                    .collect(Collectors.toList());
-        }
-
-        Set<Author> authors = new HashSet<>();
-        for (String name : names) {
-            Author author = authorRepository.findByName(name)
-                    .orElseGet(() -> {
-                        Author a = new Author();
-                        a.setName(name);
-                        return authorRepository.save(a);
-                    });
-            authors.add(author);
+        List<Long> ids = ((List<Number>) raw).stream()
+                .map(Number::longValue)
+                .toList();
+        Set<Author> authors = new HashSet<>(authorRepository.findAllById(ids));
+        if (authors.size() != ids.size()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "One or more author IDs not found");
         }
         return authors;
     }

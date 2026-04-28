@@ -11,8 +11,26 @@
       </div>
 
       <div class="field">
-        <label for="authors">Authors</label>
-        <input id="authors" v-model="form.authors" required placeholder="Separate multiple authors with commas" />
+        <label>Authors</label>
+        <div class="chip-list" v-if="selectedAuthors.length">
+          <span class="chip" v-for="a in selectedAuthors" :key="a.id">
+            {{ a.name }}
+            <button type="button" class="chip-remove" @click="removeAuthor(a.id)">✕</button>
+          </span>
+        </div>
+        <div class="author-picker">
+          <select v-if="!creatingNewAuthor" v-model="authorToAdd">
+            <option :value="null">— Select author —</option>
+            <option v-for="a in availableAuthors" :key="a.id" :value="a.id">{{ a.name }}</option>
+          </select>
+          <input v-else v-model="newAuthorName" placeholder="New author name..." />
+          <button type="button" class="toggle-btn" @click="addAuthor" :disabled="creatingNewAuthor ? !newAuthorName.trim() : !authorToAdd">
+            Add
+          </button>
+          <button type="button" class="toggle-btn toggle-new-btn" @click="toggleNewAuthor">
+            {{ creatingNewAuthor ? 'Pick existing' : '+ New' }}
+          </button>
+        </div>
       </div>
 
       <div class="field">
@@ -58,12 +76,16 @@ export default {
     return {
       form: {
         title: '',
-        authors: '',
         description: '',
         pageCount: null,
         seriesId: null,
         seriesOrder: null
       },
+      authorList: [],
+      selectedAuthors: [],
+      authorToAdd: null,
+      creatingNewAuthor: false,
+      newAuthorName: '',
       seriesList: [],
       creatingNewSeries: false,
       newSeriesName: '',
@@ -71,17 +93,62 @@ export default {
       error: null
     }
   },
+  computed: {
+    availableAuthors() {
+      const selectedIds = new Set(this.selectedAuthors.map(a => a.id))
+      return this.authorList.filter(a => !selectedIds.has(a.id))
+    }
+  },
   async mounted() {
     try {
-      const res = await fetch('/api/series/all')
-      if (res.ok) {
-        this.seriesList = await res.json()
-      }
+      const [seriesRes, authorsRes] = await Promise.all([
+        fetch('/api/series/all'),
+        fetch('/api/authors/all')
+      ])
+      if (seriesRes.ok) this.seriesList = await seriesRes.json()
+      if (authorsRes.ok) this.authorList = await authorsRes.json()
     } catch (err) {
-      console.error('Failed to load series:', err)
+      console.error('Failed to load data:', err)
     }
   },
   methods: {
+    toggleNewAuthor() {
+      this.creatingNewAuthor = !this.creatingNewAuthor
+      this.authorToAdd = null
+      this.newAuthorName = ''
+    },
+    async addAuthor() {
+      if (this.creatingNewAuthor) {
+        const name = this.newAuthorName.trim()
+        if (!name) return
+        try {
+          const res = await fetch('/api/authors', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name })
+          })
+          if (!res.ok) {
+            this.error = 'Failed to create author (API returned ' + res.status + ')'
+            return
+          }
+          const newAuthor = await res.json()
+          this.authorList.push(newAuthor)
+          this.selectedAuthors.push(newAuthor)
+          this.newAuthorName = ''
+          this.creatingNewAuthor = false
+        } catch (err) {
+          this.error = 'Failed to create author: ' + err.message
+        }
+      } else {
+        if (!this.authorToAdd) return
+        const author = this.authorList.find(a => a.id === this.authorToAdd)
+        if (author) this.selectedAuthors.push(author)
+        this.authorToAdd = null
+      }
+    },
+    removeAuthor(id) {
+      this.selectedAuthors = this.selectedAuthors.filter(a => a.id !== id)
+    },
     toggleNewSeries() {
       this.creatingNewSeries = !this.creatingNewSeries
       if (this.creatingNewSeries) {
@@ -110,10 +177,15 @@ export default {
           this.form.seriesId = newSeries.id
         }
 
+        const payload = {
+          ...this.form,
+          authorIds: this.selectedAuthors.map(a => a.id)
+        }
+
         const res = await fetch('/api/books', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(this.form)
+          body: JSON.stringify(payload)
         })
         if (!res.ok) {
           this.error = 'Failed to add book (API returned ' + res.status + ')'
@@ -165,6 +237,74 @@ export default {
 .series-picker select,
 .series-picker input {
   flex: 1;
+}
+
+.chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: #e8f5e9;
+  border: 1px solid #42b983;
+  border-radius: 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #2e7d5e;
+}
+
+.chip-remove {
+  background: none;
+  border: none;
+  color: #e74c3c;
+  cursor: pointer;
+  font-size: 0.8rem;
+  padding: 0 2px;
+  line-height: 1;
+}
+
+.author-picker {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.author-picker select,
+.author-picker input {
+  flex: 1;
+}
+
+.toggle-btn {
+  padding: 8px 12px;
+  border: 1px solid #42b983;
+  border-radius: 6px;
+  background: #42b983;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.toggle-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.toggle-new-btn {
+  background: #fff;
+  color: #42b983;
+}
+
+.toggle-new-btn:hover {
+  background: #42b983;
+  color: #fff;
 }
 
 .toggle-series-btn {
