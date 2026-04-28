@@ -49,7 +49,6 @@ CREATE TABLE series (
 CREATE TABLE books (
     id           BIGINT NOT NULL AUTO_INCREMENT,
     title        VARCHAR(255) NOT NULL,
-    authors       VARCHAR(255) NOT NULL,
     description  TEXT,
     page_count   INT,
     sort_title   VARCHAR(255),
@@ -103,6 +102,14 @@ CREATE TABLE book_languages (
     PRIMARY KEY (book_id, language_id),
     FOREIGN KEY (book_id)     REFERENCES books(id),
     FOREIGN KEY (language_id) REFERENCES languages(id)
+);
+
+CREATE TABLE book_authors (
+    book_id   BIGINT NOT NULL,
+    author_id BIGINT NOT NULL,
+    PRIMARY KEY (book_id, author_id),
+    FOREIGN KEY (book_id)   REFERENCES books(id),
+    FOREIGN KEY (author_id) REFERENCES authors(id)
 );
 
 -- Explicit join entities (BookGenre / BookLanguage — note FK column names match @JoinColumn(name=...))

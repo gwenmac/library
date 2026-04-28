@@ -97,7 +97,7 @@ export default {
       this.books = data.map(row => ({
         id:        row.id,
         title:     row.title,
-        authors:   row.authors ?? '—',
+        authors:   row.authors?.length ? row.authors.map(a => a.name).join(', ') : '—',
         series:    row.series ? row.series.name : '—',
         genres:    row.genres?.length ? row.genres.map(g => g.name).join(', ') : '—',
         languages: row.languages?.length ? row.languages.map(l => l.name).join(', ') : '—',

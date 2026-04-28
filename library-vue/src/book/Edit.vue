@@ -12,8 +12,8 @@
       </div>
 
       <div class="field">
-        <label for="authors">Author</label>
-        <input id="authors" v-model="form.authors" required />
+        <label for="authors">Authors</label>
+        <input id="authors" v-model="form.authors" required placeholder="Separate multiple authors with commas" />
       </div>
 
       <div class="field">
@@ -88,7 +88,7 @@ export default {
 
       const book = await bookRes.json()
       this.form.title = book.title
-      this.form.authors = book.authors || ''
+      this.form.authors = book.authors?.length ? book.authors.map(a => a.name).join(', ') : ''
       this.form.description = book.description || ''
       this.form.pageCount = book.pageCount
       this.form.seriesId = book.series ? book.series.id : null

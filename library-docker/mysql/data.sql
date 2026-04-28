@@ -42,42 +42,59 @@ INSERT INTO series (name, status) VALUES
 -- statuses: 1=Not Started, 2=In Progress, 3=Completed,
 --           4=Did Not Finish, 5=Paused
 -- -------------------------------------------------------
-INSERT INTO books (title, authors, description, page_count, sort_title, series_id, series_order, created_at, updated_at) VALUES
+INSERT INTO books (title, description, page_count, sort_title, series_id, series_order, created_at, updated_at) VALUES
     -- Lord of the Rings trilogy (series_id = 1)
-    ('The Fellowship of the Ring', 'J.R.R. Tolkien',
+    ('The Fellowship of the Ring',
      'The first part of Tolkien\'s epic fantasy where the Fellowship sets out to destroy the One Ring.',
      423, 'Fellowship of the Ring', 1, 1, NOW(), NOW()),
 
-    ('The Two Towers', 'J.R.R. Tolkien',
+    ('The Two Towers',
      'The Fellowship is broken; Frodo and Sam continue toward Mordor while war erupts in Rohan.',
      352, 'Two Towers', 1, 2, NOW(), NOW()),
 
-    ('The Return of the King', 'J.R.R. Tolkien',
+    ('The Return of the King',
      'The final volume of the trilogy: the War of the Ring reaches its climax.',
      416, 'Return of the King', 1, 3, NOW(), NOW()),
 
     -- Standalone
-    ('Dune', 'Frank Herbert',
+    ('Dune',
      'A desert planet, a noble family betrayed, and a boy destined to change the universe.',
      412, 'Dune', NULL, NULL, NOW(), NOW()),
 
-    ('And Then There Were None', 'Agatha Christie',
+    ('And Then There Were None',
      'Ten strangers are lured to an isolated island and begin to die one by one.',
      264, 'And Then There Were None', NULL, NULL, NOW(), NOW()),
 
     -- Death Note manga (series_id = 2)
-    ('Death Note, Vol. 1', 'Tsugumi Ohba',
+    ('Death Note, Vol. 1',
      'High school student Light Yagami finds a supernatural notebook that can kill anyone.',
      200, 'Death Note 001', 2, 1, NOW(), NOW()),
 
-    ('Death Note, Vol. 2', 'Tsugumi Ohba',
+    ('Death Note, Vol. 2',
      'The game of cat-and-mouse between Light and the mysterious detective L intensifies.',
      200, 'Death Note 002', 2, 2, NOW(), NOW()),
 
     -- Fullmetal Alchemist manga (series_id = 3)
-    ('Fullmetal Alchemist, Vol. 1', 'Hiromu Arakawa',
+    ('Fullmetal Alchemist, Vol. 1',
      'Two brothers use alchemy to try to resurrect their mother, with devastating consequences.',
      192, 'Fullmetal Alchemist 001', 3, 1, NOW(), NOW());
+
+-- -------------------------------------------------------
+-- Book authors  (book_authors = @JoinTable join table)
+-- authors: 1=Tolkien, 2=Herbert, 3=Christie,
+--          4=Tsugumi Ohba, 5=Hiromu Arakawa
+-- books:   1=Fellowship, 2=Two Towers, 3=Return,
+--          4=Dune, 5=Christie, 6=DN1, 7=DN2, 8=FMA1
+-- -------------------------------------------------------
+INSERT INTO book_authors (book_id, author_id) VALUES
+    (1, 1), -- Fellowship of the Ring → J.R.R. Tolkien
+    (2, 1), -- The Two Towers        → J.R.R. Tolkien
+    (3, 1), -- The Return of the King→ J.R.R. Tolkien
+    (4, 2), -- Dune                  → Frank Herbert
+    (5, 3), -- And Then There Were None → Agatha Christie
+    (6, 4), -- Death Note Vol. 1     → Tsugumi Ohba
+    (7, 4), -- Death Note Vol. 2     → Tsugumi Ohba
+    (8, 5); -- FMA Vol. 1            → Hiromu Arakawa
 
 -- -------------------------------------------------------
 -- Book genres  (book_genres = @JoinTable join table)

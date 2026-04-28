@@ -11,8 +11,8 @@
       </div>
 
       <div class="field">
-        <label for="authors">Author</label>
-        <input id="authors" v-model="form.authors" required />
+        <label for="authors">Authors</label>
+        <input id="authors" v-model="form.authors" required placeholder="Separate multiple authors with commas" />
       </div>
 
       <div class="field">
