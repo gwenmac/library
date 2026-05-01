@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:5173")
 public class BookController {
 
     private final BookRepository bookRepository;
