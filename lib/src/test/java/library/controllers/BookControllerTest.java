@@ -4,6 +4,7 @@ import library.entities.Book;
 import library.entities.Series;
 import library.repositories.AuthorRepository;
 import library.repositories.BookRepository;
+import library.repositories.GenreRepository;
 import library.repositories.SeriesRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,8 @@ class BookControllerTest {
     private SeriesRepository seriesRepository;
     @MockBean
     private AuthorRepository authorRepository;
+    @MockBean
+    private GenreRepository genreRepository;
 
     @Test
     void createBook_withTitleOnly_returnsCreated() throws Exception {

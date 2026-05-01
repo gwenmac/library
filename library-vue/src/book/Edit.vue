@@ -63,6 +63,29 @@
         <input id="seriesOrder" v-model.number="form.seriesOrder" type="number" min="1" />
       </div>
 
+      <div class="field">
+        <label>Genres</label>
+        <div class="chip-list" v-if="selectedGenres.length">
+          <span class="chip" v-for="g in selectedGenres" :key="g.id">
+            {{ g.name }}
+            <button type="button" class="chip-remove" @click="removeGenre(g.id)">✕</button>
+          </span>
+        </div>
+        <div class="genre-picker">
+          <select v-if="!creatingNewGenre" v-model="genreToAdd">
+            <option :value="null">— Select genre —</option>
+            <option v-for="g in availableGenres" :key="g.id" :value="g.id">{{ g.name }}</option>
+          </select>
+          <input v-else v-model="newGenreName" placeholder="New genre name..." />
+          <button type="button" class="toggle-btn" @click="addGenre" :disabled="creatingNewGenre ? !newGenreName.trim() : !genreToAdd">
+            Add
+          </button>
+          <button type="button" class="toggle-btn toggle-new-btn" @click="toggleNewGenre">
+            {{ creatingNewGenre ? 'Pick existing' : '+ New' }}
+          </button>
+        </div>
+      </div>
+
       <div class="actions">
         <button type="submit" :disabled="saving">{{ saving ? 'Saving...' : 'Save' }}</button>
         <button type="button" @click="$router.push('/book/list')">Cancel</button>
@@ -90,6 +113,11 @@ export default {
       seriesList: [],
       creatingNewSeries: false,
       newSeriesName: '',
+      genreList: [],
+      selectedGenres: [],
+      genreToAdd: null,
+      creatingNewGenre: false,
+      newGenreName: '',
       loading: true,
       saving: false,
       error: null
@@ -99,15 +127,20 @@ export default {
     availableAuthors() {
       const selectedIds = new Set(this.selectedAuthors.map(a => a.id))
       return this.authorList.filter(a => !selectedIds.has(a.id))
+    },
+    availableGenres() {
+      const selectedIds = new Set(this.selectedGenres.map(g => g.id))
+      return this.genreList.filter(g => !selectedIds.has(g.id))
     }
   },
   async mounted() {
     const id = this.$route.params.id
     try {
-      const [bookRes, seriesRes, authorsRes] = await Promise.all([
+      const [bookRes, seriesRes, authorsRes, genresRes] = await Promise.all([
         fetch('/api/books/' + id),
         fetch('/api/series/all'),
-        fetch('/api/authors/all')
+        fetch('/api/authors/all'),
+        fetch('/api/genres/all')
       ])
 
       if (!bookRes.ok) {
@@ -122,9 +155,11 @@ export default {
       this.form.seriesId = book.series ? book.series.id : null
       this.form.seriesOrder = book.seriesOrder
       this.selectedAuthors = book.authors ? [...book.authors] : []
+      this.selectedGenres = book.genres ? [...book.genres] : []
 
       if (seriesRes.ok) this.seriesList = await seriesRes.json()
       if (authorsRes.ok) this.authorList = await authorsRes.json()
+      if (genresRes.ok) this.genreList = await genresRes.json()
     } catch (err) {
       this.error = 'Failed to load book: ' + err.message
     } finally {
@@ -169,6 +204,43 @@ export default {
     removeAuthor(id) {
       this.selectedAuthors = this.selectedAuthors.filter(a => a.id !== id)
     },
+    toggleNewGenre() {
+      this.creatingNewGenre = !this.creatingNewGenre
+      this.genreToAdd = null
+      this.newGenreName = ''
+    },
+    async addGenre() {
+      if (this.creatingNewGenre) {
+        const name = this.newGenreName.trim()
+        if (!name) return
+        try {
+          const res = await fetch('/api/genres', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name })
+          })
+          if (!res.ok) {
+            this.error = 'Failed to create genre (API returned ' + res.status + ')'
+            return
+          }
+          const newGenre = await res.json()
+          this.genreList.push(newGenre)
+          this.selectedGenres.push(newGenre)
+          this.newGenreName = ''
+          this.creatingNewGenre = false
+        } catch (err) {
+          this.error = 'Failed to create genre: ' + err.message
+        }
+      } else {
+        if (!this.genreToAdd) return
+        const genre = this.genreList.find(g => g.id === this.genreToAdd)
+        if (genre) this.selectedGenres.push(genre)
+        this.genreToAdd = null
+      }
+    },
+    removeGenre(id) {
+      this.selectedGenres = this.selectedGenres.filter(g => g.id !== id)
+    },
     toggleNewSeries() {
       this.creatingNewSeries = !this.creatingNewSeries
       if (this.creatingNewSeries) {
@@ -200,7 +272,8 @@ export default {
 
         const payload = {
           ...this.form,
-          authorIds: this.selectedAuthors.map(a => a.id)
+          authorIds: this.selectedAuthors.map(a => a.id),
+          genreIds: this.selectedGenres.map(g => g.id)
         }
 
         const res = await fetch('/api/books/' + id, {
@@ -298,6 +371,17 @@ export default {
 
 .author-picker select,
 .author-picker input {
+  flex: 1;
+}
+
+.genre-picker {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.genre-picker select,
+.genre-picker input {
   flex: 1;
 }
 
