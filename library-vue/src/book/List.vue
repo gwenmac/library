@@ -7,7 +7,11 @@
 
     <div class="search-row">
       <input v-model="search" placeholder="Search books..." class="search-input" />
-      <span v-if="search" class="clear-filter" @click="search = ''">✕ Clear filter</span>
+      <select v-model="statusFilter" class="status-filter">
+        <option value="">All Statuses</option>
+        <option v-for="s in statuses" :key="s" :value="s">{{ s }}</option>
+      </select>
+      <span v-if="search || statusFilter" class="clear-filter" @click="search = ''; statusFilter = ''">✕ Clear filter</span>
     </div>
 
     <p v-if="error" class="error">{{ error }}</p>
@@ -58,17 +62,28 @@ export default {
     return {
       books: [],
       search: '',
+      statusFilter: '',
       loading: true,
       error: null
     }
   },
   computed: {
+    statuses() {
+      const all = this.books.map(b => b.status).filter(s => s && s !== '—')
+      return [...new Set(all)].sort()
+    },
     filteredBooks() {
+      let result = this.books
+      if (this.statusFilter) {
+        result = result.filter(b => b.status === this.statusFilter)
+      }
       const q = this.search.toLowerCase()
-      if (!q) return this.books
-      return this.books.filter(b =>
-        Object.values(b).some(v => String(v).toLowerCase().includes(q))
-      )
+      if (q) {
+        result = result.filter(b =>
+          Object.values(b).some(v => String(v).toLowerCase().includes(q))
+        )
+      }
+      return result
     }
   },
   methods: {
@@ -153,6 +168,13 @@ export default {
 .search-input {
   width: 100%;
   max-width: 400px;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+.status-filter {
   padding: 8px 12px;
   border: 1px solid #ccc;
   border-radius: 6px;

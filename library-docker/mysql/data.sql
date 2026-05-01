@@ -40,7 +40,8 @@ INSERT INTO series (name, status) VALUES
 -- -------------------------------------------------------
 -- Books
 -- statuses: 1=Not Started, 2=In Progress, 3=Completed,
---           4=Did Not Finish, 5=Paused
+--           4=Did Not Finish, 5=Paused, 6=Not Applicable,
+--           7=Not Interested
 -- -------------------------------------------------------
 INSERT INTO books (title, description, page_count, sort_title, series_id, series_order, created_at, updated_at) VALUES
     -- Lord of the Rings trilogy (series_id = 1)

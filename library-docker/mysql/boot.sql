@@ -139,4 +139,6 @@ INSERT INTO statuses (name) VALUES
     ('In Progress'),
     ('Completed'),
     ('Did Not Finish'),
-    ('Paused');
+    ('Paused'),
+    ('Not Applicable'),
+    ('Not Interested');
