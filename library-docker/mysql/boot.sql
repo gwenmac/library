@@ -112,25 +112,6 @@ CREATE TABLE book_authors (
     FOREIGN KEY (author_id) REFERENCES authors(id)
 );
 
--- Explicit join entities (BookGenre / BookLanguage — note FK column names match @JoinColumn(name=...))
-
-CREATE TABLE book_genre (
-    id     BIGINT NOT NULL AUTO_INCREMENT,
-    book   BIGINT NOT NULL,
-    genre  BIGINT NOT NULL,
-    PRIMARY KEY (id),
-    FOREIGN KEY (book)  REFERENCES books(id),
-    FOREIGN KEY (genre) REFERENCES genres(id)
-);
-
-CREATE TABLE book_language (
-    id       BIGINT NOT NULL AUTO_INCREMENT,
-    book     BIGINT NOT NULL,
-    language BIGINT NOT NULL,
-    PRIMARY KEY (id),
-    FOREIGN KEY (book)     REFERENCES books(id),
-    FOREIGN KEY (language) REFERENCES languages(id)
-);
 
 -- Seed data for statuses
 

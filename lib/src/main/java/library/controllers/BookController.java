@@ -142,13 +142,15 @@ public class BookController {
         return bookRepository.save(book);
     }
 
+    @Transactional
     @DeleteMapping("/books/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
-        if (!bookRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Book not found");
-        }
-        bookRepository.deleteById(id);
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Book not found"));
+        book.getAuthors().clear();
+        book.getGenres().clear();
+        bookRepository.delete(book);
     }
 
     // ── Helpers ─────────────────────────────────────────────
