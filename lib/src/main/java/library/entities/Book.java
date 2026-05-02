@@ -80,6 +80,7 @@ public class Book {
         if (JapaneseUtil.containsJapanese(title)) {
             this.sortTitle = JapaneseUtil.toRomaji(title);
         } else {
+            //Todo: strip "the", "a"
             this.sortTitle = title;
         }
     }

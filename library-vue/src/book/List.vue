@@ -25,7 +25,7 @@
     <table v-else>
       <thead>
         <tr>
-          <th>Title</th>
+          <th class="sortable" @click="toggleSort">Title {{ sortOrder === 'asc' ? '▲' : '▼' }}</th>
           <th>Author</th>
           <th>Series</th>
           <th>Genres</th>
@@ -68,6 +68,7 @@ export default {
       search: '',
       statusFilter: '',
       genreFilter: '',
+      sortOrder: 'asc',
       loading: true,
       error: null
     }
@@ -95,10 +96,17 @@ export default {
           Object.values(b).some(v => String(v).toLowerCase().includes(q))
         )
       }
+      result = result.slice().sort((a, b) => {
+        const cmp = a.sortTitle.localeCompare(b.sortTitle)
+        return this.sortOrder === 'asc' ? cmp : -cmp
+      })
       return result
     }
   },
   methods: {
+    toggleSort() {
+      this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc'
+    },
     async deleteBook(book) {
       if (!confirm('Delete "' + book.title + '"?')) return
       try {
@@ -124,6 +132,7 @@ export default {
       this.books = data.map(row => ({
         id:        row.id,
         title:     row.title,
+        sortTitle:  row.sortTitle || row.title,
         authors:   row.authors?.length ? row.authors.map(a => a.name).join(', ') : '—',
         series:    row.series ? row.series.name : '—',
         genres:    row.genres?.length ? row.genres.map(g => g.name).join(', ') : '—',
@@ -249,5 +258,14 @@ export default {
 
 .delete-btn:hover {
   background-color: #c0392b;
+}
+
+.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.sortable:hover {
+  color: #42b983;
 }
 </style>
