@@ -11,7 +11,11 @@
         <option value="">All Statuses</option>
         <option v-for="s in statuses" :key="s" :value="s">{{ s }}</option>
       </select>
-      <span v-if="search || statusFilter" class="clear-filter" @click="search = ''; statusFilter = ''">✕ Clear filter</span>
+      <select v-model="genreFilter" class="status-filter">
+        <option value="">All Genres</option>
+        <option v-for="g in genres" :key="g" :value="g">{{ g }}</option>
+      </select>
+      <span v-if="search || statusFilter || genreFilter" class="clear-filter" @click="search = ''; statusFilter = ''; genreFilter = ''">✕ Clear filter</span>
     </div>
 
     <p v-if="error" class="error">{{ error }}</p>
@@ -63,6 +67,7 @@ export default {
       books: [],
       search: '',
       statusFilter: '',
+      genreFilter: '',
       loading: true,
       error: null
     }
