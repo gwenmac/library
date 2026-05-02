@@ -58,6 +58,18 @@
         @error="error = $event"
       />
 
+      <ChipPicker
+          label="Language"
+          :selected="selectedLanguages"
+          :items="languageList"
+          create-endpoint="/api/languages"
+          select-placeholder="Select languages"
+          new-placeholder="New language..."
+          @update:selected="selectedLanguages = $event"
+          @update:items="languageList = $event"
+          @error="error = $event"
+      />
+
       <div class="actions">
         <button type="submit" :disabled="saving">{{ saving ? 'Saving...' : 'Save' }}</button>
         <button type="button" @click="$router.push('/book/list')">Cancel</button>
@@ -86,6 +98,8 @@ export default {
       seriesList: [],
       genreList: [],
       selectedGenres: [],
+      languageList: [],
+      selectedLanguages: [],
       loading: true,
       saving: false,
       error: null
@@ -94,11 +108,12 @@ export default {
   async mounted() {
     const id = this.$route.params.id
     try {
-      const [bookRes, seriesRes, authorsRes, genresRes] = await Promise.all([
+      const [bookRes, seriesRes, authorsRes, genresRes, languagesRes] = await Promise.all([
         fetch('/api/books/' + id),
         fetch('/api/series/all'),
         fetch('/api/authors/all'),
-        fetch('/api/genres/all')
+        fetch('/api/genres/all'),
+        fetch('/api/languages/all')
       ])
 
       if (!bookRes.ok) {
@@ -114,10 +129,12 @@ export default {
       this.form.seriesOrder = book.seriesOrder
       this.selectedAuthors = book.authors ? [...book.authors] : []
       this.selectedGenres = book.genres ? [...book.genres] : []
+      this.selectedLanguages = book.languages ? [...book.languages] : []
 
       if (seriesRes.ok) this.seriesList = await seriesRes.json()
       if (authorsRes.ok) this.authorList = await authorsRes.json()
       if (genresRes.ok) this.genreList = await genresRes.json()
+      if (languagesRes.ok) this.languageList = await languagesRes.json()
     } catch (err) {
       this.error = 'Failed to load book: ' + err.message
     } finally {
@@ -136,7 +153,8 @@ export default {
         const payload = {
           ...this.form,
           authorIds: this.selectedAuthors.map(a => a.id),
-          genreIds: this.selectedGenres.map(g => g.id)
+          genreIds: this.selectedGenres.map(g => g.id),
+          languageIds: this.selectedLanguages.map(l => l.id)
         }
 
         const res = await fetch('/api/books/' + id, {

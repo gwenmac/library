@@ -1,9 +1,6 @@
 package library.controllers;
 
-import library.entities.Author;
-import library.entities.Book;
-import library.entities.Genre;
-import library.entities.Series;
+import library.entities.*;
 import library.repositories.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,12 +17,20 @@ public class BookController {
     private final SeriesRepository seriesRepository;
     private final AuthorRepository authorRepository;
     private final GenreRepository genreRepository;
+    private final LanguageRepository languageRepository;
 
-    public BookController(BookRepository bookRepository, SeriesRepository seriesRepository, AuthorRepository authorRepository, GenreRepository genreRepository) {
+    public BookController(
+            BookRepository bookRepository,
+            SeriesRepository seriesRepository,
+            AuthorRepository authorRepository,
+            GenreRepository genreRepository,
+            LanguageRepository languageRepository
+    ) {
         this.bookRepository = bookRepository;
         this.seriesRepository = seriesRepository;
         this.authorRepository = authorRepository;
         this.genreRepository = genreRepository;
+        this.languageRepository = languageRepository;
     }
 
     // ── Author endpoints ────────────────────────────────────
@@ -56,6 +61,21 @@ public class BookController {
         Genre genre = new Genre();
         genre.setName(body.get("name"));
         return genreRepository.save(genre);
+    }
+
+    // ── Language endpoints ─────────────────────────────────────
+
+    @GetMapping("/languages/all")
+    public List<Language> getAllLanguages() {
+        return languageRepository.findAll();
+    }
+
+    @PostMapping("/languages")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Language createLanguage(@RequestBody Map<String, String> body) {
+        Language language = new Language();
+        language.setName(body.get("name"));
+        return languageRepository.save(language);
     }
 
     // ── Book endpoints ──────────────────────────────────────

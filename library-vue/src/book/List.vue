@@ -72,10 +72,17 @@ export default {
       const all = this.books.map(b => b.status).filter(s => s && s !== '—')
       return [...new Set(all)].sort()
     },
+    genres() {
+      const all = this.books.flatMap(b => b.genres !== '—' ? b.genres.split(', ') : [])
+      return [...new Set(all)].sort()
+    },
     filteredBooks() {
       let result = this.books
       if (this.statusFilter) {
         result = result.filter(b => b.status === this.statusFilter)
+      }
+      if (this.genreFilter) {
+        result = result.filter(b => b.genres.split(', ').includes(this.genreFilter))
       }
       const q = this.search.toLowerCase()
       if (q) {

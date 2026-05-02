@@ -57,6 +57,18 @@
         @error="error = $event"
       />
 
+      <ChipPicker
+          label="Language"
+          :selected="selectedLanguages"
+          :items="languageList"
+          create-endpoint="/api/languages"
+          select-placeholder="Select languages"
+          new-placeholder="New language..."
+          @update:selected="selectedLanguages = $event"
+          @update:items="languageList = $event"
+          @error="error = $event"
+      />
+
       <div class="actions">
         <button type="submit" :disabled="saving">{{ saving ? 'Saving...' : 'Add Book' }}</button>
         <button type="button" @click="$router.push('/book/list')">Cancel</button>
@@ -85,20 +97,28 @@ export default {
       seriesList: [],
       genreList: [],
       selectedGenres: [],
+      languageList: [],
+      selectedLanguages: [],
       saving: false,
       error: null
     }
   },
   async mounted() {
     try {
-      const [seriesRes, authorsRes, genresRes] = await Promise.all([
+      const [seriesRes, authorsRes, genresRes, languagesRes] = await Promise.all([
         fetch('/api/series/all'),
         fetch('/api/authors/all'),
-        fetch('/api/genres/all')
+        fetch('/api/genres/all'),
+        fetch('/api/languages/all')
       ])
       if (seriesRes.ok) this.seriesList = await seriesRes.json()
       if (authorsRes.ok) this.authorList = await authorsRes.json()
       if (genresRes.ok) this.genreList = await genresRes.json()
+      if (languagesRes.ok) {
+        this.languageList = await languagesRes.json()
+        const english = this.languageList.find(l => l.name.toLowerCase() === 'english')
+        if (english) this.selectedLanguages = [english]
+      }
     } catch (err) {
       console.error('Failed to load data:', err)
     }
@@ -114,7 +134,8 @@ export default {
         const payload = {
           ...this.form,
           authorIds: this.selectedAuthors.map(a => a.id),
-          genreIds: this.selectedGenres.map(g => g.id)
+          genreIds: this.selectedGenres.map(g => g.id),
+          languageIds: this.selectedLanguages.map(l => l.id)
         }
 
         const res = await fetch('/api/books', {
