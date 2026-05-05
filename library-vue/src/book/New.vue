@@ -5,76 +5,10 @@
     <p v-if="error" class="error">{{ error }}</p>
 
     <form @submit.prevent="save">
-      <div class="field">
-        <label for="title">Title</label>
-        <input id="title" v-model="form.title" required />
-      </div>
-
-      <ChipPicker
-        label="Authors"
-        :selected="selectedAuthors"
-        :items="authorList"
-        create-endpoint="/api/authors"
-        select-placeholder="Select author"
-        new-placeholder="New author name..."
-        @update:selected="selectedAuthors = $event"
-        @update:items="authorList = $event"
+      <BookForm
+        ref="bookForm"
+        :form="form"
         @error="error = $event"
-      />
-
-      <div class="field">
-        <label for="description">Description</label>
-        <textarea id="description" v-model="form.description" rows="4"></textarea>
-      </div>
-
-      <div class="field">
-        <label for="pageCount">Page Count</label>
-        <input id="pageCount" v-model.number="form.pageCount" type="number" min="0" />
-      </div>
-
-      <SeriesPicker
-        ref="seriesPicker"
-        v-model="form.seriesId"
-        :series-list="seriesList"
-        @update:series-list="seriesList = $event"
-        @error="error = $event"
-      />
-
-      <div class="field" v-if="form.seriesId || ($refs.seriesPicker && $refs.seriesPicker.creatingNew)">
-        <label for="seriesOrder">Order in Series</label>
-        <input id="seriesOrder" v-model.number="form.seriesOrder" type="number" min="1" />
-      </div>
-
-      <ChipPicker
-        label="Genres"
-        :selected="selectedGenres"
-        :items="genreList"
-        create-endpoint="/api/genres"
-        select-placeholder="Select genre"
-        new-placeholder="New genre name..."
-        @update:selected="selectedGenres = $event"
-        @update:items="genreList = $event"
-        @error="error = $event"
-      />
-
-      <ChipPicker
-          label="Language"
-          :selected="selectedLanguages"
-          :items="languageList"
-          create-endpoint="/api/languages"
-          select-placeholder="Select languages"
-          new-placeholder="New language..."
-          @update:selected="selectedLanguages = $event"
-          @update:items="languageList = $event"
-          @error="error = $event"
-      />
-
-      <EditionPicker
-          ref="editionPicker"
-          v-model="form.editionId"
-          :edition-list="editionList"
-          @update:edition-list="editionList = $event"
-          @error="error = $event"
       />
 
       <div class="actions">
@@ -86,12 +20,10 @@
 </template>
 
 <script>
-import ChipPicker from '../components/ChipPicker.vue'
-import SeriesPicker from '../components/SeriesPicker.vue'
-import EditionPicker from '../components/EditionPicker.vue'
+import BookForm from '../components/BookForm.vue'
 
 export default {
-  components: { ChipPicker, SeriesPicker, EditionPicker },
+  components: { BookForm },
   data() {
     return {
       form: {
@@ -102,36 +34,14 @@ export default {
         seriesOrder: null,
         editionId: null
       },
-      authorList: [],
-      selectedAuthors: [],
-      seriesList: [],
-      genreList: [],
-      selectedGenres: [],
-      languageList: [],
-      selectedLanguages: [],
-      editionList: [],
       saving: false,
       error: null
     }
   },
   async mounted() {
     try {
-      const [seriesRes, authorsRes, genresRes, languagesRes, editionsRes] = await Promise.all([
-        fetch('/api/series/all'),
-        fetch('/api/authors/all'),
-        fetch('/api/genres/all'),
-        fetch('/api/languages/all'),
-        fetch('/api/editions/all')
-      ])
-      if (seriesRes.ok) this.seriesList = await seriesRes.json()
-      if (authorsRes.ok) this.authorList = await authorsRes.json()
-      if (genresRes.ok) this.genreList = await genresRes.json()
-      if (languagesRes.ok) {
-        this.languageList = await languagesRes.json()
-        const english = this.languageList.find(l => l.name.toLowerCase() === 'english')
-        if (english) this.selectedLanguages = [english]
-      }
-      if (editionsRes.ok) this.editionList = await editionsRes.json()
+      await this.$refs.bookForm.loadLookups()
+      this.$refs.bookForm.defaultLanguageToEnglish()
     } catch (err) {
       console.error('Failed to load data:', err)
     }
@@ -141,18 +51,8 @@ export default {
       this.saving = true
       this.error = null
       try {
-        await this.$refs.seriesPicker.createIfNeeded()
+        const payload = await this.$refs.bookForm.preparePayload()
         if (this.error) return
-
-        await this.$refs.editionPicker.createIfNeeded()
-        if (this.error) return
-
-        const payload = {
-          ...this.form,
-          authorIds: this.selectedAuthors.map(a => a.id),
-          genreIds: this.selectedGenres.map(g => g.id),
-          languageIds: this.selectedLanguages.map(l => l.id)
-        }
 
         const res = await fetch('/api/books', {
           method: 'POST',
@@ -179,27 +79,6 @@ export default {
   padding: 16px;
   max-width: 600px;
 }
-
-.field {
-  margin-bottom: 14px;
-}
-
-.field label {
-  display: block;
-  font-weight: 600;
-  margin-bottom: 4px;
-}
-
-.field input,
-.field textarea,
-.field select {
-  width: 100%;
-  padding: 8px 10px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 0.95rem;
-}
-
 
 .actions {
   display: flex;
