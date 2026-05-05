@@ -18,6 +18,7 @@ public class BookController {
     private final AuthorRepository authorRepository;
     private final GenreRepository genreRepository;
     private final LanguageRepository languageRepository;
+    private final EditionRepository editionRepository;
     private final StatusRepository statusRepository;
 
     public BookController(
@@ -26,6 +27,7 @@ public class BookController {
             AuthorRepository authorRepository,
             GenreRepository genreRepository,
             LanguageRepository languageRepository,
+            EditionRepository editionRepository,
             StatusRepository statusRepository
     ) {
         this.bookRepository = bookRepository;
@@ -33,6 +35,7 @@ public class BookController {
         this.authorRepository = authorRepository;
         this.genreRepository = genreRepository;
         this.languageRepository = languageRepository;
+        this.editionRepository = editionRepository;
         this.statusRepository = statusRepository;
     }
 
@@ -74,6 +77,16 @@ public class BookController {
         if (body.get("languageIds") != null) {
             book.setLanguages(resolveLanguageIds(body.get("languageIds")));
         }
+        if (body.containsKey("editionId")) {
+            if (body.get("editionId") != null) {
+                Long editionId = ((Number) body.get("editionId")).longValue();
+                Edition edition = editionRepository.findById(editionId)
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Edition not found"));
+                book.setEdition(edition);
+            } else {
+                book.setEdition(null);
+            }
+        }
         book.setCreatedAt(LocalDateTime.now());
         book.setUpdatedAt(LocalDateTime.now());
         return bookRepository.save(book);
@@ -105,6 +118,16 @@ public class BookController {
         if (body.containsKey("languageIds")) {
             book.getLanguages().clear();
             book.getLanguages().addAll(resolveLanguageIds(body.get("languageIds")));
+        }
+        if (body.containsKey("editionId")) {
+            if (body.get("editionId") != null) {
+                Long editionId = ((Number) body.get("editionId")).longValue();
+                Edition edition = editionRepository.findById(editionId)
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Edition not found"));
+                book.setEdition(edition);
+            } else {
+                book.setEdition(null);
+            }
         }
         if (body.containsKey("description")) {
             book.setDescription((String) body.get("description"));

@@ -69,6 +69,14 @@
           @error="error = $event"
       />
 
+      <EditionPicker
+          ref="editionPicker"
+          v-model="form.editionId"
+          :edition-list="editionList"
+          @update:edition-list="editionList = $event"
+          @error="error = $event"
+      />
+
       <div class="actions">
         <button type="submit" :disabled="saving">{{ saving ? 'Saving...' : 'Add Book' }}</button>
         <button type="button" @click="$router.push('/book/list')">Cancel</button>
@@ -80,9 +88,10 @@
 <script>
 import ChipPicker from '../components/ChipPicker.vue'
 import SeriesPicker from '../components/SeriesPicker.vue'
+import EditionPicker from '../components/EditionPicker.vue'
 
 export default {
-  components: { ChipPicker, SeriesPicker },
+  components: { ChipPicker, SeriesPicker, EditionPicker },
   data() {
     return {
       form: {
@@ -90,7 +99,8 @@ export default {
         description: '',
         pageCount: null,
         seriesId: null,
-        seriesOrder: null
+        seriesOrder: null,
+        editionId: null
       },
       authorList: [],
       selectedAuthors: [],
@@ -99,17 +109,19 @@ export default {
       selectedGenres: [],
       languageList: [],
       selectedLanguages: [],
+      editionList: [],
       saving: false,
       error: null
     }
   },
   async mounted() {
     try {
-      const [seriesRes, authorsRes, genresRes, languagesRes] = await Promise.all([
+      const [seriesRes, authorsRes, genresRes, languagesRes, editionsRes] = await Promise.all([
         fetch('/api/series/all'),
         fetch('/api/authors/all'),
         fetch('/api/genres/all'),
-        fetch('/api/languages/all')
+        fetch('/api/languages/all'),
+        fetch('/api/editions/all')
       ])
       if (seriesRes.ok) this.seriesList = await seriesRes.json()
       if (authorsRes.ok) this.authorList = await authorsRes.json()
@@ -119,6 +131,7 @@ export default {
         const english = this.languageList.find(l => l.name.toLowerCase() === 'english')
         if (english) this.selectedLanguages = [english]
       }
+      if (editionsRes.ok) this.editionList = await editionsRes.json()
     } catch (err) {
       console.error('Failed to load data:', err)
     }
@@ -129,6 +142,9 @@ export default {
       this.error = null
       try {
         await this.$refs.seriesPicker.createIfNeeded()
+        if (this.error) return
+
+        await this.$refs.editionPicker.createIfNeeded()
         if (this.error) return
 
         const payload = {

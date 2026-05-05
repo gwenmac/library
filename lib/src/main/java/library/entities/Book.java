@@ -58,6 +58,10 @@ public class Book {
     )
     private Set<Language> languages = new HashSet<>();
 
+    @ManyToOne
+    @JoinColumn(name = "edition_id")
+    private Edition edition;
+
     @OneToOne(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
     private BookStatus bookStatus;
 

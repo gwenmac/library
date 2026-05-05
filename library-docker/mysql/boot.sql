@@ -29,6 +29,12 @@ CREATE TABLE languages (
     PRIMARY KEY (id)
 );
 
+CREATE TABLE editions (
+    id   BIGINT NOT NULL AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL UNIQUE,
+    PRIMARY KEY (id)
+);
+
 CREATE TABLE authors (
     id   BIGINT NOT NULL AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL UNIQUE,
@@ -54,10 +60,12 @@ CREATE TABLE books (
     sort_title   VARCHAR(255),
     series_id    BIGINT,
     series_order INT,
+    edition_id   BIGINT,
     created_at   DATETIME,
     updated_at   DATETIME,
     PRIMARY KEY (id),
-    FOREIGN KEY (series_id) REFERENCES series(id)
+    FOREIGN KEY (series_id)  REFERENCES series(id),
+    FOREIGN KEY (edition_id) REFERENCES editions(id)
 );
 
 -- Book status (depends on books, statuses)

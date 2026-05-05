@@ -29,8 +29,8 @@
           <th>Author</th>
           <th>Series</th>
           <th>Genres</th>
+          <th>Edition</th>
           <th>Languages</th>
-          <th>Pages</th>
           <th>Status</th>
           <th>Actions</th>
         </tr>
@@ -47,8 +47,8 @@
             <span v-else>—</span>
           </td>
           <td>{{ book.genres }}</td>
+          <td>{{ book.edition }}</td>
           <td>{{ book.languages }}</td>
-          <td>{{ book.pageCount }}</td>
           <td class="status-cell" @click="startEditingStatus(book)">
             <select
               v-if="editingStatusBookId === book.id"
@@ -193,8 +193,8 @@ export default {
         authors:   row.authors?.length ? row.authors.map(a => a.name).join(', ') : '—',
         series:    row.series ? row.series.name : '—',
         genres:    row.genres?.length ? row.genres.map(g => g.name).join(', ') : '—',
+        edition:   row.edition ? row.edition.name : '—',
         languages: row.languages?.length ? row.languages.map(l => l.name).join(', ') : '—',
-        pageCount: row.pageCount ?? '—',
         status:    row.bookStatus?.status?.name ?? '—',
         statusId:  row.bookStatus?.status?.id ?? null
       }))
