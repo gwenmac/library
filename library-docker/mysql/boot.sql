@@ -113,6 +113,26 @@ CREATE TABLE book_authors (
 );
 
 
+-- Gauges
+
+CREATE TABLE gauges (
+    id          BIGINT NOT NULL AUTO_INCREMENT,
+    name        VARCHAR(255) NOT NULL UNIQUE,
+    description TEXT,
+    created_at  DATETIME NOT NULL,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE gauge_entries (
+    id         BIGINT NOT NULL AUTO_INCREMENT,
+    gauge_id   BIGINT NOT NULL,
+    delta      INT NOT NULL,
+    note       VARCHAR(255),
+    created_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (gauge_id) REFERENCES gauges(id) ON DELETE CASCADE
+);
+
 -- Seed data for statuses
 
 INSERT INTO statuses (name) VALUES

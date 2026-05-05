@@ -152,23 +152,7 @@ INSERT INTO reviews (book_id, rating, notes, created_at) VALUES
     (4, 4, 'Dense but rewarding. The political and ecological themes hold up remarkably well.', '2025-03-01 10:30:00'),
     (5, 5, 'Brilliant plotting. I did not see the ending coming at all.',                        '2025-03-05 20:00:00');
 
--- -------------------------------------------------------
--- Explicit join entities (BookGenre / BookLanguage tables)
--- These mirror the @JoinTable data above but go through
--- the entity classes BookGenre / BookLanguage.
--- Note: FK column names are 'book' and 'genre'/'language'
--- as defined by @JoinColumn(name=...) in those entities.
--- -------------------------------------------------------
-INSERT INTO book_genre (book, genre) VALUES
-    (1, 1), (2, 1), (3, 1),
-    (4, 2),
-    (5, 3),
-    (6, 7), (6, 1),
-    (7, 7), (7, 1),
-    (8, 7), (8, 1);
+-- Gauges
 
-INSERT INTO book_language (book, language) VALUES
-    (1, 1), (2, 1), (3, 1), (4, 1), (5, 1),
-    (6, 1), (6, 2),
-    (7, 1), (7, 2),
-    (8, 1), (8, 2);
+INSERT INTO gauges (id, name, description, created_at) VALUES
+    (1, 'Books Read VS Bought', 'Positive = ahead on reading, Negative = buying faster than reading', NOW());
