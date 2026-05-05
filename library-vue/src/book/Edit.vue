@@ -86,6 +86,29 @@
         </select>
       </div>
 
+      <hr class="section-divider" />
+
+      <h3>Review</h3>
+
+      <div class="field">
+        <label>Rating</label>
+        <div class="star-rating">
+          <span
+            v-for="n in 5"
+            :key="n"
+            class="star"
+            :class="{ filled: n <= review.rating }"
+            @click="review.rating = n"
+          >★</span>
+          <button v-if="review.rating" type="button" class="clear-rating" @click="review.rating = null">✕</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="reviewNotes">Notes</label>
+        <textarea id="reviewNotes" v-model="review.notes" rows="4" placeholder="Your thoughts on this book..."></textarea>
+      </div>
+
       <div class="actions">
         <button type="submit" :disabled="saving">{{ saving ? 'Saving...' : 'Save' }}</button>
         <button type="button" @click="$router.push('/book/list')">Cancel</button>
@@ -121,6 +144,10 @@ export default {
       selectedLanguages: [],
       editionList: [],
       statusList: [],
+      review: {
+        rating: null,
+        notes: ''
+      },
       loading: true,
       saving: false,
       error: null
@@ -155,6 +182,10 @@ export default {
       this.selectedAuthors = book.authors ? [...book.authors] : []
       this.selectedGenres = book.genres ? [...book.genres] : []
       this.selectedLanguages = book.languages ? [...book.languages] : []
+      if (book.review) {
+        this.review.rating = book.review.rating
+        this.review.notes = book.review.notes || ''
+      }
 
       if (seriesRes.ok) this.seriesList = await seriesRes.json()
       if (authorsRes.ok) this.authorList = await authorsRes.json()
@@ -196,6 +227,22 @@ export default {
           this.error = 'Save failed (API returned ' + res.status + ')'
           return
         }
+
+        // Save review
+        const reviewPayload = {
+          rating: this.review.rating,
+          notes: this.review.notes || null
+        }
+        const reviewRes = await fetch('/api/books/' + id + '/review', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(reviewPayload)
+        })
+        if (!reviewRes.ok) {
+          this.error = 'Review save failed (API returned ' + reviewRes.status + ')'
+          return
+        }
+
         this.$router.push('/book/list')
       } catch (err) {
         this.error = 'Save failed: ' + err.message
@@ -266,5 +313,42 @@ export default {
 .error {
   color: #e74c3c;
   font-weight: 600;
+}
+
+.section-divider {
+  margin: 24px 0 16px;
+  border: none;
+  border-top: 1px solid #e0e0e0;
+}
+
+.star-rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.star {
+  font-size: 1.6rem;
+  cursor: pointer;
+  color: #ccc;
+  transition: color 0.15s;
+}
+
+.star.filled {
+  color: #f5a623;
+}
+
+.star:hover {
+  color: #f5a623;
+}
+
+.clear-rating {
+  background: none;
+  border: none;
+  color: #e74c3c;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-left: 8px;
 }
 </style>

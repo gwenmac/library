@@ -171,6 +171,32 @@ public class BookController {
     }
 
     @Transactional
+    @PutMapping("/books/{id}/review")
+    public Book updateReview(@PathVariable Long id, @RequestBody Map<String, Object> body) {
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Book not found"));
+
+        Number ratingNum = (Number) body.get("rating");
+        String notes = (String) body.get("notes");
+
+        if (ratingNum == null && (notes == null || notes.isBlank())) {
+            // Remove review if both fields are empty
+            book.setReview(null);
+        } else {
+            Review review = book.getReview();
+            if (review == null) {
+                review = new Review();
+                review.setBook(book);
+                book.setReview(review);
+            }
+            review.setRating(ratingNum != null ? ratingNum.shortValue() : null);
+            review.setNotes(notes);
+        }
+
+        return bookRepository.save(book);
+    }
+
+    @Transactional
     @DeleteMapping("/books/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
