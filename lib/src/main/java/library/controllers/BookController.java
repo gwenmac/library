@@ -17,6 +17,7 @@ public class BookController {
     private final SeriesRepository seriesRepository;
     private final AuthorRepository authorRepository;
     private final GenreRepository genreRepository;
+    private final LanguageRepository languageRepository;
     private final StatusRepository statusRepository;
 
     public BookController(
@@ -24,12 +25,14 @@ public class BookController {
             SeriesRepository seriesRepository,
             AuthorRepository authorRepository,
             GenreRepository genreRepository,
+            LanguageRepository languageRepository,
             StatusRepository statusRepository
     ) {
         this.bookRepository = bookRepository;
         this.seriesRepository = seriesRepository;
         this.authorRepository = authorRepository;
         this.genreRepository = genreRepository;
+        this.languageRepository = languageRepository;
         this.statusRepository = statusRepository;
     }
 
@@ -68,6 +71,9 @@ public class BookController {
         if (body.get("genreIds") != null) {
             book.setGenres(resolveGenreIds(body.get("genreIds")));
         }
+        if (body.get("languageIds") != null) {
+            book.setLanguages(resolveLanguageIds(body.get("languageIds")));
+        }
         book.setCreatedAt(LocalDateTime.now());
         book.setUpdatedAt(LocalDateTime.now());
         return bookRepository.save(book);
@@ -95,6 +101,10 @@ public class BookController {
         if (body.containsKey("genreIds")) {
             book.getGenres().clear();
             book.getGenres().addAll(resolveGenreIds(body.get("genreIds")));
+        }
+        if (body.containsKey("languageIds")) {
+            book.getLanguages().clear();
+            book.getLanguages().addAll(resolveLanguageIds(body.get("languageIds")));
         }
         if (body.containsKey("description")) {
             book.setDescription((String) body.get("description"));
@@ -145,6 +155,7 @@ public class BookController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Book not found"));
         book.getAuthors().clear();
         book.getGenres().clear();
+        book.getLanguages().clear();
         bookRepository.delete(book);
     }
 
@@ -174,5 +185,18 @@ public class BookController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "One or more genre IDs not found");
         }
         return genres;
+    }
+
+    @SuppressWarnings("unchecked")
+    private Set<Language> resolveLanguageIds(Object raw) {
+        if (raw == null) return new HashSet<>();
+        List<Long> ids = ((List<Number>) raw).stream()
+                .map(Number::longValue)
+                .toList();
+        Set<Language> languages = new HashSet<>(languageRepository.findAllById(ids));
+        if (languages.size() != ids.size()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "One or more language IDs not found");
+        }
+        return languages;
     }
 }

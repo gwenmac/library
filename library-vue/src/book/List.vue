@@ -49,7 +49,20 @@
           <td>{{ book.genres }}</td>
           <td>{{ book.languages }}</td>
           <td>{{ book.pageCount }}</td>
-          <td>{{ book.status }}</td>
+          <td class="status-cell" @click="startEditingStatus(book)">
+            <select
+              v-if="editingStatusBookId === book.id"
+              v-model="editingStatusValue"
+              @change="saveStatus(book)"
+              @blur="cancelEditingStatus"
+              class="inline-status-select"
+              ref="statusSelect"
+            >
+              <option :value="null">— None —</option>
+              <option v-for="s in statusOptions" :key="s.id" :value="s.id">{{ s.name }}</option>
+            </select>
+            <span v-else class="editable-status">{{ book.status }}</span>
+          </td>
           <td class="actions">
             <router-link :to="'/book/edit/' + book.id" class="edit-link">Edit</router-link>
             <button class="delete-btn" @click="deleteBook(book)">Delete</button>
@@ -69,6 +82,9 @@ export default {
       statusFilter: '',
       genreFilter: '',
       sortOrder: 'asc',
+      statusOptions: [],
+      editingStatusBookId: null,
+      editingStatusValue: null,
       loading: true,
       error: null
     }
@@ -107,6 +123,43 @@ export default {
     toggleSort() {
       this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc'
     },
+    startEditingStatus(book) {
+      this.editingStatusBookId = book.id
+      this.editingStatusValue = book.statusId || null
+      this.$nextTick(() => {
+        const sel = this.$refs.statusSelect
+        if (sel) {
+          const el = Array.isArray(sel) ? sel[0] : sel
+          if (el) el.focus()
+        }
+      })
+    },
+    cancelEditingStatus() {
+      this.editingStatusBookId = null
+      this.editingStatusValue = null
+    },
+    async saveStatus(book) {
+      const statusId = this.editingStatusValue
+      try {
+        const res = await fetch('/api/books/' + book.id, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ statusId })
+        })
+        if (!res.ok) {
+          this.error = 'Failed to update status (API returned ' + res.status + ')'
+          return
+        }
+        const matched = this.statusOptions.find(s => s.id === statusId)
+        book.status = matched ? matched.name : '—'
+        book.statusId = statusId
+      } catch (err) {
+        this.error = 'Failed to update status: ' + err.message
+      } finally {
+        this.editingStatusBookId = null
+        this.editingStatusValue = null
+      }
+    },
     async deleteBook(book) {
       if (!confirm('Delete "' + book.title + '"?')) return
       try {
@@ -123,12 +176,16 @@ export default {
   },
   async mounted() {
     try {
-      const res = await fetch('/api/all')
-      if (!res.ok) {
-        this.error = 'API returned ' + res.status
+      const [booksRes, statusesRes] = await Promise.all([
+        fetch('/api/all'),
+        fetch('/api/statuses/all')
+      ])
+      if (statusesRes.ok) this.statusOptions = await statusesRes.json()
+      if (!booksRes.ok) {
+        this.error = 'API returned ' + booksRes.status
         return
       }
-      const data = await res.json()
+      const data = await booksRes.json()
       this.books = data.map(row => ({
         id:        row.id,
         title:     row.title,
@@ -138,7 +195,8 @@ export default {
         genres:    row.genres?.length ? row.genres.map(g => g.name).join(', ') : '—',
         languages: row.languages?.length ? row.languages.map(l => l.name).join(', ') : '—',
         pageCount: row.pageCount ?? '—',
-        status:    row.bookStatus?.status?.name ?? '—'
+        status:    row.bookStatus?.status?.name ?? '—',
+        statusId:  row.bookStatus?.status?.id ?? null
       }))
     } catch (err) {
       this.error = 'Failed to load books: ' + err.message
@@ -267,5 +325,22 @@ export default {
 
 .sortable:hover {
   color: #42b983;
+}
+
+.status-cell {
+  cursor: pointer;
+}
+
+.editable-status:hover {
+  color: #42b983;
+  text-decoration: underline;
+}
+
+.inline-status-select {
+  padding: 4px 8px;
+  border: 1px solid #42b983;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  outline: none;
 }
 </style>
