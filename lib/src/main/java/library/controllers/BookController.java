@@ -17,68 +17,18 @@ public class BookController {
     private final SeriesRepository seriesRepository;
     private final AuthorRepository authorRepository;
     private final GenreRepository genreRepository;
-    private final LanguageRepository languageRepository;
 
     public BookController(
             BookRepository bookRepository,
             SeriesRepository seriesRepository,
             AuthorRepository authorRepository,
-            GenreRepository genreRepository,
-            LanguageRepository languageRepository
+            GenreRepository genreRepository
     ) {
         this.bookRepository = bookRepository;
         this.seriesRepository = seriesRepository;
         this.authorRepository = authorRepository;
         this.genreRepository = genreRepository;
-        this.languageRepository = languageRepository;
     }
-
-    // ── Author endpoints ────────────────────────────────────
-
-    @GetMapping("/authors/all")
-    public List<Author> getAllAuthors() {
-        return authorRepository.findAll();
-    }
-
-    @PostMapping("/authors")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Author createAuthor(@RequestBody Map<String, String> body) {
-        Author author = new Author();
-        author.setName(body.get("name"));
-        return authorRepository.save(author);
-    }
-
-    // ── Genre endpoints ─────────────────────────────────────
-
-    @GetMapping("/genres/all")
-    public List<Genre> getAllGenres() {
-        return genreRepository.findAll();
-    }
-
-    @PostMapping("/genres")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Genre createGenre(@RequestBody Map<String, String> body) {
-        Genre genre = new Genre();
-        genre.setName(body.get("name"));
-        return genreRepository.save(genre);
-    }
-
-    // ── Language endpoints ─────────────────────────────────────
-
-    @GetMapping("/languages/all")
-    public List<Language> getAllLanguages() {
-        return languageRepository.findAll();
-    }
-
-    @PostMapping("/languages")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Language createLanguage(@RequestBody Map<String, String> body) {
-        Language language = new Language();
-        language.setName(body.get("name"));
-        return languageRepository.save(language);
-    }
-
-    // ── Book endpoints ──────────────────────────────────────
 
     @GetMapping("/all")
     public List<Book> getAll() {
