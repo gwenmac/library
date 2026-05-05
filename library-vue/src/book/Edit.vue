@@ -70,6 +70,14 @@
           @error="error = $event"
       />
 
+      <div class="field">
+        <label for="status">Status</label>
+        <select id="status" v-model="form.statusId">
+          <option :value="null">— No status —</option>
+          <option v-for="s in statusList" :key="s.id" :value="s.id">{{ s.name }}</option>
+        </select>
+      </div>
+
       <div class="actions">
         <button type="submit" :disabled="saving">{{ saving ? 'Saving...' : 'Save' }}</button>
         <button type="button" @click="$router.push('/book/list')">Cancel</button>
@@ -91,7 +99,8 @@ export default {
         description: '',
         pageCount: null,
         seriesId: null,
-        seriesOrder: null
+        seriesOrder: null,
+        statusId: null
       },
       authorList: [],
       selectedAuthors: [],
@@ -100,6 +109,7 @@ export default {
       selectedGenres: [],
       languageList: [],
       selectedLanguages: [],
+      statusList: [],
       loading: true,
       saving: false,
       error: null
@@ -108,12 +118,13 @@ export default {
   async mounted() {
     const id = this.$route.params.id
     try {
-      const [bookRes, seriesRes, authorsRes, genresRes, languagesRes] = await Promise.all([
+      const [bookRes, seriesRes, authorsRes, genresRes, languagesRes, statusesRes] = await Promise.all([
         fetch('/api/books/' + id),
         fetch('/api/series/all'),
         fetch('/api/authors/all'),
         fetch('/api/genres/all'),
-        fetch('/api/languages/all')
+        fetch('/api/languages/all'),
+        fetch('/api/statuses/all')
       ])
 
       if (!bookRes.ok) {
@@ -127,6 +138,7 @@ export default {
       this.form.pageCount = book.pageCount
       this.form.seriesId = book.series ? book.series.id : null
       this.form.seriesOrder = book.seriesOrder
+      this.form.statusId = book.bookStatus ? book.bookStatus.status.id : null
       this.selectedAuthors = book.authors ? [...book.authors] : []
       this.selectedGenres = book.genres ? [...book.genres] : []
       this.selectedLanguages = book.languages ? [...book.languages] : []
@@ -135,6 +147,7 @@ export default {
       if (authorsRes.ok) this.authorList = await authorsRes.json()
       if (genresRes.ok) this.genreList = await genresRes.json()
       if (languagesRes.ok) this.languageList = await languagesRes.json()
+      if (statusesRes.ok) this.statusList = await statusesRes.json()
     } catch (err) {
       this.error = 'Failed to load book: ' + err.message
     } finally {

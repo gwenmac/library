@@ -17,17 +17,25 @@ public class BookController {
     private final SeriesRepository seriesRepository;
     private final AuthorRepository authorRepository;
     private final GenreRepository genreRepository;
+    private final StatusRepository statusRepository;
 
     public BookController(
             BookRepository bookRepository,
             SeriesRepository seriesRepository,
             AuthorRepository authorRepository,
-            GenreRepository genreRepository
+            GenreRepository genreRepository,
+            StatusRepository statusRepository
     ) {
         this.bookRepository = bookRepository;
         this.seriesRepository = seriesRepository;
         this.authorRepository = authorRepository;
         this.genreRepository = genreRepository;
+        this.statusRepository = statusRepository;
+    }
+
+    @GetMapping("/statuses/all")
+    public List<Status> getAllStatuses() {
+        return statusRepository.findAll();
     }
 
     @GetMapping("/all")
@@ -106,6 +114,23 @@ public class BookController {
         }
         if (body.containsKey("seriesOrder")) {
             book.setSeriesOrder(body.get("seriesOrder") != null ? ((Number) body.get("seriesOrder")).intValue() : null);
+        }
+        if (body.containsKey("statusId")) {
+            if (body.get("statusId") != null) {
+                Long statusId = ((Number) body.get("statusId")).longValue();
+                Status status = statusRepository.findById(statusId)
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Status not found"));
+                BookStatus bookStatus = book.getBookStatus();
+                if (bookStatus == null) {
+                    bookStatus = new BookStatus();
+                    bookStatus.setBook(book);
+                    book.setBookStatus(bookStatus);
+                }
+                bookStatus.setStatus(status);
+                bookStatus.setUpdatedAt(LocalDateTime.now());
+            } else {
+                book.setBookStatus(null);
+            }
         }
 
         book.setUpdatedAt(LocalDateTime.now());
