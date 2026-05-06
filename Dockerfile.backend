@@ -8,7 +8,12 @@ WORKDIR /app
 # Copy Gradle wrapper and config first (layer caching)
 COPY gradle/ gradle/
 COPY gradlew settings.gradle gradle.properties ./
+RUN chmod +x gradlew
+
 COPY lib/build.gradle lib/build.gradle
+
+# Create source dir so Gradle can resolve the project
+RUN mkdir -p lib/src/main/java
 
 # Download dependencies (cached unless build.gradle changes)
 RUN ./gradlew :lib:dependencies --no-daemon || true
