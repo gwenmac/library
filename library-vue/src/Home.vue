@@ -11,23 +11,33 @@
         </router-link>
       </div>
     </div>
+
+    <div class="status-chart" v-if="books.length">
+      <h2>Books by Status</h2>
+      <StatusPieChart :books="books" />
+    </div>
   </div>
 </template>
 
 <script>
 import GaugeDisplay from './components/GaugeDisplay.vue'
+import StatusPieChart from './components/StatusPieChart.vue'
 
 export default {
-  components: { GaugeDisplay },
+  components: { GaugeDisplay, StatusPieChart },
   data() {
-    return { gauges: [] }
+    return { gauges: [], books: [] }
   },
   async mounted() {
     try {
-      const res = await fetch('/api/gauges')
-      if (res.ok) this.gauges = await res.json()
+      const [gaugeRes, booksRes] = await Promise.all([
+        fetch('/api/gauges'),
+        fetch('/api/all')
+      ])
+      if (gaugeRes.ok) this.gauges = await gaugeRes.json()
+      if (booksRes.ok) this.books = await booksRes.json()
     } catch (err) {
-      console.error('Failed to load gauges:', err)
+      console.error('Failed to load home data:', err)
     }
   }
 }
@@ -36,6 +46,15 @@ export default {
 <style scoped>
 .home {
   padding: 16px;
+}
+
+.status-chart {
+  margin-top: 24px;
+  margin-bottom: 32px;
+}
+
+.status-chart h2 {
+  margin-bottom: 12px;
 }
 
 .gauge-summary {
