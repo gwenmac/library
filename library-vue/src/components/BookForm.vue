@@ -27,6 +27,11 @@
       <input id="pageCount" v-model.number="form.pageCount" type="number" min="0" />
     </div>
 
+    <div class="field">
+      <label for="year">Year</label>
+      <input id="year" v-model.number="form.year" type="number" />
+    </div>
+
     <SeriesPicker
       ref="seriesPicker"
       v-model="form.seriesId"

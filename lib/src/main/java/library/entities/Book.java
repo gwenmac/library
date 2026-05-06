@@ -36,6 +36,8 @@ public class Book {
     @Column(name = "page_count")
     private Integer pageCount;
 
+    private Integer year;
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 

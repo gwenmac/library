@@ -53,42 +53,42 @@ INSERT INTO series (name, status) VALUES
 --           4=Did Not Finish, 5=Paused, 6=Not Applicable,
 --           7=Not Interested
 -- -------------------------------------------------------
-INSERT INTO books (title, description, page_count, sort_title, series_id, series_order, edition_id, created_at, updated_at) VALUES
+INSERT INTO books (title, description, page_count, year, sort_title, series_id, series_order, edition_id, created_at, updated_at) VALUES
     -- Lord of the Rings trilogy (series_id = 1)
     ('The Fellowship of the Ring',
      'The first part of Tolkien\'s epic fantasy where the Fellowship sets out to destroy the One Ring.',
-     423, 'Fellowship of the Ring', 1, 1, 2, NOW(), NOW()),
+     423, 1954, 'Fellowship of the Ring', 1, 1, 2, NOW(), NOW()),
 
     ('The Two Towers',
      'The Fellowship is broken; Frodo and Sam continue toward Mordor while war erupts in Rohan.',
-     352, 'Two Towers', 1, 2, 2, NOW(), NOW()),
+     352, 1954, 'Two Towers', 1, 2, 2, NOW(), NOW()),
 
     ('The Return of the King',
      'The final volume of the trilogy: the War of the Ring reaches its climax.',
-     416, 'Return of the King', 1, 3, 2, NOW(), NOW()),
+     416, 1955, 'Return of the King', 1, 3, 2, NOW(), NOW()),
 
     -- Standalone
     ('Dune',
      'A desert planet, a noble family betrayed, and a boy destined to change the universe.',
-     412, 'Dune', NULL, NULL, 1, NOW(), NOW()),
+     412, 1965, 'Dune', NULL, NULL, 1, NOW(), NOW()),
 
     ('And Then There Were None',
      'Ten strangers are lured to an isolated island and begin to die one by one.',
-     264, 'And Then There Were None', NULL, NULL, 3, NOW(), NOW()),
+     264, 1939, 'And Then There Were None', NULL, NULL, 3, NOW(), NOW()),
 
     -- Death Note manga (series_id = 2)
     ('Death Note, Vol. 1',
      'High school student Light Yagami finds a supernatural notebook that can kill anyone.',
-     200, 'Death Note 001', 2, 1, 2, NOW(), NOW()),
+     200, 2003, 'Death Note 001', 2, 1, 2, NOW(), NOW()),
 
     ('Death Note, Vol. 2',
      'The game of cat-and-mouse between Light and the mysterious detective L intensifies.',
-     200, 'Death Note 002', 2, 2, 2, NOW(), NOW()),
+     200, 2003, 'Death Note 002', 2, 2, 2, NOW(), NOW()),
 
     -- Fullmetal Alchemist manga (series_id = 3)
     ('Fullmetal Alchemist, Vol. 1',
      'Two brothers use alchemy to try to resurrect their mother, with devastating consequences.',
-     192, 'Fullmetal Alchemist 001', 3, 1, 2, NOW(), NOW());
+     192, 2001, 'Fullmetal Alchemist 001', 3, 1, 2, NOW(), NOW());
 
 -- -------------------------------------------------------
 -- Book authors  (book_authors = @JoinTable join table)

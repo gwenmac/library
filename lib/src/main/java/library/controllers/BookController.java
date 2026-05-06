@@ -59,6 +59,9 @@ public class BookController {
         if (body.get("pageCount") != null) {
             book.setPageCount(((Number) body.get("pageCount")).intValue());
         }
+        if (body.get("year") != null) {
+            book.setYear(((Number) body.get("year")).intValue());
+        }
         if (body.get("seriesId") != null) {
             Long seriesId = ((Number) body.get("seriesId")).longValue();
             Series series = seriesRepository.findById(seriesId)
@@ -134,6 +137,9 @@ public class BookController {
         }
         if (body.containsKey("pageCount")) {
             book.setPageCount(body.get("pageCount") != null ? ((Number) body.get("pageCount")).intValue() : null);
+        }
+        if (body.containsKey("year")) {
+            book.setYear(body.get("year") != null ? ((Number) body.get("year")).intValue() : null);
         }
         if (body.containsKey("seriesId")) {
             if (body.get("seriesId") != null) {

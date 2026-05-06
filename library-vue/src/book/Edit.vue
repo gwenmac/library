@@ -55,6 +55,7 @@ export default {
         title: '',
         description: '',
         pageCount: null,
+        year: null,
         seriesId: null,
         seriesOrder: null,
         statusId: null,
@@ -82,6 +83,7 @@ export default {
       this.form.title = book.title
       this.form.description = book.description || ''
       this.form.pageCount = book.pageCount
+      this.form.year = book.year
       this.form.seriesId = book.series ? book.series.id : null
       this.form.seriesOrder = book.seriesOrder
       this.form.statusId = book.bookStatus ? book.bookStatus.status.id : null

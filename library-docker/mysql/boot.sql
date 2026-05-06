@@ -57,6 +57,7 @@ CREATE TABLE books (
     title        VARCHAR(255) NOT NULL,
     description  TEXT,
     page_count   INT,
+    year         INT,
     sort_title   VARCHAR(255),
     series_id    BIGINT,
     series_order INT,

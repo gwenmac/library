@@ -30,6 +30,7 @@ export default {
         title: '',
         description: '',
         pageCount: null,
+        year: null,
         seriesId: null,
         seriesOrder: null,
         editionId: null
