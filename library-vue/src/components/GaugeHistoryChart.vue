@@ -1,42 +1,28 @@
 <template>
   <div class="gauge-history-chart" v-if="entries.length">
-    <svg :viewBox="viewBox" preserveAspectRatio="none" class="chart-svg">
-      <!-- Zero line -->
-      <line
-        :x1="padding" :y1="zeroY"
-        :x2="width - padding" :y2="zeroY"
-        stroke="#999" stroke-dasharray="4,3" stroke-width="1"
-      />
-      <!-- Data line -->
-      <polyline
-        :points="polylinePoints"
-        fill="none"
-        stroke="#42b983"
-        stroke-width="2"
-        stroke-linejoin="round"
-      />
-      <!-- Data points -->
-      <circle
-        v-for="(pt, i) in points" :key="i"
-        :cx="pt.x" :cy="pt.y" r="3"
-        fill="#42b983"
-      />
-    </svg>
+    <Line :data="chartData" :options="chartOptions" />
   </div>
   <p v-else class="no-data">No entries yet.</p>
 </template>
 
 <script>
+import { Line } from 'vue-chartjs'
+import {
+  Chart as ChartJS,
+  LineElement,
+  PointElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip,
+  Filler
+} from 'chart.js'
+
+ChartJS.register(LineElement, PointElement, CategoryScale, LinearScale, Tooltip, Filler)
+
 export default {
+  components: { Line },
   props: {
     entries: { type: Array, default: () => [] }
-  },
-  data() {
-    return {
-      width: 600,
-      height: 200,
-      padding: 30
-    }
   },
   computed: {
     cumulativeData() {
@@ -46,40 +32,48 @@ export default {
         return { date: new Date(e.createdAt), value: sum }
       })
     },
-    yMin() {
-      const vals = this.cumulativeData.map(d => d.value)
-      return Math.min(0, ...vals) - 1
-    },
-    yMax() {
-      const vals = this.cumulativeData.map(d => d.value)
-      return Math.max(0, ...vals) + 1
-    },
-    points() {
+    chartData() {
       const data = this.cumulativeData
-      if (!data.length) return []
-      const xStart = this.padding
-      const xEnd = this.width - this.padding
-      const yStart = this.padding
-      const yEnd = this.height - this.padding
-      const xRange = data.length > 1 ? data.length - 1 : 1
-      const yRange = this.yMax - this.yMin
+      const labels = data.map(d =>
+        d.date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+      )
+      const values = data.map(d => d.value)
 
-      return data.map((d, i) => ({
-        x: xStart + (i / xRange) * (xEnd - xStart),
-        y: yEnd - ((d.value - this.yMin) / yRange) * (yEnd - yStart)
-      }))
+      return {
+        labels,
+        datasets: [{
+          label: 'Cumulative',
+          data: values,
+          borderColor: '#42b983',
+          backgroundColor: 'rgba(66, 185, 131, 0.1)',
+          fill: true,
+          tension: 0.3,
+          pointRadius: 3,
+          pointBackgroundColor: '#42b983'
+        }]
+      }
     },
-    polylinePoints() {
-      return this.points.map(p => `${p.x},${p.y}`).join(' ')
-    },
-    zeroY() {
-      const yStart = this.padding
-      const yEnd = this.height - this.padding
-      const yRange = this.yMax - this.yMin
-      return yEnd - ((0 - this.yMin) / yRange) * (yEnd - yStart)
-    },
-    viewBox() {
-      return `0 0 ${this.width} ${this.height}`
+    chartOptions() {
+      return {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (context) => `Value: ${context.raw}`
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: false,
+            grid: { color: '#eee' }
+          },
+          x: {
+            grid: { display: false }
+          }
+        }
+      }
     }
   }
 }
@@ -90,14 +84,6 @@ export default {
   width: 100%;
   max-width: 600px;
   margin: 16px 0;
-}
-
-.chart-svg {
-  width: 100%;
-  height: 200px;
-  border: 1px solid #eee;
-  border-radius: 8px;
-  background: #fafafa;
 }
 
 .no-data {

@@ -12,9 +12,15 @@
       </div>
     </div>
 
-    <div class="status-chart" v-if="books.length">
-      <h2>Books by Status</h2>
-      <StatusPieChart :books="books" />
+    <div class="charts" v-if="books.length">
+      <div class="chart-card">
+        <h2>Books by Status</h2>
+        <StatusPieChart :books="books" />
+      </div>
+      <div class="chart-card">
+        <h2>Books by Genre</h2>
+        <GenreBarChart :books="books" />
+      </div>
     </div>
   </div>
 </template>
@@ -22,9 +28,10 @@
 <script>
 import GaugeDisplay from './components/GaugeDisplay.vue'
 import StatusPieChart from './components/StatusPieChart.vue'
+import GenreBarChart from './components/GenreBarChart.vue'
 
 export default {
-  components: { GaugeDisplay, StatusPieChart },
+  components: { GaugeDisplay, StatusPieChart, GenreBarChart },
   data() {
     return { gauges: [], books: [] }
   },
@@ -48,12 +55,15 @@ export default {
   padding: 16px;
 }
 
-.status-chart {
+.charts {
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
   margin-top: 24px;
   margin-bottom: 32px;
 }
 
-.status-chart h2 {
+.chart-card h2 {
   margin-bottom: 12px;
 }
 
