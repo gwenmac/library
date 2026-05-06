@@ -2,6 +2,7 @@ package library.controllers;
 
 import library.entities.Author;
 import library.repositories.AuthorRepository;
+import library.security.CurrentUser;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +20,7 @@ public class AuthorController {
 
     @GetMapping("/authors/all")
     public List<Author> getAllAuthors() {
-        return authorRepository.findAll();
+        return authorRepository.findAllByUserId(CurrentUser.id());
     }
 
     @PostMapping("/authors")
@@ -27,6 +28,7 @@ public class AuthorController {
     public Author createAuthor(@RequestBody Map<String, String> body) {
         Author author = new Author();
         author.setName(body.get("name"));
+        author.setUser(CurrentUser.get());
         return authorRepository.save(author);
     }
 }

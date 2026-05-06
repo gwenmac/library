@@ -2,6 +2,7 @@ package library.controllers;
 
 import library.entities.*;
 import library.repositories.*;
+import library.security.CurrentUser;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -46,7 +47,7 @@ public class BookController {
 
     @GetMapping("/all")
     public List<Book> getAll() {
-        return bookRepository.findAll();
+        return bookRepository.findAllByUserIdOrderBySortTitleAsc(CurrentUser.id());
     }
 
     @Transactional
@@ -54,6 +55,7 @@ public class BookController {
     @ResponseStatus(HttpStatus.CREATED)
     public Book create(@RequestBody Map<String, Object> body) {
         Book book = new Book();
+        book.setUser(CurrentUser.get());
         book.setTitle((String) body.get("title"));
         book.setDescription((String) body.get("description"));
         if (body.get("pageCount") != null) {
@@ -97,14 +99,14 @@ public class BookController {
 
     @GetMapping("/books/{id}")
     public Book getById(@PathVariable Long id) {
-        return bookRepository.findById(id)
+        return bookRepository.findByIdAndUserId(id, CurrentUser.id())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Book not found"));
     }
 
     @Transactional
     @PutMapping("/books/{id}")
     public Book update(@PathVariable Long id, @RequestBody Map<String, Object> body) {
-        Book book = bookRepository.findById(id)
+        Book book = bookRepository.findByIdAndUserId(id, CurrentUser.id())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Book not found"));
 
         if (body.containsKey("title")) {
@@ -179,7 +181,7 @@ public class BookController {
     @Transactional
     @PutMapping("/books/{id}/review")
     public Book updateReview(@PathVariable Long id, @RequestBody Map<String, Object> body) {
-        Book book = bookRepository.findById(id)
+        Book book = bookRepository.findByIdAndUserId(id, CurrentUser.id())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Book not found"));
 
         Number ratingNum = (Number) body.get("rating");
@@ -206,7 +208,7 @@ public class BookController {
     @DeleteMapping("/books/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
-        Book book = bookRepository.findById(id)
+        Book book = bookRepository.findByIdAndUserId(id, CurrentUser.id())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Book not found"));
         book.getAuthors().clear();
         book.getGenres().clear();

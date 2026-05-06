@@ -1,5 +1,6 @@
 package library.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import library.util.JapaneseUtil;
 import lombok.Getter;
@@ -79,6 +80,11 @@ public class Book {
 
     @Column(name = "sort_title")
     private String sortTitle;
+
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     private void populateSortName() {
         if (title == null) return;

@@ -1,6 +1,12 @@
 USE library;
 
 -- -------------------------------------------------------
+-- Admin user (password: 'admin123' — BCrypt hash)
+-- -------------------------------------------------------
+INSERT INTO users (id, email, password_hash, display_name, role, created_at) VALUES
+    (1, 'orangutan@library.local', '$2a$10$85gbUAisk9lqREfG1Pjk7.lihrUKrQ.03wCfua3FV0WL3CLTcbn7u', 'Orangutan', 'admin', NOW());
+
+-- -------------------------------------------------------
 -- Genres
 -- -------------------------------------------------------
 INSERT INTO genres (name) VALUES
@@ -30,65 +36,65 @@ INSERT INTO editions (name) VALUES
     ('Kindle');
 
 -- -------------------------------------------------------
--- Authors
+-- Authors (user_id = 1)
 -- -------------------------------------------------------
-INSERT INTO authors (name) VALUES
-    ('J.R.R. Tolkien'),
-    ('Frank Herbert'),
-    ('Agatha Christie'),
-    ('Tsugumi Ohba'),
-    ('Hiromu Arakawa');
+INSERT INTO authors (name, user_id) VALUES
+    ('J.R.R. Tolkien', 1),
+    ('Frank Herbert', 1),
+    ('Agatha Christie', 1),
+    ('Tsugumi Ohba', 1),
+    ('Hiromu Arakawa', 1);
 
 -- -------------------------------------------------------
--- Series
+-- Series (user_id = 1)
 -- -------------------------------------------------------
-INSERT INTO series (name, status) VALUES
-    ('The Lord of the Rings', 'IN_PROGRESS'),
-    ('Death Note',            'NOT_STARTED'),
-    ('Fullmetal Alchemist',   'NOT_STARTED');
+INSERT INTO series (name, status, user_id) VALUES
+    ('The Lord of the Rings', 'IN_PROGRESS', 1),
+    ('Death Note',            'NOT_STARTED', 1),
+    ('Fullmetal Alchemist',   'NOT_STARTED', 1);
 
 -- -------------------------------------------------------
--- Books
+-- Books (user_id = 1)
 -- statuses: 1=Not Started, 2=In Progress, 3=Completed,
 --           4=Did Not Finish, 5=Paused, 6=Not Applicable,
 --           7=Not Interested
 -- -------------------------------------------------------
-INSERT INTO books (title, description, page_count, year, sort_title, series_id, series_order, edition_id, created_at, updated_at) VALUES
+INSERT INTO books (title, description, page_count, year, sort_title, series_id, series_order, edition_id, user_id, created_at, updated_at) VALUES
     -- Lord of the Rings trilogy (series_id = 1)
     ('The Fellowship of the Ring',
      'The first part of Tolkien\'s epic fantasy where the Fellowship sets out to destroy the One Ring.',
-     423, 1954, 'Fellowship of the Ring', 1, 1, 2, NOW(), NOW()),
+     423, 1954, 'Fellowship of the Ring', 1, 1, 2, 1, NOW(), NOW()),
 
     ('The Two Towers',
      'The Fellowship is broken; Frodo and Sam continue toward Mordor while war erupts in Rohan.',
-     352, 1954, 'Two Towers', 1, 2, 2, NOW(), NOW()),
+     352, 1954, 'Two Towers', 1, 2, 2, 1, NOW(), NOW()),
 
     ('The Return of the King',
      'The final volume of the trilogy: the War of the Ring reaches its climax.',
-     416, 1955, 'Return of the King', 1, 3, 2, NOW(), NOW()),
+     416, 1955, 'Return of the King', 1, 3, 2, 1, NOW(), NOW()),
 
     -- Standalone
     ('Dune',
      'A desert planet, a noble family betrayed, and a boy destined to change the universe.',
-     412, 1965, 'Dune', NULL, NULL, 1, NOW(), NOW()),
+     412, 1965, 'Dune', NULL, NULL, 1, 1, NOW(), NOW()),
 
     ('And Then There Were None',
      'Ten strangers are lured to an isolated island and begin to die one by one.',
-     264, 1939, 'And Then There Were None', NULL, NULL, 3, NOW(), NOW()),
+     264, 1939, 'And Then There Were None', NULL, NULL, 3, 1, NOW(), NOW()),
 
     -- Death Note manga (series_id = 2)
     ('Death Note, Vol. 1',
      'High school student Light Yagami finds a supernatural notebook that can kill anyone.',
-     200, 2003, 'Death Note 001', 2, 1, 2, NOW(), NOW()),
+     200, 2003, 'Death Note 001', 2, 1, 2, 1, NOW(), NOW()),
 
     ('Death Note, Vol. 2',
      'The game of cat-and-mouse between Light and the mysterious detective L intensifies.',
-     200, 2003, 'Death Note 002', 2, 2, 2, NOW(), NOW()),
+     200, 2003, 'Death Note 002', 2, 2, 2, 1, NOW(), NOW()),
 
     -- Fullmetal Alchemist manga (series_id = 3)
     ('Fullmetal Alchemist, Vol. 1',
      'Two brothers use alchemy to try to resurrect their mother, with devastating consequences.',
-     192, 2001, 'Fullmetal Alchemist 001', 3, 1, 2, NOW(), NOW());
+     192, 2001, 'Fullmetal Alchemist 001', 3, 1, 2, 1, NOW(), NOW());
 
 -- -------------------------------------------------------
 -- Book authors  (book_authors = @JoinTable join table)
@@ -162,7 +168,7 @@ INSERT INTO reviews (book_id, rating, notes, created_at) VALUES
     (4, 4, 'Dense but rewarding. The political and ecological themes hold up remarkably well.', '2025-03-01 10:30:00'),
     (5, 5, 'Brilliant plotting. I did not see the ending coming at all.',                        '2025-03-05 20:00:00');
 
--- Gauges
+-- Gauges (user_id = 1)
 
-INSERT INTO gauges (id, name, description, created_at) VALUES
-    (1, 'Books Read VS Bought', 'Positive = ahead on reading, Negative = buying faster than reading', NOW());
+INSERT INTO gauges (id, name, description, user_id, created_at) VALUES
+    (1, 'Books Read VS Bought', 'Positive = ahead on reading, Negative = buying faster than reading', 1, NOW());

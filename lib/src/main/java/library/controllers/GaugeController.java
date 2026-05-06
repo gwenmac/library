@@ -4,6 +4,7 @@ import library.entities.Gauge;
 import library.entities.GaugeEntry;
 import library.repositories.GaugeEntryRepository;
 import library.repositories.GaugeRepository;
+import library.security.CurrentUser;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +31,7 @@ public class GaugeController {
 
     @GetMapping
     public List<Gauge> getAll() {
-        return gaugeRepository.findAllWithEntries();
+        return gaugeRepository.findAllWithEntriesByUserId(CurrentUser.id());
     }
 
     @PostMapping
@@ -39,19 +40,20 @@ public class GaugeController {
         Gauge gauge = new Gauge();
         gauge.setName((String) body.get("name"));
         gauge.setDescription((String) body.get("description"));
+        gauge.setUser(CurrentUser.get());
         gauge.setCreatedAt(LocalDateTime.now());
         return gaugeRepository.save(gauge);
     }
 
     @GetMapping("/{id}")
     public Gauge getById(@PathVariable Long id) {
-        return gaugeRepository.findById(id)
+        return gaugeRepository.findByIdAndUserId(id, CurrentUser.id())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Gauge not found"));
     }
 
     @PutMapping("/{id}")
     public Gauge update(@PathVariable Long id, @RequestBody Map<String, Object> body) {
-        Gauge gauge = gaugeRepository.findById(id)
+        Gauge gauge = gaugeRepository.findByIdAndUserId(id, CurrentUser.id())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Gauge not found"));
         if (body.containsKey("name")) {
             gauge.setName((String) body.get("name"));
@@ -65,7 +67,7 @@ public class GaugeController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
-        Gauge gauge = gaugeRepository.findById(id)
+        Gauge gauge = gaugeRepository.findByIdAndUserId(id, CurrentUser.id())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Gauge not found"));
         gaugeRepository.delete(gauge);
     }
@@ -74,9 +76,8 @@ public class GaugeController {
 
     @GetMapping("/{id}/entries")
     public List<GaugeEntry> getEntries(@PathVariable Long id) {
-        if (!gaugeRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Gauge not found");
-        }
+        gaugeRepository.findByIdAndUserId(id, CurrentUser.id())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Gauge not found"));
         return gaugeEntryRepository.findByGaugeIdOrderByCreatedAtAsc(id);
     }
 
@@ -84,7 +85,7 @@ public class GaugeController {
     @PostMapping("/{id}/entries")
     @ResponseStatus(HttpStatus.CREATED)
     public GaugeEntry addEntry(@PathVariable Long id, @RequestBody Map<String, Object> body) {
-        Gauge gauge = gaugeRepository.findById(id)
+        Gauge gauge = gaugeRepository.findByIdAndUserId(id, CurrentUser.id())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Gauge not found"));
 
         GaugeEntry entry = new GaugeEntry();
@@ -98,6 +99,8 @@ public class GaugeController {
     @DeleteMapping("/{id}/entries/{entryId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteEntry(@PathVariable Long id, @PathVariable Long entryId) {
+        gaugeRepository.findByIdAndUserId(id, CurrentUser.id())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Gauge not found"));
         GaugeEntry entry = gaugeEntryRepository.findById(entryId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Entry not found"));
         if (!entry.getGauge().getId().equals(id)) {

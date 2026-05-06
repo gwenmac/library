@@ -8,6 +8,18 @@ CREATE DATABASE library;
 
 USE library;
 
+-- Users (must come first — other tables reference this)
+
+CREATE TABLE users (
+    id            BIGINT NOT NULL AUTO_INCREMENT,
+    email         VARCHAR(255) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    display_name  VARCHAR(100) NOT NULL,
+    role          ENUM('admin', 'user') NOT NULL DEFAULT 'user',
+    created_at    DATETIME NOT NULL,
+    PRIMARY KEY (id)
+);
+
 -- Lookup tables (no dependencies)
 
 CREATE TABLE genres (
@@ -36,21 +48,27 @@ CREATE TABLE editions (
 );
 
 CREATE TABLE authors (
-    id   BIGINT NOT NULL AUTO_INCREMENT,
-    name VARCHAR(255) NOT NULL UNIQUE,
-    PRIMARY KEY (id)
+    id      BIGINT NOT NULL AUTO_INCREMENT,
+    name    VARCHAR(255) NOT NULL,
+    user_id BIGINT NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY (user_id, name),
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
--- Series (no FK dependencies)
+-- Series (depends on users)
 
 CREATE TABLE series (
     id     BIGINT NOT NULL AUTO_INCREMENT,
-    name   VARCHAR(255) NOT NULL UNIQUE,
-    status VARCHAR(50)  NOT NULL DEFAULT 'NOT_STARTED',  -- SeriesStatus enum: NOT_STARTED | IN_PROGRESS | COMPLETED
-    PRIMARY KEY (id)
+    name   VARCHAR(255) NOT NULL,
+    status VARCHAR(50)  NOT NULL DEFAULT 'NOT_STARTED',
+    user_id BIGINT NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY (user_id, name),
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
--- Books (depends on series)
+-- Books (depends on series, users)
 
 CREATE TABLE books (
     id           BIGINT NOT NULL AUTO_INCREMENT,
@@ -62,11 +80,13 @@ CREATE TABLE books (
     series_id    BIGINT,
     series_order INT,
     edition_id   BIGINT,
+    user_id      BIGINT NOT NULL,
     created_at   DATETIME,
     updated_at   DATETIME,
     PRIMARY KEY (id),
     FOREIGN KEY (series_id)  REFERENCES series(id),
-    FOREIGN KEY (edition_id) REFERENCES editions(id)
+    FOREIGN KEY (edition_id) REFERENCES editions(id),
+    FOREIGN KEY (user_id)    REFERENCES users(id)
 );
 
 -- Book status (depends on books, statuses)
@@ -126,10 +146,13 @@ CREATE TABLE book_authors (
 
 CREATE TABLE gauges (
     id          BIGINT NOT NULL AUTO_INCREMENT,
-    name        VARCHAR(255) NOT NULL UNIQUE,
+    name        VARCHAR(255) NOT NULL,
     description TEXT,
+    user_id     BIGINT NOT NULL,
     created_at  DATETIME NOT NULL,
-    PRIMARY KEY (id)
+    PRIMARY KEY (id),
+    UNIQUE KEY (user_id, name),
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 CREATE TABLE gauge_entries (

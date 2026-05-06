@@ -30,6 +30,8 @@ import GaugeDisplay from './components/GaugeDisplay.vue'
 import StatusPieChart from './components/StatusPieChart.vue'
 import GenreBarChart from './components/GenreBarChart.vue'
 
+import { api } from './auth/api.js'
+
 export default {
   components: { GaugeDisplay, StatusPieChart, GenreBarChart },
   data() {
@@ -37,12 +39,12 @@ export default {
   },
   async mounted() {
     try {
-      const [gaugeRes, booksRes] = await Promise.all([
-        fetch('/api/gauges'),
-        fetch('/api/all')
+      const [gauges, books] = await Promise.all([
+        api('/gauges'),
+        api('/all')
       ])
-      if (gaugeRes.ok) this.gauges = await gaugeRes.json()
-      if (booksRes.ok) this.books = await booksRes.json()
+      this.gauges = gauges
+      this.books = books
     } catch (err) {
       console.error('Failed to load home data:', err)
     }

@@ -33,6 +33,11 @@ public class Series {
     @Column(name = "status")
     private SeriesStatus status = SeriesStatus.NOT_STARTED;
 
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
     // Called automatically when the Series is loaded from the DB
     @PostLoad
     public void recalculateStatus() {
