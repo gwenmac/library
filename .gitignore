@@ -23,6 +23,9 @@
 hs_err_pid*
 replay_pid*
 
+# Environment secrets
+.env
+
 # Ignore Gradle project-specific cache directory
 .gradle
 

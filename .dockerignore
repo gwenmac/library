@@ -1,0 +1,10 @@
+.git
+.gradle
+.idea
+node_modules
+library-vue/node_modules
+library-vue/dist
+lib/build
+build
+*.log
+.env
