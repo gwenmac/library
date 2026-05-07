@@ -39,6 +39,12 @@ CREATE TABLE genres (
     PRIMARY KEY (id)
 );
 
+CREATE TABLE tags (
+    id   BIGINT NOT NULL AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL UNIQUE,
+    PRIMARY KEY (id)
+);
+
 CREATE TABLE statuses (
     id   BIGINT NOT NULL AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL UNIQUE,
@@ -139,6 +145,14 @@ CREATE TABLE book_genres (
     PRIMARY KEY (book_id, genre_id),
     FOREIGN KEY (book_id)  REFERENCES books(id),
     FOREIGN KEY (genre_id) REFERENCES genres(id)
+);
+
+CREATE TABLE book_tags (
+     book_id  BIGINT NOT NULL,
+     tag_id BIGINT NOT NULL,
+     PRIMARY KEY (book_id, tag_id),
+     FOREIGN KEY (book_id)  REFERENCES books(id),
+     FOREIGN KEY (tag_id) REFERENCES tags(id)
 );
 
 CREATE TABLE book_languages (

@@ -159,3 +159,9 @@ INSERT INTO reviews (book_id, user_id, rating, notes, created_at) VALUES
 
 INSERT INTO gauges (id, name, description, user_id, created_at) VALUES
     (1, 'Books Read VS Bought', 'Positive = ahead on reading, Negative = buying faster than reading', 1, NOW());
+
+INSERT INTO tags(name) VALUES
+   ('Favorite'),
+   ('To Re-read'),
+   ('Gifted'),
+   ('Easy');

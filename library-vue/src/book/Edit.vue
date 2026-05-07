@@ -107,6 +107,7 @@ export default {
       this.$refs.bookForm.setSelections({
         authors: book.authors,
         genres: book.genres,
+        tags: book.tags,
         languages: book.languages
       })
     } catch (err) {

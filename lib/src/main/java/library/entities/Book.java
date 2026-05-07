@@ -55,6 +55,14 @@ public class Book {
 
     @ManyToMany
     @JoinTable(
+            name = "book_tags",
+            joinColumns = @JoinColumn(name = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private Set<Tag> tags = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(
             name = "book_languages",
             joinColumns = @JoinColumn(name = "book_id"),
             inverseJoinColumns = @JoinColumn(name = "language_id")

@@ -58,6 +58,18 @@
     />
 
     <ChipPicker
+        label="Tags"
+        :selected="selectedTags"
+        :items="tagList"
+        create-endpoint="/api/tags"
+        select-placeholder="Select tag"
+        new-placeholder="New tag name..."
+        @update:selected="selectedTags = $event"
+        @update:items="tagList = $event"
+        @error="$emit('error', $event)"
+    />
+
+    <ChipPicker
       label="Language"
       :selected="selectedLanguages"
       :items="languageList"
@@ -107,7 +119,9 @@ export default {
       selectedAuthors: [],
       seriesList: [],
       genreList: [],
+      tagList: [],
       selectedGenres: [],
+      selectedTags: [],
       languageList: [],
       selectedLanguages: [],
       editionList: [],
@@ -116,10 +130,11 @@ export default {
   },
   methods: {
     async loadLookups() {
-      const [seriesRes, authorsRes, genresRes, languagesRes, editionsRes, statusesRes] = await Promise.all([
+      const [seriesRes, authorsRes, genresRes, tagsRes, languagesRes, editionsRes, statusesRes] = await Promise.all([
         fetch('/api/series/all'),
         fetch('/api/authors/all'),
         fetch('/api/genres/all'),
+        fetch('/api/tags/all'),
         fetch('/api/languages/all'),
         fetch('/api/editions/all'),
         fetch('/api/statuses/all')
@@ -127,13 +142,15 @@ export default {
       if (seriesRes.ok) this.seriesList = await seriesRes.json()
       if (authorsRes.ok) this.authorList = await authorsRes.json()
       if (genresRes.ok) this.genreList = await genresRes.json()
+      if (tagsRes.ok) this.tagList = await tagsRes.json()
       if (languagesRes.ok) this.languageList = await languagesRes.json()
       if (editionsRes.ok) this.editionList = await editionsRes.json()
       if (statusesRes.ok) this.statusList = await statusesRes.json()
     },
-    setSelections({ authors, genres, languages }) {
+    setSelections({ authors, genres, tags, languages }) {
       if (authors) this.selectedAuthors = [...authors]
       if (genres) this.selectedGenres = [...genres]
+      if (tags) this.selectedTags = [...tags]
       if (languages) this.selectedLanguages = [...languages]
     },
     defaultLanguageToEnglish() {
@@ -148,6 +165,7 @@ export default {
         ...this.form,
         authorIds: this.selectedAuthors.map(a => a.id),
         genreIds: this.selectedGenres.map(g => g.id),
+        tagIds: this.selectedTags.map(g => g.id),
         languageIds: this.selectedLanguages.map(l => l.id)
       }
     }

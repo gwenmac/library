@@ -22,6 +22,7 @@ public class BookController {
     private final EditionRepository editionRepository;
     private final StatusRepository statusRepository;
     private final ReviewsRepository reviewsRepository;
+    private final TagsRepository tagsRepository;
 
     public BookController(
             BookRepository bookRepository,
@@ -31,7 +32,8 @@ public class BookController {
             LanguageRepository languageRepository,
             EditionRepository editionRepository,
             StatusRepository statusRepository,
-            ReviewsRepository reviewsRepository
+            ReviewsRepository reviewsRepository,
+            TagsRepository tagsRepository
     ) {
         this.bookRepository = bookRepository;
         this.seriesRepository = seriesRepository;
@@ -41,6 +43,7 @@ public class BookController {
         this.editionRepository = editionRepository;
         this.statusRepository = statusRepository;
         this.reviewsRepository = reviewsRepository;
+        this.tagsRepository = tagsRepository;
     }
 
     @GetMapping("/statuses/all")
@@ -82,6 +85,9 @@ public class BookController {
         if (body.get("genreIds") != null) {
             book.setGenres(resolveGenreIds(body.get("genreIds")));
         }
+        if (body.get("tagIds") != null) {
+            book.setTags(resolveTagIds(body.get("tagIds")));
+        }
         if (body.get("languageIds") != null) {
             book.setLanguages(resolveLanguageIds(body.get("languageIds")));
         }
@@ -122,6 +128,10 @@ public class BookController {
         if (body.containsKey("genreIds")) {
             book.getGenres().clear();
             book.getGenres().addAll(resolveGenreIds(body.get("genreIds")));
+        }
+        if (body.containsKey("tagIds")) {
+            book.getTags().clear();
+            book.getTags().addAll(resolveTagIds(body.get("tagIds")));
         }
         if (body.containsKey("languageIds")) {
             book.getLanguages().clear();
@@ -253,6 +263,19 @@ public class BookController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "One or more genre IDs not found");
         }
         return genres;
+    }
+
+    @SuppressWarnings("unchecked")
+    private Set<Tag> resolveTagIds(Object raw) {
+        if (raw == null) return new HashSet<>();
+        List<Long> ids = ((List<Number>) raw).stream()
+                .map(Number::longValue)
+                .toList();
+        Set<Tag> tags = new HashSet<>(tagsRepository.findAllById(ids));
+        if (tags.size() != ids.size()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "One or more genre IDs not found");
+        }
+        return tags;
     }
 
     @SuppressWarnings("unchecked")
