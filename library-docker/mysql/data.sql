@@ -19,13 +19,6 @@ INSERT INTO genres (name) VALUES
     ('Manga');
 
 -- -------------------------------------------------------
--- Languages
--- -------------------------------------------------------
-INSERT INTO languages (name, code) VALUES
-    ('English',  'en'),
-    ('Japanese', 'ja');
-
--- -------------------------------------------------------
 -- Editions
 -- editions: 1=Hardcover, 2=Paperback, 3=Mass Market Paperback, 4=Kindle
 -- -------------------------------------------------------

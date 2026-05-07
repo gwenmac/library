@@ -8,7 +8,16 @@ CREATE DATABASE library;
 
 USE library;
 
--- Users (must come first — other tables reference this)
+-- Households (must come first — other tables reference this)
+
+CREATE TABLE households (
+    id         BIGINT NOT NULL AUTO_INCREMENT,
+    name       VARCHAR(100) NOT NULL,
+    created_at DATETIME NOT NULL,
+    PRIMARY KEY (id)
+);
+
+-- Users (must come second — other tables reference this)
 
 CREATE TABLE users (
     id            BIGINT NOT NULL AUTO_INCREMENT,
@@ -16,8 +25,10 @@ CREATE TABLE users (
     password_hash VARCHAR(255) NOT NULL,
     display_name  VARCHAR(100) NOT NULL,
     role          ENUM('admin', 'user') NOT NULL DEFAULT 'user',
+    household_id  BIGINT NOT NULL,
     created_at    DATETIME NOT NULL,
-    PRIMARY KEY (id)
+    PRIMARY KEY (id),
+    FOREIGN KEY (household_id) REFERENCES households(id)
 );
 
 -- Lookup tables (no dependencies)
@@ -47,46 +58,48 @@ CREATE TABLE editions (
     PRIMARY KEY (id)
 );
 
+-- Authors (depends on household)
+
 CREATE TABLE authors (
-    id      BIGINT NOT NULL AUTO_INCREMENT,
-    name    VARCHAR(255) NOT NULL,
-    user_id BIGINT NOT NULL,
-    PRIMARY KEY (id),
-    UNIQUE KEY (user_id, name),
-    FOREIGN KEY (user_id) REFERENCES users(id)
+     id           BIGINT NOT NULL AUTO_INCREMENT,
+     name         VARCHAR(255) NOT NULL,
+     household_id BIGINT NOT NULL,
+     PRIMARY KEY (id),
+     UNIQUE KEY (household_id, name),
+     FOREIGN KEY (household_id) REFERENCES households(id)
 );
 
--- Series (depends on users)
+-- Series (depends on household)
 
 CREATE TABLE series (
-    id     BIGINT NOT NULL AUTO_INCREMENT,
-    name   VARCHAR(255) NOT NULL,
-    status VARCHAR(50)  NOT NULL DEFAULT 'NOT_STARTED',
-    user_id BIGINT NOT NULL,
+    id           BIGINT NOT NULL AUTO_INCREMENT,
+    name         VARCHAR(255) NOT NULL,
+    status       VARCHAR(50) NOT NULL DEFAULT 'NOT_STARTED',
+    household_id BIGINT NOT NULL,
     PRIMARY KEY (id),
-    UNIQUE KEY (user_id, name),
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    UNIQUE KEY (household_id, name),
+    FOREIGN KEY (household_id) REFERENCES households(id)
 );
 
--- Books (depends on series, users)
+-- Books (depends on series, household)
 
 CREATE TABLE books (
-    id           BIGINT NOT NULL AUTO_INCREMENT,
-    title        VARCHAR(255) NOT NULL,
-    description  TEXT,
-    page_count   INT,
-    year         INT,
-    sort_title   VARCHAR(255),
-    series_id    BIGINT,
-    series_order INT,
-    edition_id   BIGINT,
-    user_id      BIGINT NOT NULL,
-    created_at   DATETIME,
-    updated_at   DATETIME,
-    PRIMARY KEY (id),
-    FOREIGN KEY (series_id)  REFERENCES series(id),
-    FOREIGN KEY (edition_id) REFERENCES editions(id),
-    FOREIGN KEY (user_id)    REFERENCES users(id)
+   id           BIGINT NOT NULL AUTO_INCREMENT,
+   title        VARCHAR(255) NOT NULL,
+   description  TEXT,
+   page_count   INT,
+   year         INT,
+   sort_title   VARCHAR(255),
+   series_id    BIGINT,
+   series_order INT,
+   edition_id   BIGINT,
+   household_id BIGINT NOT NULL,
+   created_at   DATETIME,
+   updated_at   DATETIME,
+   PRIMARY KEY (id),
+   FOREIGN KEY (series_id)    REFERENCES series(id),
+   FOREIGN KEY (edition_id)   REFERENCES editions(id),
+   FOREIGN KEY (household_id) REFERENCES households(id)
 );
 
 -- Book status (depends on books, statuses)
@@ -165,7 +178,7 @@ CREATE TABLE gauge_entries (
     FOREIGN KEY (gauge_id) REFERENCES gauges(id) ON DELETE CASCADE
 );
 
--- Seed data for statuses
+-- Seed data
 
 INSERT INTO statuses (name) VALUES
     ('Not Started'),
@@ -175,3 +188,7 @@ INSERT INTO statuses (name) VALUES
     ('Paused'),
     ('Not Applicable'),
     ('Not Interested');
+
+INSERT INTO languages (name, code) VALUES
+   ('English',  'en'),
+   ('Japanese', 'ja');
