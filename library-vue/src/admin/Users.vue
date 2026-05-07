@@ -11,6 +11,10 @@
           <input v-model="form.displayName" placeholder="Display Name" required />
           <input v-model="form.email" type="email" placeholder="Email" required />
           <input v-model="form.password" type="password" placeholder="Temporary Password" required minlength="8" />
+          <select v-model="form.householdId" required>
+            <option value="" disabled>Household</option>
+            <option v-for="h in households" :key="h.id" :value="h.id">{{ h.name }}</option>
+          </select>
           <button type="submit">Create</button>
         </div>
         <p v-if="formError" class="error">{{ formError }}</p>
@@ -25,6 +29,7 @@
         <tr>
           <th>Name</th>
           <th>Email</th>
+          <th>Household</th>
           <th>Role</th>
           <th>Created</th>
           <th>Actions</th>
@@ -34,6 +39,15 @@
         <tr v-for="u in users" :key="u.id">
           <td>{{ u.displayName }}</td>
           <td>{{ u.email }}</td>
+          <td>
+            <select
+              :value="u.householdId"
+              @change="reassignHousehold(u, $event.target.value)"
+              class="household-select"
+            >
+              <option v-for="h in households" :key="h.id" :value="h.id">{{ h.name }}</option>
+            </select>
+          </td>
           <td><span class="role-badge" :class="u.role">{{ u.role }}</span></td>
           <td>{{ formatDate(u.createdAt) }}</td>
           <td>
@@ -56,10 +70,11 @@ export default {
   data() {
     return {
       users: [],
+      households: [],
       loading: true,
       error: null,
       showForm: false,
-      form: { displayName: '', email: '', password: '' },
+      form: { displayName: '', email: '', password: '', householdId: '' },
       formError: null
     }
   },
@@ -68,11 +83,16 @@ export default {
       if (!dt) return '—'
       return new Date(dt).toLocaleDateString()
     },
-    async loadUsers() {
+    async loadData() {
       try {
-        this.users = await api('/admin/users')
+        const [users, households] = await Promise.all([
+          api('/admin/users'),
+          api('/admin/households')
+        ])
+        this.users = users
+        this.households = households
       } catch (err) {
-        this.error = 'Failed to load users: ' + err.message
+        this.error = 'Failed to load data: ' + err.message
       } finally {
         this.loading = false
       }
@@ -84,11 +104,22 @@ export default {
           method: 'POST',
           body: JSON.stringify(this.form)
         })
-        this.form = { displayName: '', email: '', password: '' }
+        this.form = { displayName: '', email: '', password: '', householdId: '' }
         this.showForm = false
-        await this.loadUsers()
+        await this.loadData()
       } catch (err) {
         this.formError = 'Failed to create user: ' + err.message
+      }
+    },
+    async reassignHousehold(user, householdId) {
+      try {
+        await api('/admin/users/' + user.id + '/household', {
+          method: 'PUT',
+          body: JSON.stringify({ householdId: Number(householdId) })
+        })
+        user.householdId = Number(householdId)
+      } catch (err) {
+        this.error = 'Failed to reassign household: ' + err.message
       }
     },
     async deleteUser(u) {
@@ -102,7 +133,7 @@ export default {
     }
   },
   mounted() {
-    this.loadUsers()
+    this.loadData()
   }
 }
 </script>
@@ -152,7 +183,8 @@ export default {
   flex-wrap: wrap;
 }
 
-.form-row input {
+.form-row input,
+.form-row select {
   padding: 8px 12px;
   border: 1px solid #ccc;
   border-radius: 6px;
@@ -176,6 +208,31 @@ export default {
   font-weight: 600;
   font-size: 0.9rem;
   margin-top: 8px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+th {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.household-select {
+  padding: 4px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  background: #fff;
 }
 
 .role-badge {

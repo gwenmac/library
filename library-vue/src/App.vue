@@ -6,6 +6,7 @@
       <li><router-link to="/book/list">Books</router-link></li>
       <li><router-link to="/gauge/list">Gauges</router-link></li>
       <li v-if="user && user.role === 'admin'"><router-link to="/admin/users">Users</router-link></li>
+      <li v-if="user && user.role === 'admin'"><router-link to="/admin/households">Households</router-link></li>
     </ul>
     <div class="nav-user">
       <span class="user-name">{{ user.displayName }}</span>

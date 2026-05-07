@@ -11,6 +11,7 @@ import GaugeNew from "./gauge/New.vue";
 import Login from "./auth/Login.vue";
 import Bootstrap from "./auth/Bootstrap.vue";
 import AdminUsers from "./admin/Users.vue";
+import AdminHouseholds from "./admin/Households.vue";
 
 const routes = [
     { path: '/', component: Home },
@@ -22,7 +23,8 @@ const routes = [
     { path: '/gauge/:id', component: GaugeDetail },
     { path: '/login', component: Login, meta: { public: true } },
     { path: '/bootstrap', component: Bootstrap, meta: { public: true } },
-    { path: '/admin/users', component: AdminUsers, meta: { requiresAdmin: true } }
+    { path: '/admin/users', component: AdminUsers, meta: { requiresAdmin: true } },
+    { path: '/admin/households', component: AdminHouseholds, meta: { requiresAdmin: true } }
 ];
 
 const router = createRouter({

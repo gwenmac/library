@@ -192,3 +192,9 @@ INSERT INTO statuses (name) VALUES
 INSERT INTO languages (name, code) VALUES
    ('English',  'en'),
    ('Japanese', 'ja');
+
+INSERT INTO households (id, name, created_at) VALUES
+    (1, 'Discworld', NOW());
+
+INSERT INTO users (id, email, password_hash, display_name, role, household_id, created_at) VALUES
+    (1, 'orangutan@library.local', '$2b$10$7r4bDy92zEACnXzETaSqj..bLPd1XVZPUPbZDOlQ7pixludhBT53K', 'Orangutan', 'admin', 1, NOW());

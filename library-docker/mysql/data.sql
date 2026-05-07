@@ -1,12 +1,6 @@
 USE library;
 
 -- -------------------------------------------------------
--- Admin user (password: 'admin123' — BCrypt hash)
--- -------------------------------------------------------
-INSERT INTO users (id, email, password_hash, display_name, role, created_at) VALUES
-    (1, 'orangutan@library.local', '$2a$10$85gbUAisk9lqREfG1Pjk7.lihrUKrQ.03wCfua3FV0WL3CLTcbn7u', 'Orangutan', 'admin', NOW());
-
--- -------------------------------------------------------
 -- Genres
 -- -------------------------------------------------------
 INSERT INTO genres (name) VALUES
@@ -29,9 +23,9 @@ INSERT INTO editions (name) VALUES
     ('Kindle');
 
 -- -------------------------------------------------------
--- Authors (user_id = 1)
+-- Authors (household_id = 1)
 -- -------------------------------------------------------
-INSERT INTO authors (name, user_id) VALUES
+INSERT INTO authors (name, household_id) VALUES
     ('J.R.R. Tolkien', 1),
     ('Frank Herbert', 1),
     ('Agatha Christie', 1),
@@ -39,23 +33,23 @@ INSERT INTO authors (name, user_id) VALUES
     ('Hiromu Arakawa', 1);
 
 -- -------------------------------------------------------
--- Series (user_id = 1)
+-- Series (household_id = 1)
 -- -------------------------------------------------------
-INSERT INTO series (name, status, user_id) VALUES
+INSERT INTO series (name, status, household_id) VALUES
     ('The Lord of the Rings', 'IN_PROGRESS', 1),
     ('Death Note',            'NOT_STARTED', 1),
     ('Fullmetal Alchemist',   'NOT_STARTED', 1);
 
 -- -------------------------------------------------------
--- Books (user_id = 1)
+-- Books (household_id = 1)
 -- statuses: 1=Not Started, 2=In Progress, 3=Completed,
 --           4=Did Not Finish, 5=Paused, 6=Not Applicable,
 --           7=Not Interested
 -- -------------------------------------------------------
-INSERT INTO books (title, description, page_count, year, sort_title, series_id, series_order, edition_id, user_id, created_at, updated_at) VALUES
+INSERT INTO books (title, description, page_count, year, sort_title, series_id, series_order, edition_id, household_id, created_at, updated_at) VALUES
     -- Lord of the Rings trilogy (series_id = 1)
     ('The Fellowship of the Ring',
-     'The first part of Tolkien\'s epic fantasy where the Fellowship sets out to destroy the One Ring.',
+     'The first part of Tolkien''s epic fantasy where the Fellowship sets out to destroy the One Ring.',
      423, 1954, 'Fellowship of the Ring', 1, 1, 2, 1, NOW(), NOW()),
 
     ('The Two Towers',
