@@ -197,7 +197,9 @@ INSERT INTO languages (name, code) VALUES
    ('Japanese', 'ja');
 
 INSERT INTO households (id, name, created_at) VALUES
-    (1, 'Discworld', NOW());
+    (1, 'Discworld', NOW()),
+    (2, "Demo", NOW());
 
 INSERT INTO users (id, email, password_hash, display_name, role, household_id, created_at) VALUES
-    (1, 'orangutan@library.local', '$2b$10$7r4bDy92zEACnXzETaSqj..bLPd1XVZPUPbZDOlQ7pixludhBT53K', 'Orangutan', 'admin', 1, NOW());
+    (1, 'orangutan@library.local', '$2b$10$7r4bDy92zEACnXzETaSqj..bLPd1XVZPUPbZDOlQ7pixludhBT53K', 'Orangutan', 'admin', 1, NOW()),
+    (2, 'demo@library.local', '$2a$10$A0S6GeBsxzmPTWo3iJ6gy.PjZLheOiyyyqwLhJFR5J3K3POl.BHg6', 'Demo', 'user', 1, NOW());
