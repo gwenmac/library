@@ -18,9 +18,14 @@ public class Review {
     private Long id;
 
     @JsonIgnore
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "book_id", nullable = false)
     private Book book;
+
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Column(columnDefinition = "SMALLINT CHECK (rating BETWEEN 1 AND 5)")
     private Short rating;

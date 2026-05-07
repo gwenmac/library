@@ -89,9 +89,18 @@ export default {
       this.form.statusId = book.bookStatus ? book.bookStatus.status.id : null
       this.form.editionId = book.edition ? book.edition.id : null
 
-      if (book.review) {
-        this.review.rating = book.review.rating
-        this.review.notes = book.review.notes || ''
+      // Load current user's review separately
+      try {
+        const reviewRes = await fetch('/api/books/' + id + '/review')
+        if (reviewRes.ok) {
+          const review = await reviewRes.json()
+          if (review) {
+            this.review.rating = review.rating
+            this.review.notes = review.notes || ''
+          }
+        }
+      } catch {
+        // No review yet — that's fine
       }
 
       await this.$refs.bookForm.loadLookups()

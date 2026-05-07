@@ -68,9 +68,6 @@ public class Book {
     @OneToOne(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
     private BookStatus bookStatus;
 
-    @OneToOne(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Review review;
-
     @ManyToOne
     @JoinColumn(name = "series_id")  // nullable — not every book belongs to a series
     private Series series;

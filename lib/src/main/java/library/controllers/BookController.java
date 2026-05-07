@@ -21,6 +21,7 @@ public class BookController {
     private final LanguageRepository languageRepository;
     private final EditionRepository editionRepository;
     private final StatusRepository statusRepository;
+    private final ReviewsRepository reviewsRepository;
 
     public BookController(
             BookRepository bookRepository,
@@ -29,7 +30,8 @@ public class BookController {
             GenreRepository genreRepository,
             LanguageRepository languageRepository,
             EditionRepository editionRepository,
-            StatusRepository statusRepository
+            StatusRepository statusRepository,
+            ReviewsRepository reviewsRepository
     ) {
         this.bookRepository = bookRepository;
         this.seriesRepository = seriesRepository;
@@ -38,6 +40,7 @@ public class BookController {
         this.languageRepository = languageRepository;
         this.editionRepository = editionRepository;
         this.statusRepository = statusRepository;
+        this.reviewsRepository = reviewsRepository;
     }
 
     @GetMapping("/statuses/all")
@@ -99,14 +102,14 @@ public class BookController {
 
     @GetMapping("/books/{id}")
     public Book getById(@PathVariable Long id) {
-        return bookRepository.findByIdAndHouseholdId(id, CurrentUser.id())
+        return bookRepository.findByIdAndHouseholdId(id, CurrentUser.householdId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Book not found"));
     }
 
     @Transactional
     @PutMapping("/books/{id}")
     public Book update(@PathVariable Long id, @RequestBody Map<String, Object> body) {
-        Book book = bookRepository.findByIdAndHouseholdId(id, CurrentUser.id())
+        Book book = bookRepository.findByIdAndHouseholdId(id, CurrentUser.householdId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Book not found"));
 
         if (body.containsKey("title")) {
@@ -178,9 +181,16 @@ public class BookController {
         return bookRepository.save(book);
     }
 
+    @GetMapping("/books/{id}/review")
+    public Review getMyReview(@PathVariable Long id) {
+        bookRepository.findByIdAndHouseholdId(id, CurrentUser.householdId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Book not found"));
+        return reviewsRepository.findByBookIdAndUserId(id, CurrentUser.id()).orElse(null);
+    }
+
     @Transactional
     @PutMapping("/books/{id}/review")
-    public Book updateReview(@PathVariable Long id, @RequestBody Map<String, Object> body) {
+    public Review updateReview(@PathVariable Long id, @RequestBody Map<String, Object> body) {
         Book book = bookRepository.findByIdAndHouseholdId(id, CurrentUser.householdId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Book not found"));
 
@@ -188,20 +198,21 @@ public class BookController {
         String notes = (String) body.get("notes");
 
         if (ratingNum == null && (notes == null || notes.isBlank())) {
-            // Remove review if both fields are empty
-            book.setReview(null);
-        } else {
-            Review review = book.getReview();
-            if (review == null) {
-                review = new Review();
-                review.setBook(book);
-                book.setReview(review);
-            }
-            review.setRating(ratingNum != null ? ratingNum.shortValue() : null);
-            review.setNotes(notes);
+            reviewsRepository.findByBookIdAndUserId(id, CurrentUser.id())
+                    .ifPresent(reviewsRepository::delete);
+            return null;
         }
 
-        return bookRepository.save(book);
+        Review review = reviewsRepository.findByBookIdAndUserId(id, CurrentUser.id())
+                .orElseGet(() -> {
+                    Review r = new Review();
+                    r.setBook(book);
+                    r.setUser(CurrentUser.get());
+                    return r;
+                });
+        review.setRating(ratingNum != null ? ratingNum.shortValue() : null);
+        review.setNotes(notes);
+        return reviewsRepository.save(review);
     }
 
     @Transactional

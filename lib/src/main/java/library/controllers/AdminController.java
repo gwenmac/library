@@ -75,12 +75,12 @@ public class AdminController {
 
     // --- Household CRUD ---
 
-    @GetMapping("/admin/households")
+    @GetMapping("/households")
     public List<Household> listHouseholds() {
         return householdRepository.findAll();
     }
 
-    @PostMapping("/admin/households")
+    @PostMapping("/households")
     @ResponseStatus(HttpStatus.CREATED)
     public Household createHousehold(@RequestBody Map<String, String> body) {
         Household household = new Household();
@@ -89,7 +89,7 @@ public class AdminController {
         return householdRepository.save(household);
     }
 
-    @PutMapping("/admin/households/{id}")
+    @PutMapping("/households/{id}")
     public Household updateHousehold(@PathVariable Long id, @RequestBody Map<String, String> body) {
         Household household = householdRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Household not found"));
@@ -99,7 +99,7 @@ public class AdminController {
 
 // --- Assign user to household ---
 
-    @PutMapping("/admin/users/{id}/household")
+    @PutMapping("/users/{id}/household")
     public User assignHousehold(@PathVariable Long id, @RequestBody Map<String, Long> body) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));

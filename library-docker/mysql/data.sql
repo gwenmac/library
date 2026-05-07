@@ -150,10 +150,10 @@ INSERT INTO book_status (book_id, status_id, started_at, finished_at, updated_at
 -- -------------------------------------------------------
 -- Reviews  (only for completed books)
 -- -------------------------------------------------------
-INSERT INTO reviews (book_id, rating, notes, created_at) VALUES
-    (1, 5, 'A masterpiece of world-building. The journey from the Shire to Rivendell is magical.', '2025-01-21 09:00:00'),
-    (4, 4, 'Dense but rewarding. The political and ecological themes hold up remarkably well.', '2025-03-01 10:30:00'),
-    (5, 5, 'Brilliant plotting. I did not see the ending coming at all.',                        '2025-03-05 20:00:00');
+INSERT INTO reviews (book_id, user_id, rating, notes, created_at) VALUES
+    (1, 1, 5, 'A masterpiece of world-building. The journey from the Shire to Rivendell is magical.', '2025-01-21 09:00:00'),
+    (4, 1, 4, 'Dense but rewarding. The political and ecological themes hold up remarkably well.', '2025-03-01 10:30:00'),
+    (5, 1, 5, 'Brilliant plotting. I did not see the ending coming at all.',                        '2025-03-05 20:00:00');
 
 -- Gauges (user_id = 1)
 
