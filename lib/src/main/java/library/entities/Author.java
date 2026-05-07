@@ -27,6 +27,6 @@ public class Author {
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "household_id", nullable = false)
+    private Household household;
 }

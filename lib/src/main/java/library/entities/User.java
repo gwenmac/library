@@ -31,6 +31,10 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role = Role.user;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "household_id", nullable = false)
+    private Household household;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 

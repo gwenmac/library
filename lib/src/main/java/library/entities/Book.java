@@ -83,8 +83,8 @@ public class Book {
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "household_id", nullable = false)
+    private Household household;
 
     private void populateSortName() {
         if (title == null) return;
