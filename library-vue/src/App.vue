@@ -79,7 +79,7 @@ export default {
 .user-name {
   font-size: 0.9rem;
   font-weight: 500;
-  color: #555;
+  color: #ccc;
 }
 
 .logout-btn {
@@ -89,7 +89,7 @@ export default {
   border-radius: 4px;
   font-size: 0.85rem;
   cursor: pointer;
-  color: #555;
+  color: #ccc;
 }
 
 .logout-btn:hover {
