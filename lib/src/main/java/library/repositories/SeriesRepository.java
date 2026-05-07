@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface SeriesRepository extends JpaRepository<Series, Long> {
 
-    List<Series> findAllByUserId(Long userId);
+    List<Series> findAllByHouseholdId(Long householdId);
 
-    Optional<Series> findByIdAndUserId(Long id, Long userId);
+    Optional<Series> findByIdAndHouseholdId(Long id, Long householdId);
 }

@@ -99,14 +99,14 @@ public class BookController {
 
     @GetMapping("/books/{id}")
     public Book getById(@PathVariable Long id) {
-        return bookRepository.findByIdAndUserId(id, CurrentUser.id())
+        return bookRepository.findByIdAndHouseholdId(id, CurrentUser.id())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Book not found"));
     }
 
     @Transactional
     @PutMapping("/books/{id}")
     public Book update(@PathVariable Long id, @RequestBody Map<String, Object> body) {
-        Book book = bookRepository.findByIdAndUserId(id, CurrentUser.id())
+        Book book = bookRepository.findByIdAndHouseholdId(id, CurrentUser.id())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Book not found"));
 
         if (body.containsKey("title")) {

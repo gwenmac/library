@@ -12,4 +12,8 @@ public class CurrentUser {
     public static Long id() {
         return get().getId();
     }
+
+    public static Long householdId() {
+        return get().getHousehold().getId();
+    }
 }

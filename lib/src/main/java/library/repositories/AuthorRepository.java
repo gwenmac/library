@@ -10,7 +10,7 @@ public interface AuthorRepository extends JpaRepository<Author, Long> {
 
     Optional<Author> findByName(String name);
 
-    List<Author> findAllByUserId(Long userId);
+    List<Author> findAllByHouseholdId(Long householdId);
 
-    Optional<Author> findByIdAndUserId(Long id, Long userId);
+    Optional<Author> findByIdAndHouseholdId(Long id, Long householdId);
 }
