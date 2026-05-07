@@ -21,6 +21,10 @@
         <h2>Books by Genre</h2>
         <GenreBarChart :books="books" />
       </div>
+      <div class="chart-card">
+        <h2>Total Book Count</h2>
+        <Counter :books="books" />
+      </div>
     </div>
   </div>
 </template>
@@ -29,11 +33,12 @@
 import GaugeDisplay from './components/GaugeDisplay.vue'
 import StatusPieChart from './components/StatusPieChart.vue'
 import GenreBarChart from './components/GenreBarChart.vue'
+import Counter from './components/Counter.vue'
 
 import { api } from './auth/api.js'
 
 export default {
-  components: { GaugeDisplay, StatusPieChart, GenreBarChart },
+  components: { GaugeDisplay, StatusPieChart, GenreBarChart, Counter },
   data() {
     return { gauges: [], books: [] }
   },
