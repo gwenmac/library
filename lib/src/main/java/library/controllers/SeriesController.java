@@ -20,7 +20,7 @@ public class SeriesController {
 
     @GetMapping("/series/all")
     public List<Series> getAll() {
-        return seriesRepository.findAllByUserId(CurrentUser.id());
+        return seriesRepository.findAllByHouseholdId(CurrentUser.householdId());
     }
 
     @PostMapping("/series")
@@ -28,7 +28,7 @@ public class SeriesController {
     public Series create(@RequestBody Map<String, String> body) {
         Series series = new Series();
         series.setName(body.get("name"));
-        series.setUser(CurrentUser.get());
+        series.setHousehold(CurrentUser.get().getHousehold());
         return seriesRepository.save(series);
     }
 }

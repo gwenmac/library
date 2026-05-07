@@ -20,7 +20,7 @@ public class AuthorController {
 
     @GetMapping("/authors/all")
     public List<Author> getAllAuthors() {
-        return authorRepository.findAllByUserId(CurrentUser.id());
+        return authorRepository.findAllByHouseholdId(CurrentUser.householdId());
     }
 
     @PostMapping("/authors")
@@ -28,7 +28,7 @@ public class AuthorController {
     public Author createAuthor(@RequestBody Map<String, String> body) {
         Author author = new Author();
         author.setName(body.get("name"));
-        author.setUser(CurrentUser.get());
+        author.setHousehold(CurrentUser.get().getHousehold());
         return authorRepository.save(author);
     }
 }

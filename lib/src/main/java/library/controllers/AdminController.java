@@ -1,6 +1,8 @@
 package library.controllers;
 
+import library.entities.Household;
 import library.entities.User;
+import library.repositories.HouseholdRepository;
 import library.repositories.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,10 +18,16 @@ import java.util.Map;
 public class AdminController {
 
     private final UserRepository userRepository;
+    private final HouseholdRepository householdRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public AdminController(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public AdminController(
+            UserRepository userRepository,
+            HouseholdRepository householdRepository,
+            PasswordEncoder passwordEncoder
+    ) {
         this.userRepository = userRepository;
+        this.householdRepository = householdRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -43,6 +51,12 @@ public class AdminController {
         user.setDisplayName(body.get("displayName"));
         user.setRole(User.Role.user);
         user.setCreatedAt(LocalDateTime.now());
+
+        Long householdId = Long.parseLong(body.get("householdId"));
+        Household household = householdRepository.findById(householdId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Household not found"));
+        user.setHousehold(household);
+
         return userRepository.save(user);
     }
 
@@ -57,5 +71,41 @@ public class AdminController {
         }
 
         userRepository.delete(user);
+    }
+
+    // --- Household CRUD ---
+
+    @GetMapping("/admin/households")
+    public List<Household> listHouseholds() {
+        return householdRepository.findAll();
+    }
+
+    @PostMapping("/admin/households")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Household createHousehold(@RequestBody Map<String, String> body) {
+        Household household = new Household();
+        household.setName(body.get("name"));
+        household.setCreatedAt(LocalDateTime.now());
+        return householdRepository.save(household);
+    }
+
+    @PutMapping("/admin/households/{id}")
+    public Household updateHousehold(@PathVariable Long id, @RequestBody Map<String, String> body) {
+        Household household = householdRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Household not found"));
+        household.setName(body.get("name"));
+        return householdRepository.save(household);
+    }
+
+// --- Assign user to household ---
+
+    @PutMapping("/admin/users/{id}/household")
+    public User assignHousehold(@PathVariable Long id, @RequestBody Map<String, Long> body) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        Household household = householdRepository.findById(body.get("householdId"))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Household not found"));
+        user.setHousehold(household);
+        return userRepository.save(user);
     }
 }

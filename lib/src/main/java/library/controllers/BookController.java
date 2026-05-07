@@ -47,7 +47,7 @@ public class BookController {
 
     @GetMapping("/all")
     public List<Book> getAll() {
-        return bookRepository.findAllByUserIdOrderBySortTitleAsc(CurrentUser.id());
+        return bookRepository.findAllByHouseholdIdOrderBySortTitleAsc(CurrentUser.householdId());
     }
 
     @Transactional
@@ -55,7 +55,7 @@ public class BookController {
     @ResponseStatus(HttpStatus.CREATED)
     public Book create(@RequestBody Map<String, Object> body) {
         Book book = new Book();
-        book.setUser(CurrentUser.get());
+        book.setHousehold(CurrentUser.get().getHousehold());
         book.setTitle((String) body.get("title"));
         book.setDescription((String) body.get("description"));
         if (body.get("pageCount") != null) {
@@ -181,7 +181,7 @@ public class BookController {
     @Transactional
     @PutMapping("/books/{id}/review")
     public Book updateReview(@PathVariable Long id, @RequestBody Map<String, Object> body) {
-        Book book = bookRepository.findByIdAndUserId(id, CurrentUser.id())
+        Book book = bookRepository.findByIdAndHouseholdId(id, CurrentUser.householdId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Book not found"));
 
         Number ratingNum = (Number) body.get("rating");
@@ -208,7 +208,7 @@ public class BookController {
     @DeleteMapping("/books/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
-        Book book = bookRepository.findByIdAndUserId(id, CurrentUser.id())
+        Book book = bookRepository.findByIdAndHouseholdId(id, CurrentUser.householdId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Book not found"));
         book.getAuthors().clear();
         book.getGenres().clear();

@@ -1,6 +1,8 @@
 package library.controllers;
 
+import library.entities.Household;
 import library.entities.User;
+import library.repositories.HouseholdRepository;
 import library.repositories.UserRepository;
 import library.security.JwtUtil;
 import org.springframework.http.HttpStatus;
@@ -16,13 +18,16 @@ import java.util.Map;
 public class AuthController {
 
     private final UserRepository userRepository;
+    private final HouseholdRepository householdRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
     public AuthController(UserRepository userRepository,
+                          HouseholdRepository householdRepository,
                           PasswordEncoder passwordEncoder,
                           JwtUtil jwtUtil) {
         this.userRepository = userRepository;
+        this.householdRepository = householdRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
     }
@@ -47,7 +52,9 @@ public class AuthController {
                 "id", user.getId(),
                 "email", user.getEmail(),
                 "displayName", user.getDisplayName(),
-                "role", user.getRole().name()
+                "role", user.getRole().name(),
+                "householdId", user.getHousehold().getId(),
+                "householdName", user.getHousehold().getName()
             )
         );
     }
@@ -60,6 +67,12 @@ public class AuthController {
         }
 
         User admin = new User();
+
+        Household household = new Household();
+        household.setName(body.getOrDefault("householdName", "Admin Household"));
+        household.setCreatedAt(LocalDateTime.now());
+        householdRepository.save(household);
+        admin.setHousehold(household);
         admin.setEmail(body.get("email"));
         admin.setPasswordHash(passwordEncoder.encode(body.get("password")));
         admin.setDisplayName(body.get("displayName"));
@@ -75,7 +88,9 @@ public class AuthController {
                 "id", admin.getId(),
                 "email", admin.getEmail(),
                 "displayName", admin.getDisplayName(),
-                "role", admin.getRole().name()
+                "role", admin.getRole().name(),
+                "householdId", admin.getHousehold().getId(),
+                "householdName", admin.getHousehold().getName()
             )
         );
     }
