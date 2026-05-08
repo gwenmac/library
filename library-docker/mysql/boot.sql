@@ -198,7 +198,7 @@ CREATE TABLE gauge_entries (
 -- Seed data
 
 INSERT INTO statuses (name) VALUES
-    ('Not Started'),
+    ('To Be Read'),
     ('In Progress'),
     ('Completed'),
     ('Did Not Finish'),
