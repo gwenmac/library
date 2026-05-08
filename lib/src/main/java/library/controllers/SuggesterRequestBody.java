@@ -6,7 +6,7 @@ import lombok.Getter;
 import java.util.List;
 
 @Getter
-public class PickerRequestBody {
+public class SuggesterRequestBody {
     private Integer minLength;
     private Integer maxLength;
     private List<Language> languages;

@@ -14,12 +14,12 @@ import java.util.Optional;
 import java.util.Set;
 
 @RestController
-public class PickerController {
+public class SuggesterController {
     private final BookRepository bookRepository;
     private final BookStatusRepository bookStatusRepository;
     private final SeriesRepository seriesRepository;
 
-    public PickerController(
+    public SuggesterController(
             BookRepository bookRepository,
             BookStatusRepository bookStatusRepository,
             SeriesRepository seriesRepository
@@ -30,7 +30,7 @@ public class PickerController {
     }
 
     @PostMapping("/picker/")
-    public List<Book> listBooks(@RequestBody PickerRequestBody body) {
+    public List<Book> listBooks(@RequestBody SuggesterRequestBody body) {
         Integer minLength = body.getMinLength();
         Integer maxLength = body.getMaxLength();
         List<Language> languages = body.getLanguages();
