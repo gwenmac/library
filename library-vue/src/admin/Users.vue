@@ -41,7 +41,7 @@
           <td>{{ u.email }}</td>
           <td>
             <select
-              :value="u.householdId"
+              :value="u.household?.id"
               @change="reassignHousehold(u, $event.target.value)"
               class="household-select"
             >
@@ -118,6 +118,7 @@ export default {
           body: JSON.stringify({ householdId: Number(householdId) })
         })
         user.householdId = Number(householdId)
+        user.household = this.households.find(h => h.id === Number(householdId)) || user.household
       } catch (err) {
         this.error = 'Failed to reassign household: ' + err.message
       }
