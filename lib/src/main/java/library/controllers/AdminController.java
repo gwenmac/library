@@ -2,7 +2,9 @@ package library.controllers;
 
 import library.entities.Household;
 import library.entities.User;
+import library.repositories.BookStatusRepository;
 import library.repositories.HouseholdRepository;
+import library.repositories.ReviewsRepository;
 import library.repositories.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,15 +21,21 @@ public class AdminController {
 
     private final UserRepository userRepository;
     private final HouseholdRepository householdRepository;
+    private final BookStatusRepository bookStatusRepository;
+    private final ReviewsRepository reviewsRepository;
     private final PasswordEncoder passwordEncoder;
 
     public AdminController(
             UserRepository userRepository,
             HouseholdRepository householdRepository,
+            BookStatusRepository bookStatusRepository,
+            ReviewsRepository reviewsRepository,
             PasswordEncoder passwordEncoder
     ) {
         this.userRepository = userRepository;
         this.householdRepository = householdRepository;
+        this.bookStatusRepository = bookStatusRepository;
+        this.reviewsRepository = reviewsRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -70,6 +78,8 @@ public class AdminController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot delete admin user");
         }
 
+        bookStatusRepository.deleteAll(bookStatusRepository.findAllByUserId(id));
+        reviewsRepository.deleteAll(reviewsRepository.findAllByUserId(id));
         userRepository.delete(user);
     }
 

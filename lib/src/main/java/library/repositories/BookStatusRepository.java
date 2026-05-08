@@ -7,4 +7,5 @@ import java.util.Optional;
 public interface BookStatusRepository extends JpaRepository<BookStatus, Long> {
     Optional<BookStatus> findByBookIdAndUserId(Long bookId, Long userId);
     List<BookStatus> findAllByBookId(Long bookId);
+    List<BookStatus> findAllByUserId(Long userId);
 }
