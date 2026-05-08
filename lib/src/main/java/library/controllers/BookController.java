@@ -259,6 +259,10 @@ public class BookController {
     public void delete(@PathVariable Long id) {
         Book book = bookRepository.findByIdAndHouseholdId(id, CurrentUser.householdId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Book not found"));
+        List<BookStatus> bookStatuses = bookStatusRepository.findAllByBookId(book.getId());
+        bookStatusRepository.deleteAll(bookStatuses);
+        List<Review> reviews = reviewsRepository.findAllByBookId(book.getId());
+        reviewsRepository.deleteAll(reviews);
         book.getAuthors().clear();
         book.getGenres().clear();
         book.getLanguages().clear();

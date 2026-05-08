@@ -11,6 +11,37 @@
         @error="error = $event"
       />
 
+      <hr class="section-divider" />
+
+      <div class="field">
+        <label for="status">Status</label>
+        <select id="status" v-model="statusId">
+          <option :value="null">— No status —</option>
+          <option v-for="s in statusList" :key="s.id" :value="s.id">{{ s.name }}</option>
+        </select>
+      </div>
+
+      <h3>Review</h3>
+
+      <div class="field">
+        <label>Rating</label>
+        <div class="star-rating">
+          <span
+              v-for="n in 5"
+              :key="n"
+              class="star"
+              :class="{ filled: n <= review.rating }"
+              @click="review.rating = n"
+          >★</span>
+          <button v-if="review.rating" type="button" class="clear-rating" @click="review.rating = null">✕</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="reviewNotes">Notes</label>
+        <textarea id="reviewNotes" v-model="review.notes" rows="4" placeholder="Your thoughts on this book..."></textarea>
+      </div>
+
       <div class="actions">
         <button type="submit" :disabled="saving">{{ saving ? 'Saving...' : 'Add Book' }}</button>
         <button type="button" @click="$router.push('/book/list')">Cancel</button>
@@ -35,6 +66,12 @@ export default {
         seriesOrder: null,
         editionId: null
       },
+      statusList: [],
+      statusId: null,
+      review: {
+        rating: null,
+        notes: ''
+      },
       saving: false,
       error: null
     }
@@ -42,6 +79,8 @@ export default {
   async mounted() {
     try {
       await this.$refs.bookForm.loadLookups()
+      const statusesRes = await fetch('/api/statuses/all')
+      if (statusesRes.ok) this.statusList = await statusesRes.json()
       this.$refs.bookForm.defaultLanguageToEnglish()
     } catch (err) {
       console.error('Failed to load data:', err)
@@ -62,6 +101,35 @@ export default {
         })
         if (!res.ok) {
           this.error = 'Failed to add book (API returned ' + res.status + ')'
+          return
+        }
+        const book = await res.json()
+        const bookId = book.id
+
+        const statusPayload = {
+          statusId: this.statusId
+        }
+        const statusRes = await fetch('/api/books/' + bookId + '/status', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(statusPayload)
+        })
+        if (!statusRes.ok) {
+          this.error = 'Status save failed (API returned ' + statusRes.status + ')'
+          return
+        }
+
+        const reviewPayload = {
+          rating: this.review.rating,
+          notes: this.review.notes || null
+        }
+        const reviewRes = await fetch('/api/books/' + bookId + '/review', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(reviewPayload)
+        })
+        if (!reviewRes.ok) {
+          this.error = 'Review save failed (API returned ' + reviewRes.status + ')'
           return
         }
         this.$router.push('/book/list')
@@ -113,5 +181,52 @@ export default {
 .error {
   color: #e74c3c;
   font-weight: 600;
+}
+
+.star-rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.star {
+  font-size: 1.6rem;
+  cursor: pointer;
+  color: #ccc;
+  transition: color 0.15s;
+}
+
+.star.filled {
+  color: #f5a623;
+}
+
+.star:hover {
+  color: #f5a623;
+}
+
+.clear-rating {
+  background: none;
+  border: none;
+  color: #e74c3c;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-left: 8px;
+}
+
+.section-divider {
+  margin: 24px 0 16px;
+  border: none;
+  border-top: 1px solid #e0e0e0;
+}
+
+.field input,
+.field textarea,
+.field select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.95rem;
 }
 </style>
