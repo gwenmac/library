@@ -16,7 +16,7 @@
       <button type="button" class="picker-btn picker-btn-add" @click="add" :disabled="creatingNew ? !newName.trim() : !itemToAdd">
         Add
       </button>
-      <button type="button" class="picker-btn picker-btn-toggle" @click="toggleNew">
+      <button v-if="canCreate" type="button" class="picker-btn picker-btn-toggle" @click="toggleNew">
         {{ creatingNew ? 'Pick existing' : '+ New' }}
       </button>
     </div>
@@ -29,7 +29,8 @@ export default {
     label: { type: String, required: true },
     selected: { type: Array, required: true },
     items: { type: Array, required: true },
-    createEndpoint: { type: String, required: true },
+    createEndpoint: { type: String, default: '' },
+    canCreate: { type: Boolean, default: true },
     selectPlaceholder: { type: String, default: 'Select' },
     newPlaceholder: { type: String, default: 'New name...' }
   },
