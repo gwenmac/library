@@ -29,37 +29,56 @@ public class SuggesterController {
         this.seriesRepository = seriesRepository;
     }
 
-    @PostMapping("/picker/")
+    @PostMapping("/suggester")
     public List<Book> listBooks(@RequestBody SuggesterRequestBody body) {
-        Integer minLength = body.getMinLength();
-        Integer maxLength = body.getMaxLength();
-        List<Language> languages = body.getLanguages();
-        List<Tag> tags = body.getTags();
-        List<Genre> genres = body.getGenres();
-        List<Status> statuses = body.getStatuses();
-
         List<Book> allBooks = bookRepository.findAllByHouseholdIdOrderBySortTitleAsc(CurrentUser.id());
-        return allBooks.stream().filter( b -> {
-            boolean goodMinLength = minLength == null || minLength <= b.getPageCount();
-            boolean goodMaxLength = maxLength == null || b.getPageCount() < maxLength;
-            boolean goodLanguage = languages.isEmpty() || b.getLanguages().stream().anyMatch(languages::contains);
-            boolean goodTag =  tags.isEmpty() || b.getTags().stream().anyMatch(tags::contains);
-            boolean goodGenre = genres.isEmpty() || b.getGenres().stream().anyMatch(genres::contains);
-
-            Optional<BookStatus> bs = bookStatusRepository.findByBookIdAndUserId(b.getId(), CurrentUser.id());
-            boolean goodStatus = bs.isEmpty() || statuses.contains(bs.get());
-
-            //series status
-            boolean isStandalone = body.isWantStandalone() && seriesRepository.findByBooks(Set.of(b)).isEmpty();
-            boolean isNewSeries = body.isWantNewSeries() && isNewSeries(seriesRepository.findByBooks(Set.of(b)), CurrentUser.id());
-            boolean isStartedSeries = body.isWantStartedSeries() && !isNewSeries(seriesRepository.findByBooks(Set.of(b)), CurrentUser.id());;
-
-            return goodMinLength && goodMaxLength && goodLanguage && goodTag && goodGenre && goodStatus
-                    && (isStandalone || isNewSeries || isStartedSeries);
-        }).toList();
+        return allBooks.stream().filter( b -> bookMatches(b, body)).toList();
     }
 
-    private boolean isNewSeries(List<Series> series, long userId) {
+    protected boolean bookMatches(Book book, SuggesterRequestBody body) {
+        return bookLengthMatches(book, body.getMinLength(), body.getMaxLength())
+                && bookLanguageMatches(book, body.getLanguages())
+                && bookTagMatches(book, body.getTags())
+                && bookGenreMatches(book, body.getGenres())
+                && bookStatusMatches(book, body.getStatuses());
+//                && bookSeriesChecksMatches(book, body.isWantStandalone(), body.isWantNewSeries(), body.isWantStartedSeries());
+    }
+
+    protected boolean bookLengthMatches(Book book, Integer minLength, Integer maxLength) {
+        boolean matchesMinLength = minLength == null ||minLength <= book.getPageCount();
+        boolean matchesMaxLength = maxLength == null || book.getPageCount() <= maxLength;
+        return matchesMinLength && matchesMaxLength;
+    }
+
+    protected boolean bookLanguageMatches(Book book, List<Language> languages) {
+        return languages.isEmpty() || book.getLanguages().stream().map(Language::getId)
+                .anyMatch(l -> languages.stream().map(Language::getId).toList().contains(l));
+    }
+
+    protected boolean bookTagMatches(Book book, List<Tag> tags) {
+        return tags.isEmpty() || book.getTags().stream().map(Tag::getId)
+                .anyMatch(t -> tags.stream().map(Tag::getId).toList().contains(t));
+    }
+
+    protected boolean bookGenreMatches(Book book, List<Genre> genres) {
+        return genres.isEmpty() || book.getGenres().stream().map(Genre::getId)
+                .anyMatch(g -> genres.stream().map(Genre::getId).toList().contains(g));
+    }
+
+    protected boolean bookStatusMatches(Book book, List<Status> statuses) {
+        Optional<BookStatus> bs = bookStatusRepository.findByBookIdAndUserId(book.getId(), CurrentUser.id());
+        return bs.isEmpty() || (statuses != null && statuses.stream()
+                .map(Status::getId).toList().contains(bs.get().getStatus().getId()));
+    }
+
+    protected boolean bookSeriesChecksMatches(Book book, boolean wantStandalone, boolean wantNew, boolean wantStarted) {
+        boolean standaloneMatch = wantStandalone && seriesRepository.findByBooks(Set.of(book)).isEmpty();
+        boolean newMatch = wantNew && isNewSeries(seriesRepository.findByBooks(Set.of(book)), CurrentUser.id());
+        boolean startedMatch = wantStarted && !isNewSeries(seriesRepository.findByBooks(Set.of(book)), CurrentUser.id());
+        return standaloneMatch && newMatch && startedMatch;
+    }
+
+    protected boolean isNewSeries(List<Series> series, long userId) {
         for (Series s : series) {
             List<Book> books = s.getBooks().stream().toList();
             if (books.size() > 1) {
@@ -73,9 +92,8 @@ public class SuggesterController {
         return true;
     }
 
-    private boolean isUnreadBook(Book book, long userId) {
+    protected boolean isUnreadBook(Book book, long userId) {
         Optional<BookStatus> bs = bookStatusRepository.findByBookIdAndUserId(book.getId(), userId);
-        return !bs.isPresent()
-                || bs.get().getStatus().getName().equals("To Be Read");
+        return bs.isEmpty() || bs.get().getStatus().getName().equals("To Be Read");
     }
 }

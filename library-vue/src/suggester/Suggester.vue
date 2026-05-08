@@ -15,11 +15,11 @@
       <ChipPicker
           label="Genres"
           :selected="form.selectedGenres"
-          :items="form.genreList"
+          :items="genreList"
           create-endpoint="/api/genres"
           select-placeholder="Select genre"
           @update:selected="form.selectedGenres = $event"
-          @update:items="form.genreList = $event"
+          @update:items="genreList = $event"
           @error="$emit('error', $event)"
           :canCreate="false"
       />
@@ -27,11 +27,11 @@
       <ChipPicker
           label="Tags"
           :selected="form.selectedTags"
-          :items="form.tagList"
+          :items="tagList"
           create-endpoint="/api/tags"
           select-placeholder="Select tags"
           @update:selected="form.selectedTags = $event"
-          @update:items="form.tagList = $event"
+          @update:items="tagList = $event"
           @error="$emit('error', $event)"
           :canCreate="false"
       />
@@ -51,13 +51,13 @@
       </div>
 
       <ChipPicker
-          label="Status"
+          label="Status (will also include books without a status)"
           :selected="form.selectedStatuses"
-          :items="form.statusList"
+          :items="statusList"
           create-endpoint="/api/statuses"
           select-placeholder="Select statuses"
           @update:selected="form.selectedStatuses = $event"
-          @update:items="form.statusList = $event"
+          @update:items="statusList = $event"
           @error="$emit('error', $event)"
           :canCreate="false"
       />
@@ -65,11 +65,11 @@
       <ChipPicker
           label="Language"
           :selected="form.selectedLanguages"
-          :items="form.languageList"
+          :items="languageList"
           create-endpoint="/api/languages"
           select-placeholder="Select languages"
           @update:selected="form.selectedLanguages = $event"
-          @update:items="form.languageList = $event"
+          @update:items="languageList = $event"
           @error="$emit('error', $event)"
           :canCreate="false"
       />
@@ -90,19 +90,20 @@ export default {
     return {
       form: {
         minPageCount: 0,
-        maxPageCount: 2000,
+        maxPageCount: null,
         selectedLanguages: [],
         selectedTags: [],
         selectedGenres: [],
         selectedStatuses: [],
-        languageList: [],
-        tagList: [],
-        genreList: [],
-        statusList: [],
         wantNewSeries: true,
         wantStartedSeries: true,
         wantStandalone: true
-      }
+      },
+      languageList: [],
+      tagList: [],
+      genreList: [],
+      statusList: [],
+      error: null
     }
   },
   async mounted() {
@@ -112,22 +113,49 @@ export default {
       fetch('/api/tags/all'),
       fetch('/api/languages/all')
     ])
-    if (statusRes.ok) this.form.statusList = await statusRes.json()
-    if (genresRes.ok) this.form.genreList = await genresRes.json()
-    if (tagsRes.ok) this.form.tagList = await tagsRes.json()
-    if (languagesRes.ok) this.form.languageList = await languagesRes.json()
+    if (statusRes.ok) this.statusList = await statusRes.json()
+    if (genresRes.ok) this.genreList = await genresRes.json()
+    if (tagsRes.ok) this.tagList = await tagsRes.json()
+    if (languagesRes.ok) this.languageList = await languagesRes.json()
 
     // Default to To Be Read
-    const tbr = this.form.statusList.find(l => l.name.toLowerCase() === 'to be read')
+    const tbr = this.statusList.find(l => l.name.toLowerCase() === 'to be read')
     if (tbr) this.form.selectedStatuses = [tbr]
 
     // Default to English
-    const english = this.form.languageList.find(l => l.name.toLowerCase() === 'english')
+    const english = this.languageList.find(l => l.name.toLowerCase() === 'english')
     if (english) this.form.selectedLanguages = [english]
   },
   methods: {
-    suggest() {
+    async suggest() {
       console.log("suggesting...")
+      if (this.error) return
+
+      const payload = {
+        minLength: this.form.minPageCount,
+        maxLength: this.form.maxPageCount,
+        languages: this.form.selectedLanguages,
+        tags: this.form.selectedTags,
+        genres: this.form.selectedGenres,
+        statuses: this.form.statusList,
+        wantNewSeries: this.form.wantNewSeries,
+        wantStartedSeries: this.form.wantStartedSeries,
+        wantStandalone: this.form.wantStandalone
+      }
+
+      const res = await fetch('/api/suggester', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+
+      if (!res.ok) {
+        this.error = 'Suggest failed (API returned ' + res.status + ')'
+        return
+      }
+
+      const books = await res.json()
+      console.log(books)
     }
   }
 }
@@ -167,9 +195,14 @@ export default {
   margin-right: 16px;
 }
 
+.field:has(input[type="checkbox"]) {
+  display: flex;
+  align-items: center;
+}
+
 .field input[type="checkbox"] {
-  display: block;
-  margin: 10px 0;
+  order: 1;
+  margin: 0 0 0 8px;
 }
 
 .actions {
