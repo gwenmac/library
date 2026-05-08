@@ -73,9 +73,6 @@ public class Book {
     @JoinColumn(name = "edition_id")
     private Edition edition;
 
-    @OneToOne(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
-    private BookStatus bookStatus;
-
     @ManyToOne
     @JoinColumn(name = "series_id")  // nullable — not every book belongs to a series
     private Series series;
@@ -105,9 +102,5 @@ public class Book {
     @PreUpdate
     private void onBookChange() {
         populateSortName();
-
-        if (series != null) {
-            series.recalculateStatus();
-        }
     }
 }

@@ -9,9 +9,18 @@
       <BookForm
         ref="bookForm"
         :form="form"
-        :show-status="true"
         @error="error = $event"
       />
+
+      <hr class="section-divider" />
+
+      <div class="field">
+        <label for="status">Status</label>
+        <select id="status" v-model="statusId">
+          <option :value="null">— No status —</option>
+          <option v-for="s in statusList" :key="s.id" :value="s.id">{{ s.name }}</option>
+        </select>
+      </div>
 
       <h3>Review</h3>
 
@@ -56,9 +65,10 @@ export default {
         year: null,
         seriesId: null,
         seriesOrder: null,
-        statusId: null,
         editionId: null
       },
+      statusList: [],
+      statusId: null,
       review: {
         rating: null,
         notes: ''
@@ -72,11 +82,12 @@ export default {
     const id = this.$route.params.id
     try {
       const bookRes = await fetch('/api/books/' + id)
+      const statusesRes = await fetch('/api/statuses/all')
       if (!bookRes.ok) {
         this.error = 'Book not found (API returned ' + bookRes.status + ')'
         return
       }
-
+      if (statusesRes.ok) this.statusList = await statusesRes.json()
       const book = await bookRes.json()
       this.form.title = book.title
       this.form.description = book.description || ''
@@ -84,8 +95,18 @@ export default {
       this.form.year = book.year
       this.form.seriesId = book.series ? book.series.id : null
       this.form.seriesOrder = book.seriesOrder
-      this.form.statusId = book.bookStatus ? book.bookStatus.status.id : null
       this.form.editionId = book.edition ? book.edition.id : null
+
+      // Load current user's status separately
+      try {
+        const statusRes = await fetch('/api/books/' + id + '/status')
+        if (statusRes.ok) {
+          const status = await statusRes.json()
+          this.statusId = status ? status.id : null
+        }
+      } catch {
+        // No status yet — that's fine
+      }
 
       // Load current user's review separately
       try {
@@ -130,6 +151,19 @@ export default {
         })
         if (!res.ok) {
           this.error = 'Save failed (API returned ' + res.status + ')'
+          return
+        }
+
+        const statusPayload = {
+          statusId: this.statusId
+        }
+        const statusRes = await fetch('/api/books/' + id + '/status', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(statusPayload)
+        })
+        if (!statusRes.ok) {
+          this.error = 'Status save failed (API returned ' + statusRes.status + ')'
           return
         }
 
@@ -245,5 +279,21 @@ export default {
   font-weight: 600;
   cursor: pointer;
   margin-left: 8px;
+}
+
+.section-divider {
+  margin: 24px 0 16px;
+  border: none;
+  border-top: 1px solid #e0e0e0;
+}
+
+.field input,
+.field textarea,
+.field select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.95rem;
 }
 </style>

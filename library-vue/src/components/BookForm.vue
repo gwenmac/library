@@ -89,16 +89,6 @@
       @error="$emit('error', $event)"
     />
 
-    <hr class="section-divider" />
-
-    <div class="field" v-if="showStatus">
-      <label for="status">Status</label>
-      <select id="status" v-model="form.statusId">
-        <option :value="null">— No status —</option>
-        <option v-for="s in statusList" :key="s.id" :value="s.id">{{ s.name }}</option>
-      </select>
-    </div>
-
     <slot></slot>
   </div>
 </template>
@@ -111,8 +101,7 @@ import EditionPicker from './EditionPicker.vue'
 export default {
   components: { ChipPicker, SeriesPicker, EditionPicker },
   props: {
-    form: { type: Object, required: true },
-    showStatus: { type: Boolean, default: false }
+    form: { type: Object, required: true }
   },
   emits: ['error'],
   data() {
@@ -126,20 +115,18 @@ export default {
       selectedTags: [],
       languageList: [],
       selectedLanguages: [],
-      editionList: [],
-      statusList: []
+      editionList: []
     }
   },
   methods: {
     async loadLookups() {
-      const [seriesRes, authorsRes, genresRes, tagsRes, languagesRes, editionsRes, statusesRes] = await Promise.all([
+      const [seriesRes, authorsRes, genresRes, tagsRes, languagesRes, editionsRes] = await Promise.all([
         fetch('/api/series/all'),
         fetch('/api/authors/all'),
         fetch('/api/genres/all'),
         fetch('/api/tags/all'),
         fetch('/api/languages/all'),
-        fetch('/api/editions/all'),
-        fetch('/api/statuses/all')
+        fetch('/api/editions/all')
       ])
       if (seriesRes.ok) this.seriesList = await seriesRes.json()
       if (authorsRes.ok) this.authorList = await authorsRes.json()
@@ -147,7 +134,6 @@ export default {
       if (tagsRes.ok) this.tagList = await tagsRes.json()
       if (languagesRes.ok) this.languageList = await languagesRes.json()
       if (editionsRes.ok) this.editionList = await editionsRes.json()
-      if (statusesRes.ok) this.statusList = await statusesRes.json()
     },
     setSelections({ authors, genres, tags, languages }) {
       if (authors) this.selectedAuthors = [...authors]
@@ -194,11 +180,5 @@ export default {
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 0.95rem;
-}
-
-.section-divider {
-  margin: 24px 0 16px;
-  border: none;
-  border-top: 1px solid #e0e0e0;
 }
 </style>

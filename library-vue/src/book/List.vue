@@ -141,7 +141,7 @@ export default {
     async saveStatus(book) {
       const statusId = this.editingStatusValue
       try {
-        const res = await fetch('/api/books/' + book.id, {
+        const res = await fetch('/api/books/' + book.id + '/status', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ statusId })
@@ -195,9 +195,23 @@ export default {
         genres:    row.genres?.length ? row.genres.map(g => g.name).join(', ') : '—',
         edition:   row.edition ? row.edition.name : '—',
         languages: row.languages?.length ? row.languages.map(l => l.name).join(', ') : '—',
-        status:    row.bookStatus?.status?.name ?? '—',
-        statusId:  row.bookStatus?.status?.id ?? null
+        status:    '—',
+        statusId:  null
       }))
+
+      // Fetch per-user statuses for all books in parallel
+      const statusPromises = this.books.map(book =>
+        fetch('/api/books/' + book.id + '/status')
+          .then(res => res.ok ? res.json() : null)
+          .catch(() => null)
+      )
+      const statuses = await Promise.all(statusPromises)
+      statuses.forEach((status, i) => {
+        if (status) {
+          this.books[i].status = status.name
+          this.books[i].statusId = status.id
+        }
+      })
     } catch (err) {
       this.error = 'Failed to load books: ' + err.message
     } finally {

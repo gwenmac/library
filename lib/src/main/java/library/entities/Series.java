@@ -37,29 +37,4 @@ public class Series {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "household_id", nullable = false)
     private Household household;
-
-    // Called automatically when the Series is loaded from the DB
-    @PostLoad
-    public void recalculateStatus() {
-        if (books == null || books.isEmpty()) {
-            this.status = SeriesStatus.NOT_STARTED;
-            return;
-        }
-
-        long completed = books.stream()
-                .filter(b -> b.getBookStatus() != null &&
-                        "Completed".equalsIgnoreCase(b.getBookStatus().getStatus().getName()))
-                .count();
-
-        boolean anyStarted = books.stream()
-                .anyMatch(b -> b.getBookStatus() != null);
-
-        if (completed == books.size()) {
-            this.status = SeriesStatus.COMPLETED;
-        } else if (anyStarted) {
-            this.status = SeriesStatus.IN_PROGRESS;
-        } else {
-            this.status = SeriesStatus.NOT_STARTED;
-        }
-    }
 }

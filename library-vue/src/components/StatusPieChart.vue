@@ -15,11 +15,28 @@ export default {
   props: {
     books: { type: Array, required: true }
   },
+  data() {
+    return { statusMap: {} }
+  },
+  async mounted() {
+    // Fetch per-user status for each book
+    const promises = this.books.map(book =>
+      fetch('/api/books/' + book.id + '/status')
+        .then(res => res.ok ? res.json() : null)
+        .catch(() => null)
+    )
+    const statuses = await Promise.all(promises)
+    const map = {}
+    statuses.forEach((status, i) => {
+      map[this.books[i].id] = status ? status.name : null
+    })
+    this.statusMap = map
+  },
   computed: {
     chartData() {
       const counts = {}
       this.books.forEach(book => {
-        const status = book.bookStatus ? book.bookStatus.status.name : 'No Status'
+        const status = this.statusMap[book.id] || 'No Status'
         counts[status] = (counts[status] || 0) + 1
       })
 

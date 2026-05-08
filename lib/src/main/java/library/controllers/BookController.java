@@ -23,6 +23,7 @@ public class BookController {
     private final StatusRepository statusRepository;
     private final ReviewsRepository reviewsRepository;
     private final TagsRepository tagsRepository;
+    private final BookStatusRepository bookStatusRepository;
 
     public BookController(
             BookRepository bookRepository,
@@ -33,8 +34,8 @@ public class BookController {
             EditionRepository editionRepository,
             StatusRepository statusRepository,
             ReviewsRepository reviewsRepository,
-            TagsRepository tagsRepository
-    ) {
+            TagsRepository tagsRepository,
+            BookStatusRepository bookStatusRepository) {
         this.bookRepository = bookRepository;
         this.seriesRepository = seriesRepository;
         this.authorRepository = authorRepository;
@@ -44,6 +45,7 @@ public class BookController {
         this.statusRepository = statusRepository;
         this.reviewsRepository = reviewsRepository;
         this.tagsRepository = tagsRepository;
+        this.bookStatusRepository = bookStatusRepository;
     }
 
     @GetMapping("/statuses/all")
@@ -169,24 +171,6 @@ public class BookController {
         if (body.containsKey("seriesOrder")) {
             book.setSeriesOrder(body.get("seriesOrder") != null ? ((Number) body.get("seriesOrder")).intValue() : null);
         }
-        if (body.containsKey("statusId")) {
-            if (body.get("statusId") != null) {
-                Long statusId = ((Number) body.get("statusId")).longValue();
-                Status status = statusRepository.findById(statusId)
-                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Status not found"));
-                BookStatus bookStatus = book.getBookStatus();
-                if (bookStatus == null) {
-                    bookStatus = new BookStatus();
-                    bookStatus.setBook(book);
-                    bookStatus.setUser(CurrentUser.get());
-                    book.setBookStatus(bookStatus);
-                }
-                bookStatus.setStatus(status);
-                bookStatus.setUpdatedAt(LocalDateTime.now());
-            } else {
-                book.setBookStatus(null);
-            }
-        }
 
         book.setUpdatedAt(LocalDateTime.now());
         return bookRepository.save(book);
@@ -224,6 +208,49 @@ public class BookController {
         review.setRating(ratingNum != null ? ratingNum.shortValue() : null);
         review.setNotes(notes);
         return reviewsRepository.save(review);
+    }
+
+    @GetMapping("/books/{id}/status")
+    public Status getMyStatus(@PathVariable Long id) {
+        bookRepository.findByIdAndHouseholdId(id, CurrentUser.householdId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Book not found"));
+        BookStatus bookStatus = bookStatusRepository.findByBookIdAndUserId(id, CurrentUser.id()).orElse(null);
+        if (bookStatus != null) {
+            return bookStatus.getStatus();
+        } else {
+            return null;
+        }
+    }
+
+    @Transactional
+    @PutMapping("/books/{id}/status")
+    public BookStatus updateStatus(@PathVariable Long id, @RequestBody Map<String, Object> body) {
+        Book book = bookRepository.findByIdAndHouseholdId(id, CurrentUser.householdId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Book not found"));
+
+        Number statusId = (Number) body.get("statusId");
+
+        if (statusId == null) {
+            bookStatusRepository.findByBookIdAndUserId(id, CurrentUser.id())
+                    .ifPresent(bookStatusRepository::delete);
+            return null;
+        }
+
+        Status status = statusRepository.findById(statusId.longValue())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Status not found"));
+
+        BookStatus bookStatus = bookStatusRepository.findByBookIdAndUserId(id, CurrentUser.get().getId())
+                .orElseGet(() -> {
+                        BookStatus bs = new BookStatus();
+                        bs.setBook(book);
+                        bs.setUser(CurrentUser.get());
+                        return bs;
+                    }
+                );
+        bookStatus.setStatus(status);
+        bookStatus.setUpdatedAt(LocalDateTime.now());
+
+        return bookStatusRepository.save(bookStatus);
     }
 
     @Transactional

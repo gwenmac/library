@@ -19,8 +19,8 @@ public class BookStatus {
     private Long id;
 
     @JsonIgnore
-    @OneToOne
-    @JoinColumn(name = "book_id", nullable = false, unique = true)
+    @ManyToOne
+    @JoinColumn(name = "book_id", nullable = false)
     private Book book;
 
     @ManyToOne
