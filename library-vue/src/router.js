@@ -8,6 +8,7 @@ import BookNew from "./book/New.vue";
 import GaugeList from "./gauge/List.vue";
 import GaugeDetail from "./gauge/Detail.vue";
 import GaugeNew from "./gauge/New.vue";
+import Picker from "./picker/Picker.vue";
 import Login from "./auth/Login.vue";
 import Bootstrap from "./auth/Bootstrap.vue";
 import AdminUsers from "./admin/Users.vue";
@@ -21,6 +22,7 @@ const routes = [
     { path: '/gauge/list', component: GaugeList },
     { path: '/gauge/new', component: GaugeNew },
     { path: '/gauge/:id', component: GaugeDetail },
+    { path: '/picker', component: Picker },
     { path: '/login', component: Login, meta: { public: true } },
     { path: '/bootstrap', component: Bootstrap, meta: { public: true } },
     { path: '/admin/users', component: AdminUsers, meta: { requiresAdmin: true } },
