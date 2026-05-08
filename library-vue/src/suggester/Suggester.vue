@@ -1,6 +1,6 @@
 <template>
   <div class="suggester">
-    <h1>Suggester</h1>
+    <h1>Suggester WIP</h1>
     <p>If you leave a field blank, it will search with any.</p>
     <form>
       <div class="field">
