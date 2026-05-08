@@ -39,7 +39,7 @@
               class="edit-input"
             />
           </td>
-          <td>{{ h.memberCount || 0 }}</td>
+          <td>{{ countUsers(h.id) }}</td>
           <td>{{ formatDate(h.createdAt) }}</td>
           <td>
             <button v-if="editingId !== h.id" class="edit-btn" @click="startEdit(h)">Rename</button>
@@ -62,6 +62,7 @@ export default {
   data() {
     return {
       households: [],
+      users: [],
       loading: true,
       error: null,
       showForm: false,
@@ -76,11 +77,19 @@ export default {
       if (!dt) return '—'
       return new Date(dt).toLocaleDateString()
     },
-    async loadHouseholds() {
+    countUsers(id) {
+      return this.users.filter(u => {return u.household.id === id}).length
+    },
+    async loadData() {
       try {
-        this.households = await api('/admin/households')
+        const [users, households] = await Promise.all([
+          api('/admin/users'),
+          api('/admin/households')
+        ])
+        this.users = users
+        this.households = households
       } catch (err) {
-        this.error = 'Failed to load households: ' + err.message
+        this.error = 'Failed to load data: ' + err.message
       } finally {
         this.loading = false
       }
@@ -94,7 +103,7 @@ export default {
         })
         this.form = { name: '' }
         this.showForm = false
-        await this.loadHouseholds()
+        await this.loadData()
       } catch (err) {
         this.formError = 'Failed to create household: ' + err.message
       }
@@ -121,7 +130,7 @@ export default {
     }
   },
   mounted() {
-    this.loadHouseholds()
+    this.loadData()
   }
 }
 </script>
