@@ -13,8 +13,6 @@
         @error="error = $event"
       />
 
-      <hr class="section-divider" />
-
       <h3>Review</h3>
 
       <div class="field">
@@ -216,12 +214,6 @@ export default {
 .error {
   color: #e74c3c;
   font-weight: 600;
-}
-
-.section-divider {
-  margin: 24px 0 16px;
-  border: none;
-  border-top: 1px solid #e0e0e0;
 }
 
 .star-rating {

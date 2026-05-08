@@ -89,6 +89,8 @@
       @error="$emit('error', $event)"
     />
 
+    <hr class="section-divider" />
+
     <div class="field" v-if="showStatus">
       <label for="status">Status</label>
       <select id="status" v-model="form.statusId">
@@ -192,5 +194,11 @@ export default {
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 0.95rem;
+}
+
+.section-divider {
+  margin: 24px 0 16px;
+  border: none;
+  border-top: 1px solid #e0e0e0;
 }
 </style>
