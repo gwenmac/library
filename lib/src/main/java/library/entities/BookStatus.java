@@ -27,6 +27,11 @@ public class BookStatus {
     @JoinColumn(name = "status_id", nullable = false)
     private Status status;
 
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
     @Column(name = "started_at")
     private LocalDate startedAt;
 

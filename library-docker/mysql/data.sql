@@ -140,12 +140,12 @@ INSERT INTO book_languages (book_id, language_id) VALUES
 -- -------------------------------------------------------
 -- Book status  (reading progress per book)
 -- -------------------------------------------------------
-INSERT INTO book_status (book_id, status_id, started_at, finished_at, updated_at) VALUES
-    (1, 3, '2025-01-05', '2025-01-20', NOW()),  -- Fellowship: Completed
-    (2, 2, '2025-01-21', NULL,          NOW()),  -- Two Towers: In Progress
-    (4, 3, '2025-02-10', '2025-02-28', NOW()),  -- Dune: Completed
-    (5, 3, '2025-03-01', '2025-03-04', NOW()),  -- Christie: Completed
-    (6, 1, NULL,         NULL,          NOW()); -- DN Vol. 1: Not Started
+INSERT INTO book_status (book_id, status_id, user_id, started_at, finished_at, updated_at) VALUES
+    (1, 3, 1, '2025-01-05', '2025-01-20', NOW()),  -- Fellowship: Completed
+    (2, 2, 1, '2025-01-21', NULL,          NOW()),  -- Two Towers: In Progress
+    (4, 3, 1, '2025-02-10', '2025-02-28', NOW()),  -- Dune: Completed
+    (5, 3, 1, '2025-03-01', '2025-03-04', NOW()),  -- Christie: Completed
+    (6, 1, 1, NULL,         NULL,          NOW()); -- DN Vol. 1: Not Started
 
 -- -------------------------------------------------------
 -- Reviews  (only for completed books)

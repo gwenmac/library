@@ -114,12 +114,14 @@ CREATE TABLE book_status (
     id         BIGINT NOT NULL AUTO_INCREMENT,
     book_id    BIGINT NOT NULL UNIQUE,
     status_id  BIGINT NOT NULL,
+    user_id    BIGINT NOT NULL,
     started_at DATE,
     finished_at DATE,
     updated_at DATETIME,
     PRIMARY KEY (id),
     FOREIGN KEY (book_id)   REFERENCES books(id),
-    FOREIGN KEY (status_id) REFERENCES statuses(id)
+    FOREIGN KEY (status_id) REFERENCES statuses(id),
+    FOREIGN KEY (user_id)   REFERENCES users(id)
 );
 
 -- Reviews (depends on books, users)

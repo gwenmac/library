@@ -178,6 +178,7 @@ public class BookController {
                 if (bookStatus == null) {
                     bookStatus = new BookStatus();
                     bookStatus.setBook(book);
+                    bookStatus.setUser(CurrentUser.get());
                     book.setBookStatus(bookStatus);
                 }
                 bookStatus.setStatus(status);
