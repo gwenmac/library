@@ -9,6 +9,7 @@ import java.util.List;
 public class SuggesterRequestBody {
     private Integer minLength;
     private Integer maxLength;
+    private boolean includeNoPageCount;
     private List<Language> languages;
     private List<Tag> tags;
     private List<Genre> genres;

@@ -4,12 +4,17 @@
     <p>If you leave a field blank, it will search with any.</p>
     <form>
       <div class="field">
-        <h4>Page Count</h4>
-        <label for="minPageCount">Minimum</label>
+        <h4>Pages</h4>
+        <label for="minPageCount">Min</label>
         <input id="minPageCount" v-model.number="form.minPageCount" type="number" />
 
-        <label for="maxPageCount">Maximum</label>
+        <label for="maxPageCount">Max</label>
         <input id="maxPageCount" v-model.number="form.maxPageCount" type="number" />
+
+        <div class="field">
+          <label for="includeNoPageCount">Do you want to include books with no page count?</label>
+          <input type="checkbox" id="includeNoPageCount" v-model="form.includeNoPageCount" />
+        </div>
       </div>
 
       <ChipPicker
@@ -91,6 +96,7 @@ export default {
       form: {
         minPageCount: 0,
         maxPageCount: null,
+        includeNoPageCount: true,
         selectedLanguages: [],
         selectedTags: [],
         selectedGenres: [],

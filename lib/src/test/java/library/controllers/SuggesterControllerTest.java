@@ -26,10 +26,13 @@ class SuggesterControllerTest {
     void bookLengthMatches() {
         Book book = new Book();
         book.setPageCount(3);
-        assertTrue(suggesterController.bookLengthMatches(book, 0, 6));
-        assertTrue(suggesterController.bookLengthMatches(book, 3, 6));
-        assertTrue(suggesterController.bookLengthMatches(book, 0, 3));
-        assertFalse(suggesterController.bookLengthMatches(book, 10, 30));
+        assertTrue(suggesterController.bookLengthMatches(book, 0, 6, false));
+        assertTrue(suggesterController.bookLengthMatches(book, 3, 6, false));
+        assertTrue(suggesterController.bookLengthMatches(book, 0, 3, false));
+        assertFalse(suggesterController.bookLengthMatches(book, 10, 30, false));
+        book.setPageCount(null);
+        assertFalse(suggesterController.bookLengthMatches(book, 0, 6, false));
+        assertTrue(suggesterController.bookLengthMatches(book, 3, 6, true));
     }
 
     @Test

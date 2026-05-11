@@ -36,7 +36,7 @@ public class SuggesterController {
     }
 
     protected boolean bookMatches(Book book, SuggesterRequestBody body) {
-        return bookLengthMatches(book, body.getMinLength(), body.getMaxLength())
+        return bookLengthMatches(book, body.getMinLength(), body.getMaxLength(), body.isIncludeNoPageCount())
                 && bookLanguageMatches(book, body.getLanguages())
                 && bookTagMatches(book, body.getTags())
                 && bookGenreMatches(book, body.getGenres())
@@ -44,8 +44,14 @@ public class SuggesterController {
 //                && bookSeriesChecksMatches(book, body.isWantStandalone(), body.isWantNewSeries(), body.isWantStartedSeries());
     }
 
-    protected boolean bookLengthMatches(Book book, Integer minLength, Integer maxLength) {
-        boolean matchesMinLength = minLength == null ||minLength <= book.getPageCount();
+    protected boolean bookLengthMatches(Book book, Integer minLength, Integer maxLength, boolean includeNoPageCount) {
+        if(book.getPageCount() == null && includeNoPageCount) {
+            return true;
+        }
+        if (book.getPageCount() == null && !includeNoPageCount) {
+            return false;
+        }
+        boolean matchesMinLength = minLength == null || minLength <= book.getPageCount();
         boolean matchesMaxLength = maxLength == null || book.getPageCount() <= maxLength;
         return matchesMinLength && matchesMaxLength;
     }
