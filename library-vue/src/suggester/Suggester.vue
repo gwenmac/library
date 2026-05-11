@@ -3,18 +3,16 @@
     <h1>Suggester WIP</h1>
     <p>If you leave a field blank, it will search with any.</p>
     <form>
+      <h4>Pages</h4>
       <div class="field">
-        <h4>Pages</h4>
-        <label for="minPageCount">Min</label>
+        <label for="minPageCount">Mininum</label>
         <input id="minPageCount" v-model.number="form.minPageCount" type="number" />
 
-        <label for="maxPageCount">Max</label>
+        <label for="maxPageCount">Maximum</label>
         <input id="maxPageCount" v-model.number="form.maxPageCount" type="number" />
 
-        <div class="field">
-          <label for="includeNoPageCount">Do you want to include books with no page count?</label>
-          <input type="checkbox" id="includeNoPageCount" v-model="form.includeNoPageCount" />
-        </div>
+        <label for="includeNoPageCount">Do you want to include books with no page count?</label>
+        <input type="checkbox" id="includeNoPageCount" v-model="form.includeNoPageCount" />
       </div>
 
       <ChipPicker
