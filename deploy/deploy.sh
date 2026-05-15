@@ -15,9 +15,15 @@ echo "==> Pulling latest code..."
 cd "$APP_DIR"
 git pull origin main
 
-echo "==> Building and restarting services..."
-docker compose -f docker-compose.prod.yml build
-docker compose -f docker-compose.prod.yml up -d
+echo "==> Building services..."
+docker compose -f docker-compose.prod.yml build backend
+docker compose -f docker-compose.prod.yml build frontend
+
+echo "==> Restarting services..."
+docker compose -f docker-compose.prod.yml down backend
+docker compose -f docker-compose.prod.yml down frontend
+docker compose -f docker-compose.prod.yml up backend -d
+docker compose -f docker-compose.prod.yml up frontend -d
 
 echo "==> Cleaning up old images..."
 docker image prune -f
