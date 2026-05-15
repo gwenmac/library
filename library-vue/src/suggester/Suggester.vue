@@ -138,6 +138,7 @@ export default {
       const payload = {
         minLength: this.form.minPageCount,
         maxLength: this.form.maxPageCount,
+        includeNoPageCount: this.form.includeNoPageCount,
         languages: this.form.selectedLanguages,
         tags: this.form.selectedTags,
         genres: this.form.selectedGenres,

@@ -36,11 +36,11 @@ public class SuggesterController {
     }
 
     protected boolean bookMatches(Book book, SuggesterRequestBody body) {
-        return bookLengthMatches(book, body.getMinLength(), body.getMaxLength(), body.isIncludeNoPageCount())
-                && bookLanguageMatches(book, body.getLanguages())
-                && bookTagMatches(book, body.getTags())
-                && bookGenreMatches(book, body.getGenres())
-                && bookStatusMatches(book, body.getStatuses());
+        return bookLengthMatches(book, body.getMinLength(), body.getMaxLength(), body.isIncludeNoPageCount());
+//                && bookLanguageMatches(book, body.getLanguages())
+//                && bookTagMatches(book, body.getTags())
+//                && bookGenreMatches(book, body.getGenres())
+//                && bookStatusMatches(book, body.getStatuses());
 //                && bookSeriesChecksMatches(book, body.isWantStandalone(), body.isWantNewSeries(), body.isWantStartedSeries());
     }
 
