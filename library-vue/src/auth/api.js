@@ -4,6 +4,16 @@ function getToken() {
     return localStorage.getItem('token');
 }
 
+function isTokenExpired(token) {
+    try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        // expired if less than 30 seconds remaining
+        return payload.exp * 1000 < Date.now() + 30000;
+    } catch {
+        return true;
+    }
+}
+
 export function getUser() {
     const raw = localStorage.getItem('user');
     return raw ? JSON.parse(raw) : null;
@@ -20,7 +30,13 @@ export function clearAuth() {
 }
 
 export function isLoggedIn() {
-    return !!getToken();
+    const token = getToken();
+    if (!token) return false;
+    if (isTokenExpired(token)) {
+        clearAuth();
+        return false;
+    }
+    return true;
 }
 
 export async function api(path, options = {}) {

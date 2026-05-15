@@ -2,6 +2,14 @@ import { createApp } from 'vue';
 import App from './App.vue';
 import './assets/main.css';
 import router from "./router";
+import { isLoggedIn } from './auth/api.js';
+
+// Redirect to login when the user returns to an expired session
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && !isLoggedIn()) {
+        window.location.hash = '#/login';
+    }
+});
 
 // Global fetch interceptor to attach JWT token and handle 401s
 const originalFetch = window.fetch;
