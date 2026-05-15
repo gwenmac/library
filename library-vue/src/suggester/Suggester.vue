@@ -1,7 +1,6 @@
 <template>
   <div class="suggester">
-    <h1>Suggester WIP</h1>
-    <p>If you leave a field blank, it will search with any.</p>
+    <h1>Suggester</h1>
     <form>
       <h4>Pages</h4>
       <div class="field">
@@ -86,6 +85,33 @@
         <button type="button" @click="suggest()">Suggest</button>
       </div>
     </form>
+
+    <div v-if="results" ref="results" class="results">
+      <h2>Results ({{ results.length }})</h2>
+      <p v-if="results.length === 0">No books match your criteria.</p>
+      <table v-else>
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Series</th>
+            <th>Genres</th>
+            <th>Languages</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="book in results" :key="book.id">
+            <td><router-link :to="'/book/edit/' + book.id">{{ book.title }}</router-link></td>
+            <td>{{ book.authors?.map(a => a.name).join(', ') || '—' }}</td>
+            <td>{{ book.series?.name || '—' }}</td>
+            <td>{{ book.genres?.map(g => g.name).join(', ') || '—' }}</td>
+            <td>{{ book.languages?.map(l => l.name).join(', ') || '—' }}</td>
+            <td>{{ book._status || '—' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </template>
 
@@ -113,6 +139,7 @@ export default {
       tagList: [],
       genreList: [],
       statusList: [],
+      results: null,
       error: null
     }
   },
@@ -138,8 +165,8 @@ export default {
   },
   methods: {
     async suggest() {
-      console.log("suggesting...")
       if (this.error) return
+      this.results = null
 
       const payload = {
         minLength: this.form.minPageCount,
@@ -166,8 +193,21 @@ export default {
         return
       }
 
-      const books = await res.json()
-      console.log(books)
+      this.results = await res.json()
+
+      const statusPromises = this.results.map(book =>
+        fetch('/api/books/' + book.id + '/status')
+          .then(r => r.ok ? r.json() : null)
+          .catch(() => null)
+      )
+      const statuses = await Promise.all(statusPromises)
+      statuses.forEach((status, i) => {
+        this.results[i]._status = status ? status.name : null
+      })
+
+      this.$nextTick(() => {
+        this.$refs.results?.scrollIntoView({ behavior: 'smooth' })
+      })
     }
   }
 }
@@ -236,5 +276,40 @@ export default {
 
 .actions button:hover {
   background-color: #38a373;
+}
+
+.results {
+  margin-top: 32px;
+}
+
+.results h2 {
+  margin-bottom: 12px;
+}
+
+.results table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.results th, .results td {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 0.95rem;
+}
+
+.results th {
+  font-weight: 600;
+  color: #555;
+}
+
+.results a {
+  color: #42b983;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.results a:hover {
+  text-decoration: underline;
 }
 </style>
