@@ -153,7 +153,7 @@ public class BookController {
             book.setDescription((String) body.get("description"));
         }
         if (body.containsKey("pageCount")) {
-            book.setPageCount(body.get("pageCount") != null || body.get("pageCount") != "" ? ((Number) body.get("pageCount")).intValue() : null);
+            book.setPageCount(body.get("pageCount") != null && body.get("pageCount") != "" ? ((Number) body.get("pageCount")).intValue() : null);
         }
         if (body.containsKey("year")) {
             book.setYear(body.get("year") != null ? ((Number) body.get("year")).intValue() : null);
