@@ -14,6 +14,7 @@ public class SuggesterRequestBody {
     private List<Tag> tags;
     private List<Genre> genres;
     private List<Status> statuses;
+    private boolean includeNoStatus;
     private boolean wantNewSeries;
     private boolean wantStartedSeries;
     private boolean wantStandalone;

@@ -36,11 +36,11 @@ public class SuggesterController {
     }
 
     protected boolean bookMatches(Book book, SuggesterRequestBody body) {
-        return bookLengthMatches(book, body.getMinLength(), body.getMaxLength(), body.isIncludeNoPageCount());
-//                && bookLanguageMatches(book, body.getLanguages())
-//                && bookTagMatches(book, body.getTags())
-//                && bookGenreMatches(book, body.getGenres())
-//                && bookStatusMatches(book, body.getStatuses());
+        return bookLengthMatches(book, body.getMinLength(), body.getMaxLength(), body.isIncludeNoPageCount())
+                && bookLanguageMatches(book, body.getLanguages())
+                && bookTagMatches(book, body.getTags())
+                && bookGenreMatches(book, body.getGenres())
+                && bookStatusMatches(book, CurrentUser.get(), body.getStatuses(), body.isIncludeNoStatus());
 //                && bookSeriesChecksMatches(book, body.isWantStandalone(), body.isWantNewSeries(), body.isWantStartedSeries());
     }
 
@@ -71,10 +71,13 @@ public class SuggesterController {
                 .anyMatch(g -> genres.stream().map(Genre::getId).toList().contains(g));
     }
 
-    protected boolean bookStatusMatches(Book book, List<Status> statuses) {
-        Optional<BookStatus> bs = bookStatusRepository.findByBookIdAndUserId(book.getId(), CurrentUser.id());
-        return bs.isEmpty() || (statuses != null && statuses.stream()
-                .map(Status::getId).toList().contains(bs.get().getStatus().getId()));
+    protected boolean bookStatusMatches(Book book, User user, List<Status> statuses, boolean includeNoStatus) {
+        Optional<BookStatus> bs = bookStatusRepository.findByBookIdAndUserId(book.getId(), user.getId());
+        if (statuses == null || statuses.isEmpty()) {
+            return includeNoStatus && bs.isEmpty();
+        }
+
+        return bs.isPresent() && statuses.stream().map(Status::getId).toList().contains(bs.get().getStatus().getId());
     }
 
     protected boolean bookSeriesChecksMatches(Book book, boolean wantStandalone, boolean wantNew, boolean wantStarted) {

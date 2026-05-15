@@ -54,7 +54,7 @@
       </div>
 
       <ChipPicker
-          label="Status (will also include books without a status)"
+          label="Status"
           :selected="form.selectedStatuses"
           :items="statusList"
           create-endpoint="/api/statuses"
@@ -64,6 +64,11 @@
           @error="$emit('error', $event)"
           :canCreate="false"
       />
+
+      <div class="field">
+        <label for="includeNoStatus">Do you want to include books with no status set?</label>
+        <input type="checkbox" id="includeNoStatus" v-model="form.includeNoStatus" />
+      </div>
 
       <ChipPicker
           label="Language"
@@ -99,6 +104,7 @@ export default {
         selectedTags: [],
         selectedGenres: [],
         selectedStatuses: [],
+        includeNoStatus: true,
         wantNewSeries: true,
         wantStartedSeries: true,
         wantStandalone: true
@@ -142,7 +148,8 @@ export default {
         languages: this.form.selectedLanguages,
         tags: this.form.selectedTags,
         genres: this.form.selectedGenres,
-        statuses: this.form.statusList,
+        statuses: this.form.selectedStatuses,
+        includeNoStatus: this.form.includeNoStatus,
         wantNewSeries: this.form.wantNewSeries,
         wantStartedSeries: this.form.wantStartedSeries,
         wantStandalone: this.form.wantStandalone

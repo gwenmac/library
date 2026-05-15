@@ -1,14 +1,14 @@
 package library.controllers;
 
-import library.entities.Book;
-import library.entities.Genre;
-import library.entities.Language;
-import library.entities.Tag;
+import library.entities.*;
+import library.repositories.BookStatusRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -16,10 +16,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SuggesterControllerTest {
     SuggesterController suggesterController;
+    BookStatusRepository bookStatusRepository = Mockito.mock(BookStatusRepository.class);
 
     @BeforeEach
     void setUp() {
-        suggesterController = new SuggesterController(null, null, null);
+        suggesterController = new SuggesterController(null, bookStatusRepository, null);
     }
 
     @Test
@@ -267,5 +268,68 @@ class SuggesterControllerTest {
         List<Genre> genres = new ArrayList<>();
 
         assertTrue(suggesterController.bookGenreMatches(book, genres));
+    }
+
+    @Test
+    void bookStatusMatches_bookMatchesOne() {
+        Book book = new Book();
+        book.setId(1L);
+        User user = new User();
+        user.setId(1L);
+        Status status = new Status();
+        status.setId(1L);
+
+        BookStatus bookStatus = new BookStatus();
+        bookStatus.setId(1L);
+        bookStatus.setBook(book);
+        bookStatus.setStatus(status);
+        bookStatus.setUser(user);
+
+        List<Status> statuses = new ArrayList<>();
+        statuses.add(status);
+
+        Mockito.when(bookStatusRepository.findByBookIdAndUserId(Mockito.anyLong(), Mockito.any())).thenReturn(Optional.of(bookStatus));
+
+        assertTrue(suggesterController.bookStatusMatches(book, user, statuses, false));
+    }
+
+    @Test
+    void bookStatusMatches_bookMatchesWhenMissing() {
+        Book book = new Book();
+        book.setId(1L);
+
+        User user = new User();
+        user.setId(1L);
+
+        List<Status> statuses = new ArrayList<>();
+
+        Mockito.when(bookStatusRepository.findByBookIdAndUserId(Mockito.anyLong(), Mockito.any())).thenReturn(Optional.empty());
+
+        assertTrue(suggesterController.bookStatusMatches(book, user, statuses, true));
+    }
+
+    @Test
+    void bookStatusMatches_bookWhenStatusMismatch() {
+        Book book = new Book();
+        book.setId(1L);
+        User user = new User();
+        user.setId(1L);
+        Status status = new Status();
+        status.setId(1L);
+
+        BookStatus bookStatus = new BookStatus();
+        bookStatus.setId(1L);
+        bookStatus.setBook(book);
+        bookStatus.setStatus(status);
+        bookStatus.setUser(user);
+
+        Status status2 = new Status();
+        status2.setId(2L);
+        List<Status> statuses = new ArrayList<>();
+        statuses.add(status2);
+
+        Mockito.when(bookStatusRepository.findByBookIdAndUserId(Mockito.anyLong(), Mockito.any())).thenReturn(Optional.of(bookStatus));
+
+        assertFalse(suggesterController.bookStatusMatches(book, user, statuses, false));
     }
 }
