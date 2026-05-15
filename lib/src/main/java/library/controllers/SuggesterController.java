@@ -40,8 +40,8 @@ public class SuggesterController {
                 && bookLanguageMatches(book, body.getLanguages())
                 && bookTagMatches(book, body.getTags())
                 && bookGenreMatches(book, body.getGenres())
-                && bookStatusMatches(book, CurrentUser.get(), body.getStatuses(), body.isIncludeNoStatus());
-//                && bookSeriesChecksMatches(book, body.isWantStandalone(), body.isWantNewSeries(), body.isWantStartedSeries());
+                && bookStatusMatches(book, CurrentUser.get(), body.getStatuses(), body.isIncludeNoStatus())
+                && bookSeriesChecksMatches(book, body.isWantStandalone(), body.isWantNewSeries(), body.isWantStartedSeries());
     }
 
     protected boolean bookLengthMatches(Book book, Integer minLength, Integer maxLength, boolean includeNoPageCount) {
@@ -73,18 +73,21 @@ public class SuggesterController {
 
     protected boolean bookStatusMatches(Book book, User user, List<Status> statuses, boolean includeNoStatus) {
         Optional<BookStatus> bs = bookStatusRepository.findByBookIdAndUserId(book.getId(), user.getId());
-        if (statuses == null || statuses.isEmpty()) {
-            return includeNoStatus && bs.isEmpty();
+        if (includeNoStatus && bs.isEmpty()) {
+            return true;
         }
-
+        if (statuses == null || statuses.isEmpty()) {
+            return false;
+        }
         return bs.isPresent() && statuses.stream().map(Status::getId).toList().contains(bs.get().getStatus().getId());
     }
 
     protected boolean bookSeriesChecksMatches(Book book, boolean wantStandalone, boolean wantNew, boolean wantStarted) {
-        boolean standaloneMatch = wantStandalone && seriesRepository.findByBooks(Set.of(book)).isEmpty();
-        boolean newMatch = wantNew && isNewSeries(seriesRepository.findByBooks(Set.of(book)), CurrentUser.id());
-        boolean startedMatch = wantStarted && !isNewSeries(seriesRepository.findByBooks(Set.of(book)), CurrentUser.id());
-        return standaloneMatch && newMatch && startedMatch;
+        boolean isPartOfSeries = !seriesRepository.findByBooks(Set.of(book)).isEmpty();
+        boolean standaloneMatch = wantStandalone && !isPartOfSeries;
+        boolean newMatch = wantNew && isPartOfSeries && isNewSeries(seriesRepository.findByBooks(Set.of(book)), CurrentUser.id());
+        boolean startedMatch = wantStarted && isPartOfSeries && !isNewSeries(seriesRepository.findByBooks(Set.of(book)), CurrentUser.id());
+        return standaloneMatch || newMatch || startedMatch;
     }
 
     protected boolean isNewSeries(List<Series> series, long userId) {

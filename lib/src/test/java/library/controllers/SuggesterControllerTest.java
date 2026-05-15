@@ -2,6 +2,7 @@ package library.controllers;
 
 import library.entities.*;
 import library.repositories.BookStatusRepository;
+import library.repositories.SeriesRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -17,10 +18,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class SuggesterControllerTest {
     SuggesterController suggesterController;
     BookStatusRepository bookStatusRepository = Mockito.mock(BookStatusRepository.class);
+    SeriesRepository seriesRepository = Mockito.mock(SeriesRepository.class);
 
     @BeforeEach
     void setUp() {
-        suggesterController = new SuggesterController(null, bookStatusRepository, null);
+        suggesterController = new SuggesterController(null, bookStatusRepository, seriesRepository);
     }
 
     @Test
@@ -309,6 +311,23 @@ class SuggesterControllerTest {
     }
 
     @Test
+    void bookStatusMatches_bookMatchesWhenStatusProvidedButIncludeMissing() {
+        Book book = new Book();
+        book.setId(1L);
+        User user = new User();
+        user.setId(1L);
+
+        Status status = new Status();
+        status.setId(1L);
+        List<Status> statuses = new ArrayList<>();
+        statuses.add(status);
+
+        Mockito.when(bookStatusRepository.findByBookIdAndUserId(Mockito.anyLong(), Mockito.any())).thenReturn(Optional.empty());
+
+        assertTrue(suggesterController.bookStatusMatches(book, user, statuses, true));
+    }
+
+    @Test
     void bookStatusMatches_bookWhenStatusMismatch() {
         Book book = new Book();
         book.setId(1L);
@@ -331,5 +350,66 @@ class SuggesterControllerTest {
         Mockito.when(bookStatusRepository.findByBookIdAndUserId(Mockito.anyLong(), Mockito.any())).thenReturn(Optional.of(bookStatus));
 
         assertFalse(suggesterController.bookStatusMatches(book, user, statuses, false));
+    }
+
+    @Test
+    void isUnreadBook_noBookStatus() {
+        Book book = new Book();
+        book.setId(1L);
+
+        Mockito.when(bookStatusRepository.findByBookIdAndUserId(1L, 10L)).thenReturn(Optional.empty());
+
+        assertTrue(suggesterController.isUnreadBook(book, 10L));
+    }
+
+    @Test
+    void isUnreadBook_statusIsToBeRead() {
+        Book book = new Book();
+        book.setId(1L);
+
+        Status status = new Status();
+        status.setId(1L);
+        status.setName("To Be Read");
+
+        BookStatus bookStatus = new BookStatus();
+        bookStatus.setStatus(status);
+
+        Mockito.when(bookStatusRepository.findByBookIdAndUserId(1L, 10L)).thenReturn(Optional.of(bookStatus));
+
+        assertTrue(suggesterController.isUnreadBook(book, 10L));
+    }
+
+    @Test
+    void isUnreadBook_statusIsNotToBeRead() {
+        Book book = new Book();
+        book.setId(1L);
+
+        Status status = new Status();
+        status.setId(2L);
+        status.setName("Read");
+
+        BookStatus bookStatus = new BookStatus();
+        bookStatus.setStatus(status);
+
+        Mockito.when(bookStatusRepository.findByBookIdAndUserId(1L, 10L)).thenReturn(Optional.of(bookStatus));
+
+        assertFalse(suggesterController.isUnreadBook(book, 10L));
+    }
+
+    @Test
+    void isUnreadBook_statusIsDifferentNonReadStatus() {
+        Book book = new Book();
+        book.setId(1L);
+
+        Status status = new Status();
+        status.setId(3L);
+        status.setName("Currently Reading");
+
+        BookStatus bookStatus = new BookStatus();
+        bookStatus.setStatus(status);
+
+        Mockito.when(bookStatusRepository.findByBookIdAndUserId(1L, 10L)).thenReturn(Optional.of(bookStatus));
+
+        assertFalse(suggesterController.isUnreadBook(book, 10L));
     }
 }
