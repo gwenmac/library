@@ -31,7 +31,7 @@ public class SuggesterController {
 
     @PostMapping("/suggester")
     public List<Book> listBooks(@RequestBody SuggesterRequestBody body) {
-        List<Book> allBooks = bookRepository.findAllByHouseholdIdOrderBySortTitleAsc(CurrentUser.id());
+        List<Book> allBooks = bookRepository.findAllByHouseholdIdOrderBySortTitleAsc(CurrentUser.householdId());
         return allBooks.stream().filter( b -> bookMatches(b, body)).toList();
     }
 
