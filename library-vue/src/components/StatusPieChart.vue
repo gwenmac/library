@@ -1,6 +1,6 @@
 <template>
   <div class="pie-chart-container">
-    <Pie :data="chartData" :options="chartOptions" />
+    <Pie v-if="loaded" :data="chartData" :options="chartOptions" />
   </div>
 </template>
 
@@ -16,7 +16,7 @@ export default {
     books: { type: Array, required: true }
   },
   data() {
-    return { statusMap: {} }
+    return { statusMap: {}, loaded: false }
   },
   async mounted() {
     // Fetch per-user status for each book
@@ -31,6 +31,7 @@ export default {
       map[this.books[i].id] = status ? status.name : null
     })
     this.statusMap = map
+    this.loaded = true
   },
   computed: {
     chartData() {
