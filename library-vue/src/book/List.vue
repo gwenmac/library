@@ -25,9 +25,9 @@
     <table v-else>
       <thead>
         <tr>
-          <th class="sortable" @click="toggleSort">Title {{ sortOrder === 'asc' ? '▲' : '▼' }}</th>
+          <th class="sortable" @click="toggleSort('title')">Title {{ sortField === 'title' ? (sortOrder === 'asc' ? '▲' : '▼') : '' }}</th>
           <th>Author</th>
-          <th>Series</th>
+          <th class="sortable" @click="toggleSort('series')">Series {{ sortField === 'series' ? (sortOrder === 'asc' ? '▲' : '▼') : '' }}</th>
           <th>Genres</th>
           <th>Edition</th>
           <th>Languages</th>
@@ -43,7 +43,7 @@
             <span v-else>—</span>
           </td>
           <td>
-            <a v-if="book.series !== '—'" class="filter-link" @click="search = book.series">{{ book.series }}</a>
+            <a v-if="book.series !== '—'" class="filter-link" @click="search = book.seriesName">{{ book.series }}</a>
             <span v-else>—</span>
           </td>
           <td>{{ book.genres }}</td>
@@ -81,6 +81,7 @@ export default {
       search: '',
       statusFilter: '',
       genreFilter: '',
+      sortField: 'title',
       sortOrder: 'asc',
       statusOptions: [],
       editingStatusBookId: null,
@@ -113,15 +114,28 @@ export default {
         )
       }
       result = result.slice().sort((a, b) => {
-        const cmp = a.sortTitle.localeCompare(b.sortTitle)
+        let cmp
+        if (this.sortField === 'series') {
+          const strip = s => s ? s.replace(/^(the|a)\s+/i, '') : ''
+          const aVal = strip(a.seriesName)
+          const bVal = strip(b.seriesName)
+          cmp = aVal.localeCompare(bVal) || (a.seriesOrder || 0) - (b.seriesOrder || 0)
+        } else {
+          cmp = a.sortTitle.localeCompare(b.sortTitle)
+        }
         return this.sortOrder === 'asc' ? cmp : -cmp
       })
       return result
     }
   },
   methods: {
-    toggleSort() {
-      this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc'
+    toggleSort(field) {
+      if (this.sortField === field) {
+        this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc'
+      } else {
+        this.sortField = field
+        this.sortOrder = 'asc'
+      }
     },
     startEditingStatus(book) {
       this.editingStatusBookId = book.id
@@ -191,7 +205,9 @@ export default {
         title:     row.title,
         sortTitle:  row.sortTitle || row.title,
         authors:   row.authors?.length ? row.authors.map(a => a.name).join(', ') : '—',
-        series:    row.series ? row.series.name : '—',
+        series:    row.series ? row.series.name + (row.seriesOrder ? ': ' + row.seriesOrder : '') : '—',
+        seriesName: row.series ? row.series.name : null,
+        seriesOrder: row.seriesOrder || null,
         genres:    row.genres?.length ? row.genres.map(g => g.name).join(', ') : '—',
         edition:   row.edition ? row.edition.name : '—',
         languages: row.languages?.length ? row.languages.map(l => l.name).join(', ') : '—',
