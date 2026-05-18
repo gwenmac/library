@@ -25,12 +25,12 @@ INSERT INTO editions (name) VALUES
 -- -------------------------------------------------------
 -- Authors (household_id = 1)
 -- -------------------------------------------------------
-INSERT INTO authors (name, household_id) VALUES
-    ('J.R.R. Tolkien', 1),
-    ('Frank Herbert', 1),
-    ('Agatha Christie', 1),
-    ('Tsugumi Ohba', 1),
-    ('Hiromu Arakawa', 1);
+INSERT INTO authors (first_name, last_name, household_id) VALUES
+    ('J.R.R.', 'Tolkien', 1),
+    ('Frank', 'Herbert', 1),
+    ('Agatha', 'Christie', 1),
+    ('Tsugumi', 'Ohba', 1),
+    ('Hiromu', 'Arakawa', 1);
 
 -- -------------------------------------------------------
 -- Series (household_id = 1)

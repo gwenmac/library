@@ -68,10 +68,11 @@ CREATE TABLE editions (
 
 CREATE TABLE authors (
      id           BIGINT NOT NULL AUTO_INCREMENT,
-     name         VARCHAR(255) NOT NULL,
+     first_name   VARCHAR(255),
+     last_name    VARCHAR(255) NOT NULL,
      household_id BIGINT NOT NULL,
      PRIMARY KEY (id),
-     UNIQUE KEY (household_id, name),
+     UNIQUE KEY (household_id, last_name, first_name),
      FOREIGN KEY (household_id) REFERENCES households(id)
 );
 

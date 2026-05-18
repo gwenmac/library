@@ -27,7 +27,8 @@ public class AuthorController {
     @ResponseStatus(HttpStatus.CREATED)
     public Author createAuthor(@RequestBody Map<String, String> body) {
         Author author = new Author();
-        author.setName(body.get("name"));
+        author.setFirstName(body.get("firstName"));
+        author.setLastName(body.get("lastName"));
         author.setHousehold(CurrentUser.get().getHousehold());
         return authorRepository.save(author);
     }

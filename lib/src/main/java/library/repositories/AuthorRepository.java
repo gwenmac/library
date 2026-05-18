@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface AuthorRepository extends JpaRepository<Author, Long> {
 
-    Optional<Author> findByName(String name);
+    Optional<Author> findByLastNameAndFirstNameAndHouseholdId(String lastName, String firstName, Long householdId);
 
     List<Author> findAllByHouseholdId(Long householdId);
 

@@ -5,13 +5,9 @@
       <input id="title" v-model="form.title" required />
     </div>
 
-    <ChipPicker
-      label="Authors"
+    <AuthorPicker
       :selected="selectedAuthors"
       :items="authorList"
-      create-endpoint="/api/authors"
-      select-placeholder="Select author"
-      new-placeholder="New author name..."
       @update:selected="selectedAuthors = $event"
       @update:items="authorList = $event"
       @error="$emit('error', $event)"
@@ -95,11 +91,12 @@
 
 <script>
 import ChipPicker from './ChipPicker.vue'
+import AuthorPicker from './AuthorPicker.vue'
 import SeriesPicker from './SeriesPicker.vue'
 import EditionPicker from './EditionPicker.vue'
 
 export default {
-  components: { ChipPicker, SeriesPicker, EditionPicker },
+  components: { ChipPicker, AuthorPicker, SeriesPicker, EditionPicker },
   props: {
     form: { type: Object, required: true }
   },
