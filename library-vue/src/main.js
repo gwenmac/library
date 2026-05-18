@@ -2,7 +2,19 @@ import { createApp } from 'vue';
 import App from './App.vue';
 import './assets/main.css';
 import router from "./router";
-import { isLoggedIn } from './auth/api.js';
+import { isLoggedIn, clearAuth } from './auth/api.js';
+
+// Validate token against backend on startup
+if (isLoggedIn()) {
+    fetch('/api/statuses/all', {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+    }).then(res => {
+        if (res.status === 401) {
+            clearAuth();
+            window.location.hash = '#/login';
+        }
+    }).catch(() => {});
+}
 
 // Redirect to login when the user returns to an expired session
 document.addEventListener('visibilitychange', () => {

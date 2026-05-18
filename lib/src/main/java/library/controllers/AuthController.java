@@ -5,6 +5,7 @@ import library.entities.User;
 import library.repositories.HouseholdRepository;
 import library.repositories.UserRepository;
 import library.security.JwtUtil;
+import library.security.CurrentUser;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
