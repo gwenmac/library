@@ -26,7 +26,7 @@
       <thead>
         <tr>
           <th class="sortable" @click="toggleSort('title')">Title {{ sortField === 'title' ? (sortOrder === 'asc' ? '▲' : '▼') : '' }}</th>
-          <th>Author</th>
+          <th class="sortable" @click="toggleSort('author')">Author {{ sortField === 'author' ? (sortOrder === 'asc' ? '▲' : '▼') : '' }}</th>
           <th class="sortable" @click="toggleSort('series')">Series {{ sortField === 'series' ? (sortOrder === 'asc' ? '▲' : '▼') : '' }}</th>
           <th>Genres</th>
           <th>Edition</th>
@@ -120,6 +120,8 @@ export default {
           const aVal = strip(a.seriesName)
           const bVal = strip(b.seriesName)
           cmp = aVal.localeCompare(bVal) || (a.seriesOrder || 0) - (b.seriesOrder || 0)
+        } else if (this.sortField === 'author') {
+          cmp = a.authorSort.localeCompare(b.authorSort)
         } else {
           cmp = a.sortTitle.localeCompare(b.sortTitle)
         }
@@ -205,6 +207,7 @@ export default {
         title:     row.title,
         sortTitle:  row.sortTitle || row.title,
         authors:   row.authors?.length ? row.authors.map(a => a.name).join(', ') : '—',
+        authorSort: row.authors?.length ? row.authors.map(a => a.lastName || '').sort().join(', ') : '',
         series:    row.series ? row.series.name + (row.seriesOrder ? ': ' + row.seriesOrder : '') : '—',
         seriesName: row.series ? row.series.name : null,
         seriesOrder: row.seriesOrder || null,
