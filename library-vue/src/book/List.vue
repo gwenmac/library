@@ -43,7 +43,7 @@
             <span v-else>—</span>
           </td>
           <td>
-            <a v-if="book.series !== '—'" class="filter-link" @click="search = book.seriesName">{{ book.series }}</a>
+            <a v-if="book.series !== '—'" class="filter-link" @click="search = book.seriesName; sortField = 'series'; sortOrder = 'asc'">{{ book.series }}</a>
             <span v-else>—</span>
           </td>
           <td>{{ book.genres }}</td>
