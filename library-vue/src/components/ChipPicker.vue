@@ -16,6 +16,9 @@
       <button type="button" class="picker-btn picker-btn-add" @click="add" :disabled="creatingNew ? !newName.trim() : !itemToAdd">
         Add
       </button>
+      <button v-if="!canCreate" type="button" class="picker-btn picker-btn-exclude" @click="exclude" :disabled="creatingNew ? !newName.trim() : !itemToAdd">
+        Exclude
+      </button>
       <button v-if="canCreate" type="button" class="picker-btn picker-btn-toggle" @click="toggleNew">
         {{ creatingNew ? 'Pick existing' : '+ New' }}
       </button>
@@ -82,6 +85,16 @@ export default {
         if (item) this.$emit('update:selected', [...this.selected, item])
         this.itemToAdd = null
       }
+    },
+    async exclude() {
+      if (!this.itemToAdd) return
+      const items = this.items.filter(i => i.id !== this.itemToAdd)
+      for (const item of items) {
+        if (!this.selected.includes(item)) {
+          this.selected.push(item)
+        }
+      }
+      this.itemToAdd = null
     },
     remove(id) {
       this.$emit('update:selected', this.selected.filter(i => i.id !== id))
@@ -162,6 +175,16 @@ export default {
 }
 
 .picker-btn-add:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.picker-btn-exclude {
+  background: #ea1e45;
+  color: #fff;
+}
+
+.picker-btn-exclude:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
