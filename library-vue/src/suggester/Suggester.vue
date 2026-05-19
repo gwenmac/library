@@ -1,6 +1,7 @@
 <template>
   <div class="suggester">
     <h1>Suggester</h1>
+    <p>For each section, if no selection is specified, all options will be searched.</p>
     <form>
       <h4>Pages</h4>
       <div class="field">
@@ -124,7 +125,7 @@ export default {
     return {
       form: {
         minPageCount: 0,
-        maxPageCount: null,
+        maxPageCount: 99999,
         includeNoPageCount: true,
         selectedLanguages: [],
         selectedTags: [],
