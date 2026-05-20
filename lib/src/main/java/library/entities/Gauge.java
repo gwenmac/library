@@ -12,7 +12,7 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-@Table(name = "gauges")
+@Table(name = "gauge")
 public class Gauge {
 
     @Id

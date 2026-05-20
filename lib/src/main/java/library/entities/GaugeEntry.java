@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-@Table(name = "gauge_entries")
+@Table(name = "gauge_entry")
 public class GaugeEntry {
 
     @Id

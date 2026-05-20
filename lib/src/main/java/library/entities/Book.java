@@ -13,7 +13,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
-@Table(name = "books")
+@Table(name = "book")
 public class Book {
 
     @Id
@@ -25,7 +25,7 @@ public class Book {
 
     @ManyToMany
     @JoinTable(
-            name = "book_authors",
+            name = "book_author",
             joinColumns = @JoinColumn(name = "book_id"),
             inverseJoinColumns = @JoinColumn(name = "author_id")
     )
@@ -47,7 +47,7 @@ public class Book {
 
     @ManyToMany
     @JoinTable(
-            name = "book_genres",
+            name = "book_genre",
             joinColumns = @JoinColumn(name = "book_id"),
             inverseJoinColumns = @JoinColumn(name = "genre_id")
     )
@@ -55,7 +55,7 @@ public class Book {
 
     @ManyToMany
     @JoinTable(
-            name = "book_tags",
+            name = "book_tag",
             joinColumns = @JoinColumn(name = "book_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
@@ -63,7 +63,7 @@ public class Book {
 
     @ManyToMany
     @JoinTable(
-            name = "book_languages",
+            name = "book_language",
             joinColumns = @JoinColumn(name = "book_id"),
             inverseJoinColumns = @JoinColumn(name = "language_id")
     )

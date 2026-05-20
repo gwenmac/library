@@ -1,9 +1,9 @@
 USE library;
 
 -- -------------------------------------------------------
--- Genres
+-- Genre
 -- -------------------------------------------------------
-INSERT INTO genres (name) VALUES
+INSERT INTO genre (name) VALUES
     ('Fantasy'),
     ('Science Fiction'),
     ('Mystery'),
@@ -13,19 +13,19 @@ INSERT INTO genres (name) VALUES
     ('Manga');
 
 -- -------------------------------------------------------
--- Editions
+-- Edition
 -- editions: 1=Hardcover, 2=Paperback, 3=Mass Market Paperback, 4=Kindle
 -- -------------------------------------------------------
-INSERT INTO editions (name) VALUES
+INSERT INTO edition (name) VALUES
     ('Hardcover'),
     ('Paperback'),
     ('Mass Market Paperback'),
     ('Kindle');
 
 -- -------------------------------------------------------
--- Authors (household_id = 1)
+-- Author (household_id = 1)
 -- -------------------------------------------------------
-INSERT INTO authors (first_name, last_name, household_id) VALUES
+INSERT INTO author (first_name, last_name, household_id) VALUES
     ('J.R.R.', 'Tolkien', 1),
     ('Frank', 'Herbert', 1),
     ('Agatha', 'Christie', 1),
@@ -41,12 +41,12 @@ INSERT INTO series (name, status, household_id) VALUES
     ('Fullmetal Alchemist',   'NOT_STARTED', 1);
 
 -- -------------------------------------------------------
--- Books (household_id = 1)
+-- Book (household_id = 1)
 -- statuses: 1=Not Started, 2=In Progress, 3=Completed,
 --           4=Did Not Finish, 5=Paused, 6=Not Applicable,
 --           7=Not Interested
 -- -------------------------------------------------------
-INSERT INTO books (title, description, page_count, year, sort_title, series_id, series_order, edition_id, household_id, created_at, updated_at) VALUES
+INSERT INTO book (title, description, page_count, year, sort_title, series_id, series_order, edition_id, household_id, created_at, updated_at) VALUES
     -- Lord of the Rings trilogy (series_id = 1)
     ('The Fellowship of the Ring',
      'The first part of Tolkien''s epic fantasy where the Fellowship sets out to destroy the One Ring.',
@@ -84,13 +84,13 @@ INSERT INTO books (title, description, page_count, year, sort_title, series_id, 
      192, 2001, 'Fullmetal Alchemist 001', 3, 1, 2, 1, NOW(), NOW());
 
 -- -------------------------------------------------------
--- Book authors  (book_authors = @JoinTable join table)
--- authors: 1=Tolkien, 2=Herbert, 3=Christie,
+-- Book author  (book_author = @JoinTable join table)
+-- author: 1=Tolkien, 2=Herbert, 3=Christie,
 --          4=Tsugumi Ohba, 5=Hiromu Arakawa
--- books:   1=Fellowship, 2=Two Towers, 3=Return,
+-- book:   1=Fellowship, 2=Two Towers, 3=Return,
 --          4=Dune, 5=Christie, 6=DN1, 7=DN2, 8=FMA1
 -- -------------------------------------------------------
-INSERT INTO book_authors (book_id, author_id) VALUES
+INSERT INTO book_author (book_id, author_id) VALUES
     (1, 1), -- Fellowship of the Ring → J.R.R. Tolkien
     (2, 1), -- The Two Towers        → J.R.R. Tolkien
     (3, 1), -- The Return of the King→ J.R.R. Tolkien
@@ -101,13 +101,13 @@ INSERT INTO book_authors (book_id, author_id) VALUES
     (8, 5); -- FMA Vol. 1            → Hiromu Arakawa
 
 -- -------------------------------------------------------
--- Book genres  (book_genres = @JoinTable join table)
+-- Book genre  (book_genres = @JoinTable join table)
 -- genres: 1=Fantasy, 2=Sci-Fi, 3=Mystery, 4=Horror,
 --         5=Romance, 6=Historical Fiction, 7=Manga
 -- books:  1=Fellowship, 2=Two Towers, 3=Return,
 --         4=Dune, 5=Christie, 6=DN1, 7=DN2, 8=FMA1
 -- -------------------------------------------------------
-INSERT INTO book_genres (book_id, genre_id) VALUES
+INSERT INTO book_genre (book_id, genre_id) VALUES
     (1, 1), -- Fellowship of the Ring → Fantasy
     (2, 1), -- The Two Towers        → Fantasy
     (3, 1), -- The Return of the King→ Fantasy
@@ -121,10 +121,10 @@ INSERT INTO book_genres (book_id, genre_id) VALUES
     (8, 1); -- FMA Vol. 1            → Fantasy
 
 -- -------------------------------------------------------
--- Book languages  (book_languages = @JoinTable join table)
+-- Book language  (book_language = @JoinTable join table)
 -- languages: 1=English, 2=Japanese
 -- -------------------------------------------------------
-INSERT INTO book_languages (book_id, language_id) VALUES
+INSERT INTO book_language (book_id, language_id) VALUES
     (1, 1), -- Fellowship → English
     (2, 1), -- Two Towers → English
     (3, 1), -- Return     → English
@@ -148,20 +148,24 @@ INSERT INTO book_status (book_id, status_id, user_id, started_at, finished_at, u
     (6, 1, 1, NULL,         NULL,          NOW()); -- DN Vol. 1: Not Started
 
 -- -------------------------------------------------------
--- Reviews  (only for completed books)
+-- Review  (only for completed books)
 -- -------------------------------------------------------
-INSERT INTO reviews (book_id, user_id, rating, notes, created_at) VALUES
+INSERT INTO review (book_id, user_id, rating, notes, created_at) VALUES
     (1, 1, 5, 'A masterpiece of world-building. The journey from the Shire to Rivendell is magical.', '2025-01-21 09:00:00'),
     (4, 1, 4, 'Dense but rewarding. The political and ecological themes hold up remarkably well.', '2025-03-01 10:30:00'),
     (5, 1, 5, 'Brilliant plotting. I did not see the ending coming at all.',                        '2025-03-05 20:00:00');
 
--- Gauges (user_id = 1)
+-- Gauge (user_id = 1)
 
-INSERT INTO gauges (id, name, description, user_id, created_at) VALUES
+INSERT INTO gauge (id, name, description, user_id, created_at) VALUES
     (1, 'Books Read VS Bought', 'Positive = ahead on reading, Negative = buying faster than reading', 1, NOW());
 
-INSERT INTO tags(name) VALUES
+INSERT INTO tag(name) VALUES
    ('Favorite'),
    ('To Re-read'),
    ('Gifted'),
    ('Easy');
+
+INSERT INTO wishlisted_book(title, notes, sort_title, household_id, user_id, created_at, updated_at) VALUES
+   ('The Hobbit', 'Prequel to Lord of the Rings.', 'Hobbit', 1, 1, NOW(), NOW()),
+   ('Neuromancer', 'Classic cyberpunk novel by William Gibson. Heard great things about it.', 'Neuromancer', 1, 1, NOW(), NOW());

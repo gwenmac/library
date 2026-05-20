@@ -11,7 +11,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
-@Table(name = "languages")
+@Table(name = "language")
 public class Language {
 
     @Id
