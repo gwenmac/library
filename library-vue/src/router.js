@@ -13,6 +13,7 @@ import Login from "./auth/Login.vue";
 import Bootstrap from "./auth/Bootstrap.vue";
 import AdminUsers from "./admin/Users.vue";
 import AdminHouseholds from "./admin/Households.vue";
+import WishlistList from "./wishlist/List.vue";
 
 const routes = [
     { path: '/', component: Home },
@@ -26,7 +27,8 @@ const routes = [
     { path: '/login', component: Login, meta: { public: true } },
     { path: '/bootstrap', component: Bootstrap, meta: { public: true } },
     { path: '/admin/users', component: AdminUsers, meta: { requiresAdmin: true } },
-    { path: '/admin/households', component: AdminHouseholds, meta: { requiresAdmin: true } }
+    { path: '/admin/households', component: AdminHouseholds, meta: { requiresAdmin: true } },
+    { path: '/wishlist/list', component: WishlistList }
 ];
 
 const router = createRouter({
