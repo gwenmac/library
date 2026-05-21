@@ -14,6 +14,8 @@ import Bootstrap from "./auth/Bootstrap.vue";
 import AdminUsers from "./admin/Users.vue";
 import AdminHouseholds from "./admin/Households.vue";
 import WishlistList from "./wishlist/List.vue";
+import WishlistNew from "./wishlist/New.vue";
+import WishlistEdit from "./wishlist/Edit.vue";
 
 const routes = [
     { path: '/', component: Home },
@@ -28,7 +30,9 @@ const routes = [
     { path: '/bootstrap', component: Bootstrap, meta: { public: true } },
     { path: '/admin/users', component: AdminUsers, meta: { requiresAdmin: true } },
     { path: '/admin/households', component: AdminHouseholds, meta: { requiresAdmin: true } },
-    { path: '/wishlist/list', component: WishlistList }
+    { path: '/wishlist/list', component: WishlistList },
+    { path: '/wishlist/new', component: WishlistNew },
+    { path: '/wishlist/edit/:id', component: WishlistEdit };
 ];
 
 const router = createRouter({
