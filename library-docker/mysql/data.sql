@@ -30,7 +30,8 @@ INSERT INTO author (first_name, last_name, household_id) VALUES
     ('Frank', 'Herbert', 1),
     ('Agatha', 'Christie', 1),
     ('Tsugumi', 'Ohba', 1),
-    ('Hiromu', 'Arakawa', 1);
+    ('Hiromu', 'Arakawa', 1),
+    ('William', 'Gibson', 1);
 
 -- -------------------------------------------------------
 -- Series (household_id = 1)
@@ -166,6 +167,10 @@ INSERT INTO tag(name) VALUES
    ('Gifted'),
    ('Easy');
 
-INSERT INTO wishlisted_book(title, notes, sort_title, household_id, user_id, created_at, updated_at) VALUES
-   ('The Hobbit', 'Prequel to Lord of the Rings.', 'Hobbit', 1, 1, NOW(), NOW()),
-   ('Neuromancer', 'Classic cyberpunk novel by William Gibson. Heard great things about it.', 'Neuromancer', 1, 1, NOW(), NOW());
+INSERT INTO wishlisted_book(title, notes, sort_title, household_id, user_id, release_date, created_at, updated_at) VALUES
+   ('The Hobbit', 'Prequel to Lord of the Rings.', 'Hobbit', 1, 1, NOW(), NOW(), NOW()),
+   ('Neuromancer', 'Classic cyberpunk novel by William Gibson. Heard great things about it.', 'Neuromancer', 1, 1, NOW(), NOW(), NOW());
+
+INSERT INTO wishlisted_book_author(wishlisted_book_id, author_id) VALUES
+   (1, 1), -- The Hobbit → J.R.R. Tolkien
+   (2, 6); -- Neuromancer → William Gibson
