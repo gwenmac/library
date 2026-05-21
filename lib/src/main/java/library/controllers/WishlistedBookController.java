@@ -3,8 +3,10 @@ package library.controllers;
 import library.entities.WishlistedBook;
 import library.repositories.WishlistedBookRepository;
 import library.security.CurrentUser;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -20,5 +22,15 @@ public class WishlistedBookController {
     @GetMapping("/wishlist/all")
     public List<WishlistedBook> getAll() {
         return wishlistedBookRepository.findAllByHouseholdIdOrderBySortTitleAsc(CurrentUser.householdId());
+    }
+
+    @Transactional
+    @DeleteMapping("/wishlist/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        WishlistedBook book = wishlistedBookRepository.findByIdAndHouseholdId(id, CurrentUser.householdId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Wishlisted book not found"));
+        book.getAuthors().clear();
+        wishlistedBookRepository.delete(book);
     }
 }
