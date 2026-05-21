@@ -19,7 +19,7 @@
       <tr>
         <th class="sortable" @click="toggleSort('title')">Title {{ sortField === 'title' ? (sortOrder === 'asc' ? '▲' : '▼') : '' }}</th>
         <th class="sortable" @click="toggleSort('author')">Author {{ sortField === 'author' ? (sortOrder === 'asc' ? '▲' : '▼') : '' }}</th>
-        <th>Release Date</th>
+        <th class="sortable" @click="toggleSort('releaseDate')">Release Date {{ sortField === 'releaseDate' ? (sortOrder === 'asc' ? '▲' : '▼') : ''}} </th>
         <th>Notes</th>
         <th>Actions</th>
       </tr>
@@ -34,7 +34,7 @@
         <td>{{ book.releaseDate }}</td>
         <td>{{ book.notes }}</td>
         <td class="actions">
-          <router-link :to="'/book/edit/' + book.id" class="edit-link">Edit</router-link>
+          <router-link :to="'/wishlist/edit/' + book.id" class="edit-link">Edit</router-link>
           <button class="delete-btn" @click="deleteWishlistedBook(book)">Delete</button>
         </td>
       </tr>
@@ -72,12 +72,7 @@ export default {
       }
       result = result.slice().sort((a, b) => {
         let cmp
-        if (this.sortField === 'series') {
-          const strip = s => s ? s.replace(/^(the|a)\s+/i, '') : ''
-          const aVal = strip(a.seriesName)
-          const bVal = strip(b.seriesName)
-          cmp = aVal.localeCompare(bVal) || (a.seriesOrder || 0) - (b.seriesOrder || 0)
-        } else if (this.sortField === 'author') {
+        if (this.sortField === 'author') {
           cmp = a.authorSort.localeCompare(b.authorSort)
         } else {
           cmp = a.sortTitle.localeCompare(b.sortTitle)
@@ -94,43 +89,6 @@ export default {
       } else {
         this.sortField = field
         this.sortOrder = 'asc'
-      }
-    },
-    startEditingStatus(book) {
-      this.editingStatusBookId = book.id
-      this.editingStatusValue = book.statusId || null
-      this.$nextTick(() => {
-        const sel = this.$refs.statusSelect
-        if (sel) {
-          const el = Array.isArray(sel) ? sel[0] : sel
-          if (el) el.focus()
-        }
-      })
-    },
-    cancelEditingStatus() {
-      this.editingStatusBookId = null
-      this.editingStatusValue = null
-    },
-    async saveStatus(book) {
-      const statusId = this.editingStatusValue
-      try {
-        const res = await fetch('/api/books/' + book.id + '/status', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ statusId })
-        })
-        if (!res.ok) {
-          this.error = 'Failed to update status (API returned ' + res.status + ')'
-          return
-        }
-        const matched = this.statusOptions.find(s => s.id === statusId)
-        book.status = matched ? matched.name : '—'
-        book.statusId = statusId
-      } catch (err) {
-        this.error = 'Failed to update status: ' + err.message
-      } finally {
-        this.editingStatusBookId = null
-        this.editingStatusValue = null
       }
     },
     async deleteWishlistedBook(book) {
