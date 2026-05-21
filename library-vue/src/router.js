@@ -32,7 +32,7 @@ const routes = [
     { path: '/admin/households', component: AdminHouseholds, meta: { requiresAdmin: true } },
     { path: '/wishlist/list', component: WishlistList },
     { path: '/wishlist/new', component: WishlistNew },
-    { path: '/wishlist/edit/:id', component: WishlistEdit };
+    { path: '/wishlist/edit/:id', component: WishlistEdit }
 ];
 
 const router = createRouter({
