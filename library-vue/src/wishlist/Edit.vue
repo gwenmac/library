@@ -12,8 +12,8 @@
       />
 
       <div class="actions">
-        <button type="submit" :disabled="saving">{{ saving ? 'Saving...' : 'Add Book' }}</button>
-        <button type="button" @click="$router.push('/book/list')">Cancel</button>
+        <button type="submit" :disabled="saving">{{ saving ? 'Saving...' : 'Update' }}</button>
+        <button type="button" @click="$router.push('/wishlist/list')">Cancel</button>
       </div>
     </form>
   </div>
@@ -38,6 +38,15 @@ export default {
   async mounted() {
     try {
       await this.$refs.wishlistForm.loadLookups()
+      const id = this.$route.params.id
+      const bookRes = await fetch('/api/wishlist/' + id)
+      const book = await bookRes.json()
+      this.form.title = book.title
+      this.form.notes = book.description || ''
+      this.form.releaseDate = book.releaseDate
+      this.$refs.wishlistForm.setSelections({
+        authors: book.authors
+      })
     } catch (err) {
       console.error('Failed to load data:', err)
     }
@@ -46,12 +55,13 @@ export default {
     async save() {
       this.saving = true
       this.error = null
+      const id = this.$route.params.id
       try {
         const payload = await this.$refs.wishlistForm.preparePayload()
         if (this.error) return
 
-        const res = await fetch('/api/wishlist', {
-          method: 'POST',
+        const res = await fetch('/api/wishlist/' + id, {
+          method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         })

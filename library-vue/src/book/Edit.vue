@@ -44,7 +44,7 @@
       </div>
 
       <div class="actions">
-        <button type="submit" :disabled="saving">{{ saving ? 'Saving...' : 'Save' }}</button>
+        <button type="submit" :disabled="saving">{{ saving ? 'Saving...' : 'Update' }}</button>
         <button type="button" @click="$router.push('/book/list')">Cancel</button>
       </div>
     </form>

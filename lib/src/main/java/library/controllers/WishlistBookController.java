@@ -1,6 +1,7 @@
 package library.controllers;
 
 import library.entities.Author;
+import library.entities.Book;
 import library.entities.WishlistBook;
 import library.repositories.AuthorRepository;
 import library.repositories.WishlistBookRepository;
@@ -35,6 +36,12 @@ public class WishlistBookController {
         return wishlistBookRepository.findAllByUserIdOrderBySortTitleAsc(CurrentUser.get().getId());
     }
 
+    @GetMapping("/wishlist/{id}")
+    public WishlistBook getById(@PathVariable Long id) {
+        return wishlistBookRepository.findByIdAndUserId(id, CurrentUser.get().getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Book not found"));
+    }
+
     @Transactional
     @DeleteMapping("/wishlist/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -60,6 +67,28 @@ public class WishlistBookController {
         }
         book.setNotes((String) body.get("notes"));
         book.setCreatedAt(LocalDateTime.now());
+        book.setUpdatedAt(LocalDateTime.now());
+        return wishlistBookRepository.save(book);
+    }
+
+    @Transactional
+    @PutMapping("/wishlist/{id}")
+    public WishlistBook update(@PathVariable Long id, @RequestBody Map<String, Object> body) {
+        WishlistBook book = wishlistBookRepository.findByIdAndUserId(id, CurrentUser.get().getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Book not found"));
+
+        book.setTitle((String) body.get("title"));
+        if (body.get("authorIds") != null) {
+            book.setAuthors(resolveAuthorIds(body.get("authorIds")));
+        } else {
+            book.setAuthors(new HashSet<>());
+        }
+        if (body.get("releaseDate") != null) {
+            book.setReleaseDate(LocalDate.parse(body.get("releaseDate").toString(), formatter));
+        } else {
+            book.setReleaseDate(null);
+        }
+        book.setNotes((String) body.get("notes"));
         book.setUpdatedAt(LocalDateTime.now());
         return wishlistBookRepository.save(book);
     }
