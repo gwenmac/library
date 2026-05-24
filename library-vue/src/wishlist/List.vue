@@ -35,7 +35,7 @@
         <td>{{ book.notes }}</td>
         <td class="actions">
           <router-link :to="'/wishlist/edit/' + book.id" class="edit-link">Edit</router-link>
-          <button class="delete-btn" @click="deleteWishlistedBook(book)">Delete</button>
+          <button class="delete-btn" @click="deleteWishlistBook(book)">Delete</button>
         </td>
       </tr>
       </tbody>
@@ -91,7 +91,7 @@ export default {
         this.sortOrder = 'asc'
       }
     },
-    async deleteWishlistedBook(book) {
+    async deleteWishlistBook(book) {
       if (!confirm('Delete "' + book.title + '"?')) return
       try {
         const res = await fetch('/api/wishlist/' + book.id, { method: 'DELETE' })

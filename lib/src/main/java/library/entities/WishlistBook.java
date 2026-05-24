@@ -13,8 +13,8 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
-@Table(name = "wishlisted_book")
-public class WishlistedBook {
+@Table(name = "wishlist_book")
+public class WishlistBook {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -49,8 +49,8 @@ public class WishlistedBook {
 
     @ManyToMany
     @JoinTable(
-            name = "wishlisted_book_author",
-            joinColumns = @JoinColumn(name = "wishlisted_book_id"),
+            name = "wishlist_book_author",
+            joinColumns = @JoinColumn(name = "wishlist_book_id"),
             inverseJoinColumns = @JoinColumn(name = "author_id")
     )
     private Set<Author> authors = new HashSet<>();
@@ -67,7 +67,7 @@ public class WishlistedBook {
 
     @PrePersist
     @PreUpdate
-    private void onWishlistedBookChange() {
+    private void onWishlistBookChange() {
         populateSortName();
     }
 }

@@ -199,9 +199,9 @@ CREATE TABLE gauge_entry (
     FOREIGN KEY (gauge_id) REFERENCES gauge(id) ON DELETE CASCADE
 );
 
--- Wishlisted_books (depends on household, user)
+-- Wishlist_books (depends on household, user)
 
-CREATE TABLE wishlisted_book (
+CREATE TABLE wishlist_book (
     id           BIGINT NOT NULL AUTO_INCREMENT,
     title        VARCHAR(255) NOT NULL,
     notes        TEXT,
@@ -216,11 +216,11 @@ CREATE TABLE wishlisted_book (
     FOREIGN KEY (user_id) REFERENCES user(id)
 );
 
-CREATE TABLE wishlisted_book_author (
-    wishlisted_book_id   BIGINT NOT NULL,
+CREATE TABLE wishlist_book_author (
+    wishlist_book_id   BIGINT NOT NULL,
     author_id BIGINT NOT NULL,
-    PRIMARY KEY (wishlisted_book_id, author_id),
-    FOREIGN KEY (wishlisted_book_id)   REFERENCES wishlisted_book(id),
+    PRIMARY KEY (wishlist_book_id, author_id),
+    FOREIGN KEY (wishlist_book_id)   REFERENCES wishlist_book(id),
     FOREIGN KEY (author_id) REFERENCES author(id)
 );
 
