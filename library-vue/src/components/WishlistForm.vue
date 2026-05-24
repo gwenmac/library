@@ -15,7 +15,7 @@
 
     <div class="field">
       <label for="releaseDate">Release Date</label>
-      <input id="releaseDate" v-model.number="form.releaseDate" type="date" />
+      <input id="releaseDate" v-model="form.releaseDate" type="date" />
     </div>
 
     <div class="field">
@@ -28,11 +28,10 @@
 </template>
 
 <script>
-import ChipPicker from './ChipPicker.vue'
 import AuthorPicker from './AuthorPicker.vue'
 
 export default {
-  components: { ChipPicker, AuthorPicker },
+  components: { AuthorPicker },
   props: {
     form: { type: Object, required: true }
   },

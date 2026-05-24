@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface WishlistBookRepository extends JpaRepository<WishlistBook, Long> {
 
-    List<WishlistBook> findAllByHouseholdIdOrderBySortTitleAsc(Long householdId);
+    List<WishlistBook> findAllByUserIdOrderBySortTitleAsc(Long userId);
 
-    Optional<WishlistBook> findByIdAndHouseholdId(Long id, Long householdId);
+    Optional<WishlistBook> findByIdAndUserId(Long id, Long userId);
 }

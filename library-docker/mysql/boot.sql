@@ -206,13 +206,11 @@ CREATE TABLE wishlist_book (
     title        VARCHAR(255) NOT NULL,
     notes        TEXT,
     sort_title   VARCHAR(255),
-    household_id BIGINT NOT NULL,
     user_id      BIGINT NOT NULL,
     release_date DATE,
     created_at   DATETIME,
     updated_at   DATETIME,
     PRIMARY KEY (id),
-    FOREIGN KEY (household_id) REFERENCES household(id),
     FOREIGN KEY (user_id) REFERENCES user(id)
 );
 

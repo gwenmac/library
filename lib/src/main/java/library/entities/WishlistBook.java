@@ -6,6 +6,7 @@ import library.util.JapaneseUtil;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -30,13 +31,8 @@ public class WishlistBook {
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "household_id", nullable = false)
-    private Household household;
-
-    @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private Household user;
+    private User user;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
@@ -45,7 +41,7 @@ public class WishlistBook {
     private LocalDateTime updatedAt = LocalDateTime.now();
 
     @Column(name = "release_date")
-    private LocalDateTime releaseDate = LocalDateTime.now();
+    private LocalDate releaseDate;
 
     @ManyToMany
     @JoinTable(

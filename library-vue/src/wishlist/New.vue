@@ -59,22 +59,6 @@ export default {
           this.error = 'Failed to add wishlist book (API returned ' + res.status + ')'
           return
         }
-        const book = await res.json()
-        const bookId = book.id
-
-        const statusPayload = {
-          statusId: this.statusId
-        }
-        const statusRes = await fetch('/api/wishlist/' + bookId + '/status', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(statusPayload)
-        })
-        if (!statusRes.ok) {
-          this.error = 'Status save failed (API returned ' + statusRes.status + ')'
-          return
-        }
-
         this.$router.push('/wishlist/list')
       } catch (err) {
         this.error = 'Failed to add wishlist book: ' + err.message
