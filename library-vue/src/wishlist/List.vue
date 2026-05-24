@@ -74,8 +74,10 @@ export default {
         let cmp
         if (this.sortField === 'author') {
           cmp = a.authorSort.localeCompare(b.authorSort)
-        } else {
+        } else if (this.sortField === 'title') {
           cmp = a.sortTitle.localeCompare(b.sortTitle)
+        } else if (this.sortField === 'releaseDate') {
+          cmp = moment(a.releaseDate, 'MMMM Do, YYYY').diff(moment(b.releaseDate, 'MMMM Do, YYYY'))
         }
         return this.sortOrder === 'asc' ? cmp : -cmp
       })
