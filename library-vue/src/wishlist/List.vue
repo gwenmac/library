@@ -7,7 +7,12 @@
 
     <div class="search-row">
       <input v-model="search" placeholder="Search books..." class="search-input" />
-      <span v-if="search" class="clear-filter" @click="search = ''">✕ Clear filter</span>
+      <select v-model="releaseFilter" class="release-filter">
+        <option value="all">All</option>
+        <option value="released">Released</option>
+        <option value="not-released">Not Yet Released</option>
+      </select>
+      <span v-if="search || releaseFilter !== 'all'" class="clear-filter" @click="search = ''; releaseFilter = 'all'">✕ Clear filter</span>
     </div>
 
     <p v-if="error" class="error">{{ error }}</p>
@@ -50,6 +55,7 @@ export default {
     return {
       books: [],
       search: '',
+      releaseFilter: 'all',
       statusFilter: '',
       genreFilter: '',
       sortField: 'title',
@@ -69,6 +75,14 @@ export default {
         result = result.filter(b =>
             Object.values(b).some(v => String(v).toLowerCase().includes(q))
         )
+      }
+      if (this.releaseFilter !== 'all') {
+        const today = moment().startOf('day')
+        result = result.filter(b => {
+          if (!b.rawReleaseDate) return false
+          const release = moment(b.rawReleaseDate)
+          return this.releaseFilter === 'released' ? release.isSameOrBefore(today) : release.isAfter(today)
+        })
       }
       result = result.slice().sort((a, b) => {
         let cmp
@@ -121,7 +135,8 @@ export default {
         sortTitle:  row.sortTitle || row.title,
         authors:   row.authors?.length ? row.authors.map(a => a.name).join(', ') : '—',
         authorSort: row.authors?.length ? row.authors.map(a => a.lastName || '').sort().join(', ') : '',
-        releaseDate: row.releaseDate? moment(row.releaseDate).format('MMMM Do, YYYY') : '',
+        rawReleaseDate: row.releaseDate || null,
+        releaseDate: row.releaseDate ? moment(row.releaseDate).format('MMMM Do, YYYY') : '',
         notes: row.notes
       }))
     } catch (err) {
@@ -173,6 +188,13 @@ export default {
 .search-input {
   width: 100%;
   max-width: 400px;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+.release-filter {
   padding: 8px 12px;
   border: 1px solid #ccc;
   border-radius: 6px;
