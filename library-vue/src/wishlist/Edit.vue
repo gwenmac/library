@@ -42,7 +42,7 @@ export default {
       const bookRes = await fetch('/api/wishlist/' + id)
       const book = await bookRes.json()
       this.form.title = book.title
-      this.form.notes = book.description || ''
+      this.form.notes = book.notes || ''
       this.form.releaseDate = book.releaseDate
       this.$refs.wishlistForm.setSelections({
         authors: book.authors
