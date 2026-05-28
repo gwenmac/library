@@ -357,7 +357,7 @@ export default {
 }
 
 .sortable:hover {
-  color: #42b983;
+  color: #186c45;
 }
 
 .status-cell {

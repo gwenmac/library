@@ -70,7 +70,7 @@ public class BookController {
             book.setPageCount(((Number) body.get("pageCount")).intValue());
         }
         if (body.get("year") != null) {
-            book.setYear(((Number) body.get("year")).intValue());
+            book.setYear(Integer.parseInt(body.get("year").toString()));
         }
         if (body.get("seriesId") != null) {
             Long seriesId = ((Number) body.get("seriesId")).longValue();

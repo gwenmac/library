@@ -16,6 +16,7 @@ import AdminHouseholds from "./admin/Households.vue";
 import WishlistList from "./wishlist/List.vue";
 import WishlistNew from "./wishlist/New.vue";
 import WishlistEdit from "./wishlist/Edit.vue";
+import WishlistConvert from "./wishlist/Convert.vue";
 
 const routes = [
     { path: '/', component: Home },
@@ -32,7 +33,8 @@ const routes = [
     { path: '/admin/households', component: AdminHouseholds, meta: { requiresAdmin: true } },
     { path: '/wishlist/list', component: WishlistList },
     { path: '/wishlist/new', component: WishlistNew },
-    { path: '/wishlist/edit/:id', component: WishlistEdit }
+    { path: '/wishlist/edit/:id', component: WishlistEdit },
+    { path: '/wishlist/convert/:id', component: WishlistConvert }
 ];
 
 const router = createRouter({

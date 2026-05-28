@@ -40,6 +40,7 @@
         <td>{{ book.notes }}</td>
         <td class="actions">
           <router-link :to="'/wishlist/edit/' + book.id" class="edit-link">Edit</router-link>
+          <router-link :to="'/wishlist/convert/' + book.id" class="edit-link">Add to Library</router-link>
           <button class="delete-btn" @click="deleteWishlistBook(book)">Delete</button>
         </td>
       </tr>
@@ -265,6 +266,6 @@ export default {
 }
 
 .sortable:hover {
-  color: #42b983;
+  color: #186c45;
 }
 </style>
