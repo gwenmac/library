@@ -155,7 +155,6 @@ export default {
         this.saving = false
       }
 
-      // todo : delete wishlist entry
       try {
         const res = await fetch('/api/wishlist/' + id, {method: 'DELETE'})
         if (!res.ok) {
