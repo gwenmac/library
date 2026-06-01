@@ -32,6 +32,8 @@ dependencies {
 
     implementation 'com.ibm.icu:icu4j:76.1'
 
+    implementation 'com.opencsv:opencsv:5.9'
+
     compileOnly 'org.projectlombok:lombok:1.18.36'
     annotationProcessor 'org.projectlombok:lombok:1.18.36'
 }
