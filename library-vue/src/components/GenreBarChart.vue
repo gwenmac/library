@@ -49,6 +49,7 @@ export default {
     chartOptions() {
       return {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
           legend: { display: false },
           tooltip: {
@@ -76,6 +77,7 @@ export default {
 
 <style scoped>
 .bar-chart-container {
-  max-width: 400px;
+  width: 500px;
+  height: 350px;
 }
 </style>
