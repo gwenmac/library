@@ -36,7 +36,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="book in filteredBooks" :key="book.id">
+        <tr v-for="book in paginatedBooks" :key="book.id">
           <td>{{ book.title }}</td>
           <td>
             <a v-if="book.authors !== '—'" class="filter-link" @click="search = book.authors">{{ book.authors }}</a>
@@ -70,6 +70,14 @@
         </tr>
       </tbody>
     </table>
+
+    <div v-if="totalPages > 1" class="pagination">
+      <button :disabled="currentPage === 1" @click="currentPage = 1">«</button>
+      <button :disabled="currentPage === 1" @click="currentPage--">‹</button>
+      <span class="page-info">Page {{ currentPage }} of {{ totalPages }} ({{ filteredBooks.length }} books)</span>
+      <button :disabled="currentPage === totalPages" @click="currentPage++">›</button>
+      <button :disabled="currentPage === totalPages" @click="currentPage = totalPages">»</button>
+    </div>
   </div>
 </template>
 
@@ -87,7 +95,9 @@ export default {
       editingStatusBookId: null,
       editingStatusValue: null,
       loading: true,
-      error: null
+      error: null,
+      currentPage: 1,
+      pageSize: 20
     }
   },
   computed: {
@@ -128,7 +138,19 @@ export default {
         return this.sortOrder === 'asc' ? cmp : -cmp
       })
       return result
+    },
+    totalPages() {
+      return Math.max(1, Math.ceil(this.filteredBooks.length / this.pageSize))
+    },
+    paginatedBooks() {
+      const start = (this.currentPage - 1) * this.pageSize
+      return this.filteredBooks.slice(start, start + this.pageSize)
     }
+  },
+  watch: {
+    search() { this.currentPage = 1 },
+    statusFilter() { this.currentPage = 1 },
+    genreFilter() { this.currentPage = 1 }
   },
   methods: {
     toggleSort(field) {
@@ -375,5 +397,40 @@ export default {
   border-radius: 4px;
   font-size: 0.85rem;
   outline: none;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 8px 0;
+}
+
+.pagination button {
+  padding: 6px 12px;
+  background-color: #42b983;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pagination button:hover:not(:disabled) {
+  background-color: #369e6f;
+}
+
+.pagination button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.page-info {
+  font-size: 0.9rem;
+  color: #555;
+  margin: 0 8px;
 }
 </style>
