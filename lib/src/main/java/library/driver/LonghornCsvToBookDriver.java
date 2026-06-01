@@ -1,8 +1,11 @@
 package library.driver;
 
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.sql.*;
+import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 import com.opencsv.CSVReader;
@@ -10,41 +13,48 @@ import com.opencsv.exceptions.CsvValidationException;
 
 public class LonghornCsvToBookDriver {
 
-    private static final long HOUSEHOLD_ID = 1;
-    private static final long GWEN_USER_ID = 1;
-    private static final long DALE_USER_ID = 2; // adjust if different
+    private static final long HOUSEHOLD_ID = 3;
+    private static final long GWEN_USER_ID = 3;
+    private static final long DALE_USER_ID = 4;
+
+    private static long nextBookId = 9;
+    private static long nextAuthorId = 7;
+    private static long nextGenreId = 8;
+
+    // Track already-created authors and genres to avoid duplicates
+    private static final Map<String, Long> authorMap = new HashMap<>();
+    private static final Map<String, Long> genreMap = new HashMap<>();
 
     public static void main(String[] args) {
-        String url = "jdbc:mysql://localhost:3333/library";
-        String username = "root";
-        String password = "root";
         String fileLocation = args[0];
+        String outputFile = args.length > 1 ? args[1] : "csv/longhorn_import.sql";
 
-        System.out.println("Connecting database ...");
+        System.out.println("fileLocation: " + fileLocation);
+        System.out.println("outputFile: " + outputFile);
 
-        try (Connection connection = DriverManager.getConnection(url, username, password)) {
-            System.out.println("Database connected!");
-            System.out.println("fileLocation: " + fileLocation);
+        try (PrintWriter out = new PrintWriter(new FileWriter(outputFile));
+             CSVReader reader = new CSVReader(new FileReader(fileLocation))) {
 
-            try (CSVReader reader = new CSVReader(new FileReader(fileLocation))) {
-                reader.readNext(); // skip header
-                String[] line;
-                int count = 0;
-                while ((line = reader.readNext()) != null) {
-                    createBook(line, connection);
-                    count++;
-                }
-                System.out.println("Done! Processed " + count + " books.");
-            } catch (CsvValidationException | IOException e) {
-                throw new RuntimeException(e);
+            out.println("-- Generated SQL import from LonghornCollection.csv");
+            out.println("-- Run this against the library database");
+            out.println();
+
+            reader.readNext(); // skip header
+            String[] line;
+            int count = 0;
+            while ((line = reader.readNext()) != null) {
+                createBook(line, out);
+                count++;
             }
 
-        } catch (SQLException e) {
-            throw new IllegalStateException("Cannot connect the database!", e);
+            System.out.println("Done! Generated SQL for " + count + " books in: " + outputFile);
+
+        } catch (CsvValidationException | IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    private static void createBook(String[] cols, Connection conn) throws SQLException {
+    private static void createBook(String[] cols, PrintWriter out) {
         String title = cols[0];
         String authorFirst = Objects.equals(cols[1], "-") ? null : cols[1];
         String authorLast = Objects.equals(cols[2], "-") ? null : cols[2];
@@ -57,131 +67,94 @@ public class LonghornCsvToBookDriver {
         String specialEdition = cols[9];
         Integer pageNum = cols[10].isEmpty() ? null : Integer.parseInt(cols[10]);
 
+        long bookId = nextBookId++;
+        String sortTitle = title.replaceFirst("(?i)^(the|a)\\s+", "");
+
+        out.println("-- Book: " + title);
+
         // 1. Find or create author
         Long authorId = null;
         if (authorLast != null) {
-            authorId = findOrCreateAuthor(conn, authorFirst, authorLast);
+            authorId = getOrCreateAuthor(out, authorFirst, authorLast);
         }
 
         // 2. Find or create genre
         Long genreId = null;
         if (genre != null && !genre.isEmpty() && !genre.equals("-")) {
-            genreId = findOrCreateGenre(conn, genre);
+            genreId = getOrCreateGenre(out, genre);
         }
 
         // 3. Insert book
-        String sortTitle = title.replaceFirst("(?i)^(the|a)\\s+", "");
-        long bookId;
-        String insertBook = "INSERT INTO book (title, sort_title, page_count, year, household_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, NOW(), NOW())";
-        try (PreparedStatement ps = conn.prepareStatement(insertBook, Statement.RETURN_GENERATED_KEYS)) {
-            ps.setString(1, title);
-            ps.setString(2, sortTitle);
-            if (pageNum != null) ps.setInt(3, pageNum); else ps.setNull(3, Types.INTEGER);
-            if (year != null) ps.setInt(4, year); else ps.setNull(4, Types.INTEGER);
-            ps.setLong(5, HOUSEHOLD_ID);
-            ps.executeUpdate();
-
-            try (ResultSet keys = ps.getGeneratedKeys()) {
-                keys.next();
-                bookId = keys.getLong(1);
-            }
-        }
+        out.printf("INSERT INTO book (id, title, sort_title, page_count, year, household_id, created_at, updated_at) VALUES (%d, %s, %s, %s, %s, %d, NOW(), NOW());%n",
+                bookId,
+                sqlString(title),
+                sqlString(sortTitle),
+                pageNum != null ? pageNum.toString() : "NULL",
+                year != null ? year.toString() : "NULL",
+                HOUSEHOLD_ID);
 
         // 4. Link author to book
         if (authorId != null) {
-            String insertBookAuthor = "INSERT INTO book_author (book_id, author_id) VALUES (?, ?)";
-            try (PreparedStatement ps = conn.prepareStatement(insertBookAuthor)) {
-                ps.setLong(1, bookId);
-                ps.setLong(2, authorId);
-                ps.executeUpdate();
-            }
+            out.printf("INSERT INTO book_author (book_id, author_id) VALUES (%d, %d);%n", bookId, authorId);
         }
 
         // 5. Link genre to book
         if (genreId != null) {
-            String insertBookGenre = "INSERT INTO book_genre (book_id, genre_id) VALUES (?, ?)";
-            try (PreparedStatement ps = conn.prepareStatement(insertBookGenre)) {
-                ps.setLong(1, bookId);
-                ps.setLong(2, genreId);
-                ps.executeUpdate();
-            }
+            out.printf("INSERT INTO book_genre (book_id, genre_id) VALUES (%d, %d);%n", bookId, genreId);
         }
 
         // 6. Default to English language (language id = 1)
-        String insertBookLang = "INSERT INTO book_language (book_id, language_id) VALUES (?, 1)";
-        try (PreparedStatement ps = conn.prepareStatement(insertBookLang)) {
-            ps.setLong(1, bookId);
-            ps.executeUpdate();
-        }
+        out.printf("INSERT INTO book_language (book_id, language_id) VALUES (%d, 1);%n", bookId);
 
         // 7. Set Gwen's status
         if (gwenStatusId != null && gwenStatusId > 0) {
-            insertBookStatus(conn, bookId, gwenStatusId, GWEN_USER_ID);
+            out.printf("INSERT INTO book_status (book_id, status_id, user_id, updated_at) VALUES (%d, %d, %d, NOW());%n",
+                    bookId, gwenStatusId, GWEN_USER_ID);
         }
 
         // 8. Set Dale's status
         if (daleStatusId != null && daleStatusId > 0) {
-            insertBookStatus(conn, bookId, daleStatusId, DALE_USER_ID);
+            out.printf("INSERT INTO book_status (book_id, status_id, user_id, updated_at) VALUES (%d, %d, %d, NOW());%n",
+                    bookId, daleStatusId, DALE_USER_ID);
         }
 
-        System.out.println("Created book: " + title + " (id=" + bookId + ")");
+        out.println();
     }
 
-    private static Long findOrCreateAuthor(Connection conn, String firstName, String lastName) throws SQLException {
-        // Try to find existing author
-        String select = "SELECT id FROM author WHERE last_name = ? AND (first_name = ? OR (first_name IS NULL AND ? IS NULL)) AND household_id = ?";
-        try (PreparedStatement ps = conn.prepareStatement(select)) {
-            ps.setString(1, lastName);
-            ps.setString(2, firstName);
-            ps.setString(3, firstName);
-            ps.setLong(4, HOUSEHOLD_ID);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) return rs.getLong("id");
-            }
+    private static Long getOrCreateAuthor(PrintWriter out, String firstName, String lastName) {
+        String key = (firstName != null ? firstName : "NULL") + "|" + lastName;
+        if (authorMap.containsKey(key)) {
+            return authorMap.get(key);
         }
 
-        // Create new author
-        String insert = "INSERT INTO author (first_name, last_name, household_id) VALUES (?, ?, ?)";
-        try (PreparedStatement ps = conn.prepareStatement(insert, Statement.RETURN_GENERATED_KEYS)) {
-            if (firstName != null) ps.setString(1, firstName); else ps.setNull(1, Types.VARCHAR);
-            ps.setString(2, lastName);
-            ps.setLong(3, HOUSEHOLD_ID);
-            ps.executeUpdate();
-            try (ResultSet keys = ps.getGeneratedKeys()) {
-                keys.next();
-                return keys.getLong(1);
-            }
-        }
+        long authorId = nextAuthorId++;
+        authorMap.put(key, authorId);
+
+        out.printf("INSERT INTO author (id, first_name, last_name, household_id) VALUES (%d, %s, %s, %d);%n",
+                authorId,
+                firstName != null ? sqlString(firstName) : "NULL",
+                sqlString(lastName),
+                HOUSEHOLD_ID);
+
+        return authorId;
     }
 
-    private static Long findOrCreateGenre(Connection conn, String name) throws SQLException {
-        String select = "SELECT id FROM genre WHERE name = ?";
-        try (PreparedStatement ps = conn.prepareStatement(select)) {
-            ps.setString(1, name);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) return rs.getLong("id");
-            }
+    private static Long getOrCreateGenre(PrintWriter out, String name) {
+        if (genreMap.containsKey(name)) {
+            return genreMap.get(name);
         }
 
-        String insert = "INSERT INTO genre (name) VALUES (?)";
-        try (PreparedStatement ps = conn.prepareStatement(insert, Statement.RETURN_GENERATED_KEYS)) {
-            ps.setString(1, name);
-            ps.executeUpdate();
-            try (ResultSet keys = ps.getGeneratedKeys()) {
-                keys.next();
-                return keys.getLong(1);
-            }
-        }
+        long genreId = nextGenreId++;
+        genreMap.put(name, genreId);
+
+        out.printf("INSERT INTO genre (id, name) VALUES (%d, %s);%n", genreId, sqlString(name));
+
+        return genreId;
     }
 
-    private static void insertBookStatus(Connection conn, long bookId, int statusId, long userId) throws SQLException {
-        String insert = "INSERT INTO book_status (book_id, status_id, user_id, updated_at) VALUES (?, ?, ?, NOW())";
-        try (PreparedStatement ps = conn.prepareStatement(insert)) {
-            ps.setLong(1, bookId);
-            ps.setInt(2, statusId);
-            ps.setLong(3, userId);
-            ps.executeUpdate();
-        }
+    private static String sqlString(String value) {
+        if (value == null) return "NULL";
+        return "'" + value.replace("'", "''") + "'";
     }
 
     private static Integer getStatus(String col) {
