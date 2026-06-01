@@ -6,21 +6,21 @@
     </div>
 
     <div class="search-row">
-      <input v-model="search" placeholder="Search books..." class="search-input" />
-      <select v-model="statusFilter" class="status-filter">
+      <input v-model="searchInput" @input="debouncedSearch" placeholder="Search books..." class="search-input" />
+      <select v-model="statusFilter" @change="resetAndFetch" class="status-filter">
         <option value="">All Statuses</option>
         <option v-for="s in statuses" :key="s" :value="s">{{ s }}</option>
       </select>
-      <select v-model="genreFilter" class="status-filter">
+      <select v-model="genreFilter" @change="resetAndFetch" class="status-filter">
         <option value="">All Genres</option>
         <option v-for="g in genres" :key="g" :value="g">{{ g }}</option>
       </select>
-      <span v-if="search || statusFilter || genreFilter" class="clear-filter" @click="search = ''; statusFilter = ''; genreFilter = ''">✕ Clear filter</span>
+      <span v-if="searchInput || statusFilter || genreFilter" class="clear-filter" @click="clearFilters">✕ Clear filter</span>
     </div>
 
     <p v-if="error" class="error">{{ error }}</p>
     <p v-else-if="loading">Loading...</p>
-    <p v-else-if="filteredBooks.length === 0">No books found.</p>
+    <p v-else-if="books.length === 0">No books found.</p>
 
     <table v-else>
       <thead>
@@ -36,14 +36,14 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="book in paginatedBooks" :key="book.id">
+        <tr v-for="book in books" :key="book.id">
           <td>{{ book.title }}</td>
           <td>
-            <a v-if="book.authors !== '—'" class="filter-link" @click="search = book.authors">{{ book.authors }}</a>
+            <a v-if="book.authors !== '—'" class="filter-link" @click="searchByText(book.authors)">{{ book.authors }}</a>
             <span v-else>—</span>
           </td>
           <td>
-            <a v-if="book.series !== '—'" class="filter-link" @click="search = book.seriesName; sortField = 'series'; sortOrder = 'asc'">{{ book.series }}</a>
+            <a v-if="book.series !== '—'" class="filter-link" @click="searchByText(book.seriesName); sortField = 'series'; sortOrder = 'asc'; fetchBooks()">{{ book.series }}</a>
             <span v-else>—</span>
           </td>
           <td>{{ book.genres }}</td>
@@ -72,11 +72,11 @@
     </table>
 
     <div v-if="totalPages > 1" class="pagination">
-      <button :disabled="currentPage === 1" @click="currentPage = 1">«</button>
-      <button :disabled="currentPage === 1" @click="currentPage--">‹</button>
-      <span class="page-info">Page {{ currentPage }} of {{ totalPages }} ({{ filteredBooks.length }} books)</span>
-      <button :disabled="currentPage === totalPages" @click="currentPage++">›</button>
-      <button :disabled="currentPage === totalPages" @click="currentPage = totalPages">»</button>
+      <button :disabled="currentPage === 0" @click="goToPage(0)">«</button>
+      <button :disabled="currentPage === 0" @click="goToPage(currentPage - 1)">‹</button>
+      <span class="page-info">Page {{ currentPage + 1 }} of {{ totalPages }} ({{ totalElements }} books)</span>
+      <button :disabled="currentPage === totalPages - 1" @click="goToPage(currentPage + 1)">›</button>
+      <button :disabled="currentPage === totalPages - 1" @click="goToPage(totalPages - 1)">»</button>
     </div>
   </div>
 </template>
@@ -86,79 +86,109 @@ export default {
   data() {
     return {
       books: [],
+      searchInput: '',
       search: '',
       statusFilter: '',
       genreFilter: '',
       sortField: 'title',
       sortOrder: 'asc',
       statusOptions: [],
+      statuses: [],
+      genres: [],
       editingStatusBookId: null,
       editingStatusValue: null,
       loading: true,
       error: null,
-      currentPage: 1,
-      pageSize: 20
+      currentPage: 0,
+      pageSize: 20,
+      totalPages: 0,
+      totalElements: 0,
+      debounceTimer: null
     }
-  },
-  computed: {
-    statuses() {
-      const all = this.books.map(b => b.status).filter(s => s && s !== '—')
-      return [...new Set(all)].sort()
-    },
-    genres() {
-      const all = this.books.flatMap(b => b.genres !== '—' ? b.genres.split(', ') : [])
-      return [...new Set(all)].sort()
-    },
-    filteredBooks() {
-      let result = this.books
-      if (this.statusFilter) {
-        result = result.filter(b => b.status === this.statusFilter)
-      }
-      if (this.genreFilter) {
-        result = result.filter(b => b.genres.split(', ').includes(this.genreFilter))
-      }
-      const q = this.search.toLowerCase()
-      if (q) {
-        result = result.filter(b =>
-          Object.values(b).some(v => String(v).toLowerCase().includes(q))
-        )
-      }
-      result = result.slice().sort((a, b) => {
-        let cmp
-        if (this.sortField === 'series') {
-          const strip = s => s ? s.replace(/^(the|a)\s+/i, '') : ''
-          const aVal = strip(a.seriesName)
-          const bVal = strip(b.seriesName)
-          cmp = aVal.localeCompare(bVal) || (a.seriesOrder || 0) - (b.seriesOrder || 0)
-        } else if (this.sortField === 'author') {
-          cmp = a.authorSort.localeCompare(b.authorSort)
-        } else {
-          cmp = a.sortTitle.localeCompare(b.sortTitle)
-        }
-        return this.sortOrder === 'asc' ? cmp : -cmp
-      })
-      return result
-    },
-    totalPages() {
-      return Math.max(1, Math.ceil(this.filteredBooks.length / this.pageSize))
-    },
-    paginatedBooks() {
-      const start = (this.currentPage - 1) * this.pageSize
-      return this.filteredBooks.slice(start, start + this.pageSize)
-    }
-  },
-  watch: {
-    search() { this.currentPage = 1 },
-    statusFilter() { this.currentPage = 1 },
-    genreFilter() { this.currentPage = 1 }
   },
   methods: {
+    debouncedSearch() {
+      clearTimeout(this.debounceTimer)
+      this.debounceTimer = setTimeout(() => {
+        this.search = this.searchInput
+        this.currentPage = 0
+        this.fetchBooks()
+      }, 300)
+    },
+    searchByText(text) {
+      this.searchInput = text
+      this.search = text
+      this.currentPage = 0
+      this.fetchBooks()
+    },
+    clearFilters() {
+      this.searchInput = ''
+      this.search = ''
+      this.statusFilter = ''
+      this.genreFilter = ''
+      this.currentPage = 0
+      this.fetchBooks()
+    },
+    resetAndFetch() {
+      this.currentPage = 0
+      this.fetchBooks()
+    },
+    goToPage(page) {
+      this.currentPage = page
+      this.fetchBooks()
+    },
     toggleSort(field) {
       if (this.sortField === field) {
         this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc'
       } else {
         this.sortField = field
         this.sortOrder = 'asc'
+      }
+      this.fetchBooks()
+    },
+    async fetchBooks() {
+      this.loading = true
+      this.error = null
+      try {
+        const params = new URLSearchParams({
+          page: this.currentPage,
+          size: this.pageSize,
+          search: this.search,
+          sort: this.sortField,
+          dir: this.sortOrder
+        })
+        if (this.statusFilter) params.set('status', this.statusFilter)
+        if (this.genreFilter) params.set('genre', this.genreFilter)
+
+        const res = await fetch('/api/books/page?' + params.toString())
+        if (!res.ok) {
+          this.error = 'API returned ' + res.status
+          return
+        }
+        const data = await res.json()
+        this.totalPages = data.totalPages
+        this.totalElements = data.totalElements
+        this.currentPage = data.number
+
+        this.books = data.content.map(row => ({
+          id:         row.id,
+          title:      row.title,
+          sortTitle:  row.sortTitle || row.title,
+          authors:    row.authors?.length ? row.authors.map(a => a.name).join(', ') : '—',
+          authorSort: row.authors?.length ? row.authors.map(a => a.lastName || '').sort().join(', ') : '',
+          series:     row.series ? row.series.name + (row.seriesOrder ? ': ' + row.seriesOrder : '') : '—',
+          seriesName: row.series ? row.series.name : null,
+          seriesOrder: row.seriesOrder || null,
+          genres:     row.genres?.length ? row.genres.map(g => g.name).join(', ') : '—',
+          edition:    row.edition ? row.edition.name : '—',
+          languages:  row.languages?.length ? row.languages.map(l => l.name).join(', ') : '—',
+          status:     row.statusName || '—',
+          statusId:   row.statusId || null
+        }))
+      } catch (err) {
+        this.error = 'Failed to load books: ' + err.message
+      } finally {
+        this.loading = false
       }
     },
     startEditingStatus(book) {
@@ -206,7 +236,7 @@ export default {
           this.error = 'Delete failed (API returned ' + res.status + ')'
           return
         }
-        this.books = this.books.filter(b => b.id !== book.id)
+        this.fetchBooks()
       } catch (err) {
         this.error = 'Delete failed: ' + err.message
       }
@@ -214,50 +244,22 @@ export default {
   },
   async mounted() {
     try {
-      const [booksRes, statusesRes] = await Promise.all([
-        fetch('/api/all'),
-        fetch('/api/statuses/all')
+      const [statusesRes, genresRes] = await Promise.all([
+        fetch('/api/statuses/all'),
+        fetch('/api/genres/all')
       ])
-      if (statusesRes.ok) this.statusOptions = await statusesRes.json()
-      if (!booksRes.ok) {
-        this.error = 'API returned ' + booksRes.status
-        return
+      if (statusesRes.ok) {
+        this.statusOptions = await statusesRes.json()
+        this.statuses = this.statusOptions.map(s => s.name).sort()
       }
-      const data = await booksRes.json()
-      this.books = data.map(row => ({
-        id:        row.id,
-        title:     row.title,
-        sortTitle:  row.sortTitle || row.title,
-        authors:   row.authors?.length ? row.authors.map(a => a.name).join(', ') : '—',
-        authorSort: row.authors?.length ? row.authors.map(a => a.lastName || '').sort().join(', ') : '',
-        series:    row.series ? row.series.name + (row.seriesOrder ? ': ' + row.seriesOrder : '') : '—',
-        seriesName: row.series ? row.series.name : null,
-        seriesOrder: row.seriesOrder || null,
-        genres:    row.genres?.length ? row.genres.map(g => g.name).join(', ') : '—',
-        edition:   row.edition ? row.edition.name : '—',
-        languages: row.languages?.length ? row.languages.map(l => l.name).join(', ') : '—',
-        status:    '—',
-        statusId:  null
-      }))
-
-      // Fetch per-user statuses for all books in parallel
-      const statusPromises = this.books.map(book =>
-        fetch('/api/books/' + book.id + '/status')
-          .then(res => res.ok ? res.json() : null)
-          .catch(() => null)
-      )
-      const statuses = await Promise.all(statusPromises)
-      statuses.forEach((status, i) => {
-        if (status) {
-          this.books[i].status = status.name
-          this.books[i].statusId = status.id
-        }
-      })
+      if (genresRes.ok) {
+        const genreData = await genresRes.json()
+        this.genres = genreData.map(g => g.name).sort()
+      }
     } catch (err) {
-      this.error = 'Failed to load books: ' + err.message
-    } finally {
-      this.loading = false
+      // Non-critical: filters just won't populate
     }
+    this.fetchBooks()
   }
 }
 </script>

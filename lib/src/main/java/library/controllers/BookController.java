@@ -3,11 +3,17 @@ package library.controllers;
 import library.entities.*;
 import library.repositories.*;
 import library.security.CurrentUser;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import jakarta.persistence.criteria.*;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -56,6 +62,106 @@ public class BookController {
     @GetMapping("/all")
     public List<Book> getAll() {
         return bookRepository.findAllByHouseholdIdOrderBySortTitleAsc(CurrentUser.householdId());
+    }
+
+    @GetMapping("/books/page")
+    public Map<String, Object> getPage(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "") String search,
+            @RequestParam(defaultValue = "title") String sort,
+            @RequestParam(defaultValue = "asc") String dir,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String genre) {
+
+        Long householdId = CurrentUser.householdId();
+        Long userId = CurrentUser.id();
+
+        Specification<Book> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(cb.equal(root.get("household").get("id"), householdId));
+
+            if (search != null && !search.isBlank()) {
+                String pattern = "%" + search.toLowerCase() + "%";
+                Join<Book, Author> authorJoin = root.join("authors", JoinType.LEFT);
+                Join<Book, Series> seriesJoin = root.join("series", JoinType.LEFT);
+                predicates.add(cb.or(
+                        cb.like(cb.lower(root.get("title")), pattern),
+                        cb.like(cb.lower(authorJoin.get("firstName")), pattern),
+                        cb.like(cb.lower(authorJoin.get("lastName")), pattern),
+                        cb.like(cb.lower(seriesJoin.get("name")), pattern)
+                ));
+                query.distinct(true);
+            }
+
+            if (genre != null && !genre.isBlank()) {
+                Join<Book, Genre> genreJoin = root.join("genres", JoinType.INNER);
+                predicates.add(cb.equal(genreJoin.get("name"), genre));
+                query.distinct(true);
+            }
+
+            if (status != null && !status.isBlank()) {
+                Subquery<Long> statusSub = query.subquery(Long.class);
+                Root<BookStatus> bsRoot = statusSub.from(BookStatus.class);
+                statusSub.select(bsRoot.get("book").get("id"));
+                statusSub.where(
+                        cb.equal(bsRoot.get("user").get("id"), userId),
+                        cb.equal(bsRoot.get("status").get("name"), status)
+                );
+                predicates.add(root.get("id").in(statusSub));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        Sort sortOrder;
+        switch (sort) {
+            case "author":
+                sortOrder = Sort.by("asc".equals(dir) ? Sort.Direction.ASC : Sort.Direction.DESC, "sortTitle");
+                break;
+            case "series":
+                sortOrder = Sort.by("asc".equals(dir) ? Sort.Direction.ASC : Sort.Direction.DESC, "sortTitle");
+                break;
+            default:
+                sortOrder = Sort.by("asc".equals(dir) ? Sort.Direction.ASC : Sort.Direction.DESC, "sortTitle");
+        }
+
+        Pageable pageable = PageRequest.of(page, size, sortOrder);
+        Page<Book> bookPage = bookRepository.findAll(spec, pageable);
+
+        // Batch-load statuses for all books on this page
+        List<Long> bookIds = bookPage.getContent().stream().map(Book::getId).toList();
+        List<BookStatus> userStatuses = bookStatusRepository.findAllByUserId(userId);
+        Map<Long, BookStatus> statusMap = new HashMap<>();
+        for (BookStatus bs : userStatuses) {
+            if (bookIds.contains(bs.getBook().getId())) {
+                statusMap.put(bs.getBook().getId(), bs);
+            }
+        }
+
+        List<Map<String, Object>> content = bookPage.getContent().stream().map(book -> {
+            Map<String, Object> row = new LinkedHashMap<>();
+            row.put("id", book.getId());
+            row.put("title", book.getTitle());
+            row.put("sortTitle", book.getSortTitle());
+            row.put("authors", book.getAuthors());
+            row.put("series", book.getSeries());
+            row.put("seriesOrder", book.getSeriesOrder());
+            row.put("genres", book.getGenres());
+            row.put("edition", book.getEdition());
+            row.put("languages", book.getLanguages());
+            BookStatus bs = statusMap.get(book.getId());
+            row.put("statusId", bs != null ? bs.getStatus().getId() : null);
+            row.put("statusName", bs != null ? bs.getStatus().getName() : null);
+            return row;
+        }).toList();
+
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("content", content);
+        result.put("totalElements", bookPage.getTotalElements());
+        result.put("totalPages", bookPage.getTotalPages());
+        result.put("number", bookPage.getNumber());
+        return result;
     }
 
     @Transactional
