@@ -95,9 +95,13 @@ public class BookController {
             }
 
             if (genre != null && !genre.isBlank()) {
-                Join<Book, Genre> genreJoin = root.join("genres", JoinType.INNER);
-                predicates.add(cb.equal(genreJoin.get("name"), genre));
-                query.distinct(true);
+                if (genre.equals("__none__")) {
+                    predicates.add(cb.isEmpty(root.get("genres")));
+                } else {
+                    Join<Book, Genre> genreJoin = root.join("genres", JoinType.INNER);
+                    predicates.add(cb.equal(genreJoin.get("name"), genre));
+                    query.distinct(true);
+                }
             }
 
             if (status != null && !status.isBlank()) {
@@ -105,10 +109,17 @@ public class BookController {
                 Root<BookStatus> bsRoot = statusSub.from(BookStatus.class);
                 statusSub.select(bsRoot.get("book").get("id"));
                 statusSub.where(
-                        cb.equal(bsRoot.get("user").get("id"), userId),
-                        cb.equal(bsRoot.get("status").get("name"), status)
+                        cb.equal(bsRoot.get("user").get("id"), userId)
                 );
-                predicates.add(root.get("id").in(statusSub));
+                if (status.equals("__none__")) {
+                    predicates.add(cb.not(root.get("id").in(statusSub)));
+                } else {
+                    statusSub.where(
+                            cb.equal(bsRoot.get("user").get("id"), userId),
+                            cb.equal(bsRoot.get("status").get("name"), status)
+                    );
+                    predicates.add(root.get("id").in(statusSub));
+                }
             }
 
             return cb.and(predicates.toArray(new Predicate[0]));

@@ -9,10 +9,12 @@
       <input v-model="searchInput" @input="debouncedSearch" placeholder="Search books..." class="search-input" />
       <select v-model="statusFilter" @change="resetAndFetch" class="status-filter">
         <option value="">All Statuses</option>
+        <option value="__none__">No Status</option>
         <option v-for="s in statuses" :key="s" :value="s">{{ s }}</option>
       </select>
       <select v-model="genreFilter" @change="resetAndFetch" class="status-filter">
         <option value="">All Genres</option>
+        <option value="__none__">No Genre</option>
         <option v-for="g in genres" :key="g" :value="g">{{ g }}</option>
       </select>
       <span v-if="searchInput || statusFilter || genreFilter" class="clear-filter" @click="clearFilters">✕ Clear filter</span>
