@@ -76,7 +76,18 @@
     <div v-if="totalPages > 1" class="pagination">
       <button :disabled="currentPage === 0" @click="goToPage(0)">«</button>
       <button :disabled="currentPage === 0" @click="goToPage(currentPage - 1)">‹</button>
-      <span class="page-info">Page {{ currentPage + 1 }} of {{ totalPages }} ({{ totalElements }} books)</span>
+      <span class="page-info">Page
+        <input
+          type="number"
+          class="page-jump"
+          :min="1"
+          :max="totalPages"
+          :value="currentPage + 1"
+          @keyup.enter="jumpToPage($event)"
+          @blur="jumpToPage($event)"
+        />
+        of {{ totalPages }} ({{ totalElements }} books)
+      </span>
       <button :disabled="currentPage === totalPages - 1" @click="goToPage(currentPage + 1)">›</button>
       <button :disabled="currentPage === totalPages - 1" @click="goToPage(totalPages - 1)">»</button>
     </div>
@@ -109,6 +120,21 @@ export default {
     }
   },
   methods: {
+    updateUrl() {
+      const query = {}
+      if (this.currentPage > 0) query.page = this.currentPage + 1
+      if (this.search) query.search = this.search
+      if (this.statusFilter) query.status = this.statusFilter
+      if (this.genreFilter) query.genre = this.genreFilter
+      if (this.sortField !== 'title') query.sort = this.sortField
+      if (this.sortOrder !== 'asc') query.dir = this.sortOrder
+      const current = this.$route.query
+      const changed = Object.keys(query).length !== Object.keys(current).length ||
+        Object.keys(query).some(k => String(query[k]) !== String(current[k]))
+      if (changed) {
+        this.$router.replace({ query })
+      }
+    },
     debouncedSearch() {
       clearTimeout(this.debounceTimer)
       this.debounceTimer = setTimeout(() => {
@@ -138,6 +164,14 @@ export default {
     goToPage(page) {
       this.currentPage = page
       this.fetchBooks()
+    },
+    jumpToPage(event) {
+      const val = parseInt(event.target.value, 10)
+      if (isNaN(val)) return
+      const page = Math.max(0, Math.min(val - 1, this.totalPages - 1))
+      if (page !== this.currentPage) {
+        this.goToPage(page)
+      }
     },
     toggleSort(field) {
       if (this.sortField === field) {
@@ -191,6 +225,7 @@ export default {
         this.error = 'Failed to load books: ' + err.message
       } finally {
         this.loading = false
+        this.updateUrl()
       }
     },
     startEditingStatus(book) {
@@ -245,6 +280,14 @@ export default {
     }
   },
   async mounted() {
+    const q = this.$route.query
+    if (q.page) this.currentPage = Math.max(0, parseInt(q.page, 10) - 1)
+    if (q.search) { this.search = q.search; this.searchInput = q.search }
+    if (q.status) this.statusFilter = q.status
+    if (q.genre) this.genreFilter = q.genre
+    if (q.sort) this.sortField = q.sort
+    if (q.dir) this.sortOrder = q.dir
+
     try {
       const [statusesRes, genresRes] = await Promise.all([
         fetch('/api/statuses/all'),
@@ -436,5 +479,14 @@ export default {
   font-size: 0.9rem;
   color: #555;
   margin: 0 8px;
+}
+
+.page-jump {
+  width: 3.5em;
+  padding: 4px 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  text-align: center;
 }
 </style>
