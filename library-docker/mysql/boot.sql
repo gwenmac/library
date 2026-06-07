@@ -40,9 +40,12 @@ CREATE TABLE genre (
 );
 
 CREATE TABLE tag (
-    id   BIGINT NOT NULL AUTO_INCREMENT,
-    name VARCHAR(255) NOT NULL UNIQUE,
-    PRIMARY KEY (id)
+    id           BIGINT NOT NULL AUTO_INCREMENT,
+    name         VARCHAR(255) NOT NULL,
+    household_id BIGINT NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uq_tag_name_household (name, household_id),
+    FOREIGN KEY (household_id) REFERENCES household(id)
 );
 
 CREATE TABLE status (

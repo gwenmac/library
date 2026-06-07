@@ -453,12 +453,14 @@ public class BookController {
     @SuppressWarnings("unchecked")
     private Set<Tag> resolveTagIds(Object raw) {
         if (raw == null) return new HashSet<>();
+        Long householdId = CurrentUser.householdId();
         List<Long> ids = ((List<Number>) raw).stream()
                 .map(Number::longValue)
                 .toList();
-        Set<Tag> tags = new HashSet<>(tagsRepository.findAllById(ids));
-        if (tags.size() != ids.size()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "One or more genre IDs not found");
+        Set<Tag> tags = new HashSet<>();
+        for (Long id : ids) {
+            tags.add(tagsRepository.findByIdAndHouseholdId(id, householdId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "One or more tag IDs not found")));
         }
         return tags;
     }
