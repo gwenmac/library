@@ -15,7 +15,7 @@
     <div class="charts" v-if="books.length">
       <div class="chart-card">
         <h2>Books by Status</h2>
-        <StatusPieChart :books="books" />
+        <StatusPieChart />
       </div>
       <div class="chart-card">
         <h2>Books by Genre</h2>

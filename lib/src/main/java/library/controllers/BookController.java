@@ -59,6 +59,42 @@ public class BookController {
         return statusRepository.findAll();
     }
 
+    @GetMapping("/books/status-counts")
+    public List<Map<String, Object>> getStatusCounts() {
+        Long userId = CurrentUser.id();
+        Long householdId = CurrentUser.householdId();
+        long totalBooks = bookRepository.countByHouseholdId(householdId);
+
+        List<BookStatus> userStatuses = bookStatusRepository.findAllByUserId(userId);
+        Map<String, Long> counts = new HashMap<>();
+        long assignedCount = 0;
+        for (BookStatus bs : userStatuses) {
+            if (bs.getBook().getHousehold().getId().equals(householdId)) {
+                String name = bs.getStatus().getName();
+                counts.merge(name, 1L, Long::sum);
+                assignedCount++;
+            }
+        }
+
+        long noStatusCount = totalBooks - assignedCount;
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Map.Entry<String, Long> entry : counts.entrySet()) {
+            Map<String, Object> item = new HashMap<>();
+            item.put("status", entry.getKey());
+            item.put("count", entry.getValue());
+            result.add(item);
+        }
+        if (noStatusCount > 0) {
+            Map<String, Object> item = new HashMap<>();
+            item.put("status", "No Status");
+            item.put("count", noStatusCount);
+            result.add(item);
+        }
+
+        return result;
+    }
+
     @GetMapping("/all")
     public List<Book> getAll() {
         return bookRepository.findAllByHouseholdIdOrderBySortTitleAsc(CurrentUser.householdId());

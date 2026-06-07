@@ -7,42 +7,27 @@
 <script>
 import { Pie } from 'vue-chartjs'
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
+import { api } from '../auth/api.js'
 
 ChartJS.register(ArcElement, Tooltip, Legend)
 
 export default {
   components: { Pie },
-  props: {
-    books: { type: Array, required: true }
-  },
   data() {
-    return { statusMap: {}, loaded: false }
+    return { statusCounts: [], loaded: false }
   },
   async mounted() {
-    // Fetch per-user status for each book
-    const promises = this.books.map(book =>
-      fetch('/api/books/' + book.id + '/status')
-        .then(res => res.ok ? res.json() : null)
-        .catch(() => null)
-    )
-    const statuses = await Promise.all(promises)
-    const map = {}
-    statuses.forEach((status, i) => {
-      map[this.books[i].id] = status ? status.name : null
-    })
-    this.statusMap = map
+    try {
+      this.statusCounts = await api('/books/status-counts')
+    } catch {
+      this.statusCounts = []
+    }
     this.loaded = true
   },
   computed: {
     chartData() {
-      const counts = {}
-      this.books.forEach(book => {
-        const status = this.statusMap[book.id] || 'No Status'
-        counts[status] = (counts[status] || 0) + 1
-      })
-
-      const labels = Object.keys(counts)
-      const data = Object.values(counts)
+      const labels = this.statusCounts.map(s => s.status)
+      const data = this.statusCounts.map(s => s.count)
 
       const colors = [
         '#42b983', '#e74c3c', '#f5a623', '#3498db',
