@@ -7,6 +7,7 @@ import library.security.CurrentUser;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -20,7 +21,7 @@ public class TagController {
 
     @GetMapping("/tags/all")
     public List<Tag> getAllTags() {
-        return tagsRepository.findAllByHouseholdId(CurrentUser.householdId());
+        return tagsRepository.findAllByHouseholdId(CurrentUser.householdId()).stream().sorted(Comparator.comparing(Tag::getName)).toList();
     }
 
     @PostMapping("/tags")

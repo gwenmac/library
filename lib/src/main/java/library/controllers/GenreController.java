@@ -5,6 +5,7 @@ import library.repositories.GenreRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -19,7 +20,7 @@ public class GenreController {
 
     @GetMapping("/genres/all")
     public List<Genre> getAllGenres() {
-        return genreRepository.findAll();
+        return genreRepository.findAll().stream().sorted(Comparator.comparing(Genre::getName)).toList();
     }
 
     @PostMapping("/genres")
