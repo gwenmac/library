@@ -158,16 +158,54 @@ public class BookController {
                 }
             }
 
+            // Apply ordering for join-based sorts (only on data queries, not count queries)
+            if (query.getResultType() != Long.class && query.getResultType() != long.class) {
+                if (sort.equals("author")) {
+                    Subquery<String> authorSub = query.subquery(String.class);
+                    Root<Book> subRoot = authorSub.correlate(root);
+                    Join<Book, Author> subAuthorJoin = subRoot.join("authors", JoinType.LEFT);
+                    if ("asc".equals(dir)) {
+                        authorSub.select(cb.least(subAuthorJoin.<String>get("lastName")));
+                        query.orderBy(
+                                cb.asc(authorSub),
+                                cb.asc(root.get("sortTitle"))
+                        );
+                    } else {
+                        authorSub.select(cb.greatest(subAuthorJoin.<String>get("lastName")));
+                        query.orderBy(
+                                cb.desc(authorSub),
+                                cb.desc(root.get("sortTitle"))
+                        );
+                    }
+                } else if (sort.equals("series")) {
+                    Subquery<String> seriesSub = query.subquery(String.class);
+                    Root<Book> seriesSubRoot = seriesSub.correlate(root);
+                    Join<Book, Series> subSeriesJoin = seriesSubRoot.join("series", JoinType.LEFT);
+                    seriesSub.select(subSeriesJoin.get("name"));
+                    if ("asc".equals(dir)) {
+                        query.orderBy(
+                                cb.asc(seriesSub),
+                                cb.asc(root.get("seriesOrder")),
+                                cb.asc(root.get("sortTitle"))
+                        );
+                    } else {
+                        query.orderBy(
+                                cb.desc(seriesSub),
+                                cb.desc(root.get("seriesOrder")),
+                                cb.desc(root.get("sortTitle"))
+                        );
+                    }
+                }
+            }
+
             return cb.and(predicates.toArray(new Predicate[0]));
         };
 
         Sort sortOrder;
         switch (sort) {
             case "author":
-                sortOrder = Sort.by("asc".equals(dir) ? Sort.Direction.ASC : Sort.Direction.DESC, "sortTitle");
-                break;
             case "series":
-                sortOrder = Sort.by("asc".equals(dir) ? Sort.Direction.ASC : Sort.Direction.DESC, "sortTitle");
+                sortOrder = Sort.unsorted();
                 break;
             default:
                 sortOrder = Sort.by("asc".equals(dir) ? Sort.Direction.ASC : Sort.Direction.DESC, "sortTitle");
