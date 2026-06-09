@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="field">
+    <div class="field" v-if="!hideTitle">
       <label for="title">Title</label>
       <input id="title" v-model="form.title" required />
     </div>
@@ -36,7 +36,7 @@
       @error="$emit('error', $event)"
     />
 
-    <div class="field" v-if="form.seriesId || ($refs.seriesPicker && $refs.seriesPicker.creatingNew)">
+    <div class="field" v-if="!hideSeriesOrder && (form.seriesId || ($refs.seriesPicker && $refs.seriesPicker.creatingNew))">
       <label for="seriesOrder">Order in Series</label>
       <input id="seriesOrder" v-model.number="form.seriesOrder" type="number" min="1" />
     </div>
@@ -98,7 +98,9 @@ import EditionPicker from './EditionPicker.vue'
 export default {
   components: { ChipPicker, AuthorPicker, SeriesPicker, EditionPicker },
   props: {
-    form: { type: Object, required: true }
+    form: { type: Object, required: true },
+    hideTitle: { type: Boolean, default: false },
+    hideSeriesOrder: { type: Boolean, default: false }
   },
   emits: ['error'],
   data() {

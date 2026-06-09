@@ -2,7 +2,10 @@
   <div class="book-list">
     <div class="list-header">
       <h2>Books</h2>
-      <router-link to="/book/new" class="add-btn">+ Add Book</router-link>
+      <div class="header-actions">
+        <router-link to="/book/new" class="add-btn">+ Add Book</router-link>
+        <router-link to="/book/bulk-series" class="add-btn bulk-btn">+ Bulk Add Series</router-link>
+      </div>
     </div>
 
     <div class="search-row">
@@ -337,6 +340,19 @@ export default {
 
 .add-btn:hover {
   background-color: #369e6f;
+}
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.bulk-btn {
+  background-color: #7c4dff;
+}
+
+.bulk-btn:hover {
+  background-color: #6200ea !important;
 }
 
 .search-row {
