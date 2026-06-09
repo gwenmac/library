@@ -6,6 +6,7 @@ import BookList from "./book/List.vue";
 import BookEdit from "./book/Edit.vue";
 import BookNew from "./book/New.vue";
 import BulkSeries from "./book/BulkSeries.vue";
+import SeriesList from "./book/SeriesList.vue";
 import GaugeList from "./gauge/List.vue";
 import GaugeDetail from "./gauge/Detail.vue";
 import GaugeNew from "./gauge/New.vue";
@@ -25,6 +26,7 @@ const routes = [
     { path: '/book/new', component: BookNew },
     { path: '/book/bulk-series', component: BulkSeries },
     { path: '/book/edit/:id', component: BookEdit },
+    { path: '/series', component: SeriesList },
     { path: '/gauge/list', component: GaugeList },
     { path: '/gauge/new', component: GaugeNew },
     { path: '/gauge/:id', component: GaugeDetail },

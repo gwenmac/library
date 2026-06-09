@@ -108,7 +108,8 @@ public class BookController {
             @RequestParam(defaultValue = "title") String sort,
             @RequestParam(defaultValue = "asc") String dir,
             @RequestParam(required = false) String status,
-            @RequestParam(required = false) String genre) {
+            @RequestParam(required = false) String genre,
+            @RequestParam(required = false) Long seriesId) {
 
         Long householdId = CurrentUser.householdId();
         Long userId = CurrentUser.id();
@@ -156,6 +157,10 @@ public class BookController {
                     );
                     predicates.add(root.get("id").in(statusSub));
                 }
+            }
+
+            if (seriesId != null) {
+                predicates.add(cb.equal(root.get("series").get("id"), seriesId));
             }
 
             // Apply ordering for join-based sorts (only on data queries, not count queries)

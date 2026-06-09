@@ -20,7 +20,7 @@
         <option value="__none__">No Genre</option>
         <option v-for="g in genres" :key="g" :value="g">{{ g }}</option>
       </select>
-      <span v-if="searchInput || statusFilter || genreFilter" class="clear-filter" @click="clearFilters">✕ Clear filter</span>
+      <span v-if="searchInput || statusFilter || genreFilter || seriesFilter" class="clear-filter" @click="clearFilters">✕ Clear filter</span>
     </div>
 
     <p v-if="error" class="error">{{ error }}</p>
@@ -48,7 +48,7 @@
             <span v-else>—</span>
           </td>
           <td>
-            <a v-if="book.series !== '—'" class="filter-link" @click="searchByText(book.seriesName); sortField = 'series'; sortOrder = 'asc'; fetchBooks()">{{ book.series }}</a>
+            <a v-if="book.series !== '—'" class="filter-link" @click="filterBySeries(book.seriesId)">{{ book.series }}</a>
             <span v-else>—</span>
           </td>
           <td>{{ book.genres }}</td>
@@ -106,6 +106,7 @@ export default {
       search: '',
       statusFilter: '',
       genreFilter: '',
+      seriesFilter: null,
       sortField: 'title',
       sortOrder: 'asc',
       statusOptions: [],
@@ -129,6 +130,7 @@ export default {
       if (this.search) query.search = this.search
       if (this.statusFilter) query.status = this.statusFilter
       if (this.genreFilter) query.genre = this.genreFilter
+      if (this.seriesFilter) query.seriesId = this.seriesFilter
       if (this.sortField !== 'title') query.sort = this.sortField
       if (this.sortOrder !== 'asc') query.dir = this.sortOrder
       const current = this.$route.query
@@ -152,11 +154,19 @@ export default {
       this.currentPage = 0
       this.fetchBooks()
     },
+    filterBySeries(seriesId) {
+      this.seriesFilter = seriesId
+      this.sortField = 'series'
+      this.sortOrder = 'asc'
+      this.currentPage = 0
+      this.fetchBooks()
+    },
     clearFilters() {
       this.searchInput = ''
       this.search = ''
       this.statusFilter = ''
       this.genreFilter = ''
+      this.seriesFilter = null
       this.currentPage = 0
       this.fetchBooks()
     },
@@ -198,6 +208,7 @@ export default {
         })
         if (this.statusFilter) params.set('status', this.statusFilter)
         if (this.genreFilter) params.set('genre', this.genreFilter)
+        if (this.seriesFilter) params.set('seriesId', this.seriesFilter)
 
         const res = await fetch('/api/books/page?' + params.toString())
         if (!res.ok) {
@@ -216,6 +227,7 @@ export default {
           authors:    row.authors?.length ? row.authors.map(a => a.name).join(', ') : '—',
           authorSort: row.authors?.length ? row.authors.map(a => a.lastName || '').sort().join(', ') : '',
           series:     row.series ? row.series.name + (row.seriesOrder ? ': ' + row.seriesOrder : '') : '—',
+          seriesId:   row.series ? row.series.id : null,
           seriesName: row.series ? row.series.name : null,
           seriesOrder: row.seriesOrder || null,
           genres:     row.genres?.length ? row.genres.map(g => g.name).join(', ') : '—',
@@ -288,6 +300,7 @@ export default {
     if (q.search) { this.search = q.search; this.searchInput = q.search }
     if (q.status) this.statusFilter = q.status
     if (q.genre) this.genreFilter = q.genre
+    if (q.seriesId) this.seriesFilter = Number(q.seriesId)
     if (q.sort) this.sortField = q.sort
     if (q.dir) this.sortOrder = q.dir
 
