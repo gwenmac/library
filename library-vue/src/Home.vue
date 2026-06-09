@@ -12,18 +12,21 @@
       </div>
     </div>
 
-    <div class="charts" v-if="books.length">
+    <div class="charts">
       <div class="chart-card">
         <h2>Books by Status</h2>
-        <StatusPieChart />
+        <p v-if="loading">Loading...</p>
+        <StatusPieChart v-else-if="books.length" />
       </div>
       <div class="chart-card">
         <h2>Books by Genre</h2>
-        <GenreBarChart :books="books" />
+        <p v-if="loading">Loading...</p>
+        <GenreBarChart v-else-if="books.length" :books="books" />
       </div>
       <div class="chart-card">
         <h2>Total Book Count</h2>
-        <Counter :books="books" />
+        <p v-if="loading">Loading...</p>
+        <Counter v-else-if="books.length" :books="books" />
       </div>
     </div>
   </div>
@@ -40,19 +43,17 @@ import { api } from './auth/api.js'
 export default {
   components: { GaugeDisplay, StatusPieChart, GenreBarChart, Counter },
   data() {
-    return { gauges: [], books: [] }
+    return { gauges: [], books: [], loading: true }
   },
   async mounted() {
-    try {
-      const [gauges, books] = await Promise.all([
-        api('/gauges'),
-        api('/all')
-      ])
-      this.gauges = gauges
-      this.books = books
-    } catch (err) {
-      console.error('Failed to load home data:', err)
-    }
+    api('/gauges')
+      .then(gauges => { this.gauges = gauges })
+      .catch(err => { console.error('Failed to load gauges:', err) })
+
+    api('/all')
+      .then(books => { this.books = books })
+      .catch(err => { console.error('Failed to load books:', err) })
+      .finally(() => { this.loading = false })
   }
 }
 </script>
