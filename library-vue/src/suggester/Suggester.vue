@@ -18,10 +18,12 @@
       <ChipPicker
           label="Genres"
           :selected="form.selectedGenres"
+          :excluded="form.excludedGenres"
           :items="genreList"
           create-endpoint="/api/genres"
           select-placeholder="Select genre"
           @update:selected="form.selectedGenres = $event"
+          @update:excluded="form.excludedGenres = $event"
           @update:items="genreList = $event"
           @error="$emit('error', $event)"
           :canCreate="false"
@@ -30,10 +32,12 @@
       <ChipPicker
           label="Tags"
           :selected="form.selectedTags"
+          :excluded="form.excludedTags"
           :items="tagList"
           create-endpoint="/api/tags"
           select-placeholder="Select tags"
           @update:selected="form.selectedTags = $event"
+          @update:excluded="form.excludedTags = $event"
           @update:items="tagList = $event"
           @error="$emit('error', $event)"
           :canCreate="false"
@@ -129,7 +133,9 @@ export default {
         includeNoPageCount: true,
         selectedLanguages: [],
         selectedTags: [],
+        excludedTags: [],
         selectedGenres: [],
+        excludedGenres: [],
         selectedStatuses: [],
         includeNoStatus: true,
         wantNewSeries: true,
@@ -175,7 +181,9 @@ export default {
         includeNoPageCount: this.form.includeNoPageCount,
         languages: this.form.selectedLanguages,
         tags: this.form.selectedTags,
+        excludedTags: this.form.excludedTags,
         genres: this.form.selectedGenres,
+        excludedGenres: this.form.excludedGenres,
         statuses: this.form.selectedStatuses,
         includeNoStatus: this.form.includeNoStatus,
         wantNewSeries: this.form.wantNewSeries,

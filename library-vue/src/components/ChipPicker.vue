@@ -1,10 +1,14 @@
 <template>
   <div class="field">
     <label>{{ label }}</label>
-    <div class="chip-list" v-if="selected.length">
-      <span class="chip" v-for="item in selected" :key="item.id">
+    <div class="chip-list" v-if="selected.length || excluded.length">
+      <span class="chip" v-for="item in selected" :key="'inc-' + item.id">
         {{ item.name }}
         <button type="button" class="chip-remove" @click="remove(item.id)">✕</button>
+      </span>
+      <span class="chip chip-excluded" v-for="item in excluded" :key="'exc-' + item.id">
+        {{ item.name }}
+        <button type="button" class="chip-remove" @click="removeExcluded(item.id)">✕</button>
       </span>
     </div>
     <div class="picker-row">
@@ -31,13 +35,14 @@ export default {
   props: {
     label: { type: String, required: true },
     selected: { type: Array, required: true },
+    excluded: { type: Array, default: () => [] },
     items: { type: Array, required: true },
     createEndpoint: { type: String, default: '' },
     canCreate: { type: Boolean, default: true },
     selectPlaceholder: { type: String, default: 'Select' },
     newPlaceholder: { type: String, default: 'New name...' }
   },
-  emits: ['update:selected', 'update:items', 'error'],
+  emits: ['update:selected', 'update:excluded', 'update:items', 'error'],
   data() {
     return {
       itemToAdd: null,
@@ -48,7 +53,8 @@ export default {
   computed: {
     available() {
       const selectedIds = new Set(this.selected.map(i => i.id))
-      return this.items.filter(i => !selectedIds.has(i.id))
+      const excludedIds = new Set(this.excluded.map(i => i.id))
+      return this.items.filter(i => !selectedIds.has(i.id) && !excludedIds.has(i.id))
     }
   },
   methods: {
@@ -88,13 +94,12 @@ export default {
     },
     async exclude() {
       if (!this.itemToAdd) return
-      const items = this.items.filter(i => i.id !== this.itemToAdd)
-      for (const item of items) {
-        if (!this.selected.includes(item)) {
-          this.selected.push(item)
-        }
-      }
+      const item = this.items.find(i => i.id === this.itemToAdd)
+      if (item) this.$emit('update:excluded', [...this.excluded, item])
       this.itemToAdd = null
+    },
+    removeExcluded(id) {
+      this.$emit('update:excluded', this.excluded.filter(i => i.id !== id))
     },
     remove(id) {
       this.$emit('update:selected', this.selected.filter(i => i.id !== id))
@@ -132,6 +137,12 @@ export default {
   font-size: 0.85rem;
   font-weight: 600;
   color: #2e7d5e;
+}
+
+.chip-excluded {
+  background: #fdecea;
+  border-color: #e74c3c;
+  color: #c0392b;
 }
 
 .chip-remove {

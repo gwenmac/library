@@ -39,7 +39,9 @@ public class SuggesterController {
         return bookLengthMatches(book, body.getMinLength(), body.getMaxLength(), body.isIncludeNoPageCount())
                 && bookLanguageMatches(book, body.getLanguages())
                 && bookTagMatches(book, body.getTags())
+                && !bookHasExcludedTag(book, body.getExcludedTags())
                 && bookGenreMatches(book, body.getGenres())
+                && !bookHasExcludedGenre(book, body.getExcludedGenres())
                 && bookStatusMatches(book, CurrentUser.get(), body.getStatuses(), body.isIncludeNoStatus())
                 && bookSeriesChecksMatches(book, body.isWantStandalone(), body.isWantNewSeries(), body.isWantStartedSeries());
     }
@@ -69,6 +71,18 @@ public class SuggesterController {
     protected boolean bookGenreMatches(Book book, List<Genre> genres) {
         return genres.isEmpty() || book.getGenres().stream().map(Genre::getId)
                 .anyMatch(g -> genres.stream().map(Genre::getId).toList().contains(g));
+    }
+
+    protected boolean bookHasExcludedGenre(Book book, List<Genre> excludedGenres) {
+        if (excludedGenres == null || excludedGenres.isEmpty()) return false;
+        return book.getGenres().stream().map(Genre::getId)
+                .anyMatch(g -> excludedGenres.stream().map(Genre::getId).toList().contains(g));
+    }
+
+    protected boolean bookHasExcludedTag(Book book, List<Tag> excludedTags) {
+        if (excludedTags == null || excludedTags.isEmpty()) return false;
+        return book.getTags().stream().map(Tag::getId)
+                .anyMatch(t -> excludedTags.stream().map(Tag::getId).toList().contains(t));
     }
 
     protected boolean bookStatusMatches(Book book, User user, List<Status> statuses, boolean includeNoStatus) {

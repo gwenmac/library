@@ -273,6 +273,88 @@ class SuggesterControllerTest {
     }
 
     @Test
+    void bookHasExcludedGenre_excludesWhenMatch() {
+        Book book = new Book();
+        Genre bookGenre = new Genre();
+        bookGenre.setId(1L);
+        book.setGenres(Set.of(bookGenre));
+
+        List<Genre> excluded = new ArrayList<>();
+        Genre genre = new Genre();
+        genre.setId(1L);
+        excluded.add(genre);
+
+        assertTrue(suggesterController.bookHasExcludedGenre(book, excluded));
+    }
+
+    @Test
+    void bookHasExcludedGenre_doesNotExcludeWhenNoMatch() {
+        Book book = new Book();
+        Genre bookGenre = new Genre();
+        bookGenre.setId(1L);
+        book.setGenres(Set.of(bookGenre));
+
+        List<Genre> excluded = new ArrayList<>();
+        Genre genre = new Genre();
+        genre.setId(2L);
+        excluded.add(genre);
+
+        assertFalse(suggesterController.bookHasExcludedGenre(book, excluded));
+    }
+
+    @Test
+    void bookHasExcludedGenre_emptyListDoesNotExclude() {
+        Book book = new Book();
+        Genre bookGenre = new Genre();
+        bookGenre.setId(1L);
+        book.setGenres(Set.of(bookGenre));
+
+        assertFalse(suggesterController.bookHasExcludedGenre(book, new ArrayList<>()));
+        assertFalse(suggesterController.bookHasExcludedGenre(book, null));
+    }
+
+    @Test
+    void bookHasExcludedTag_excludesWhenMatch() {
+        Book book = new Book();
+        Tag bookTag = new Tag();
+        bookTag.setId(1L);
+        book.setTags(Set.of(bookTag));
+
+        List<Tag> excluded = new ArrayList<>();
+        Tag tag = new Tag();
+        tag.setId(1L);
+        excluded.add(tag);
+
+        assertTrue(suggesterController.bookHasExcludedTag(book, excluded));
+    }
+
+    @Test
+    void bookHasExcludedTag_doesNotExcludeWhenNoMatch() {
+        Book book = new Book();
+        Tag bookTag = new Tag();
+        bookTag.setId(1L);
+        book.setTags(Set.of(bookTag));
+
+        List<Tag> excluded = new ArrayList<>();
+        Tag tag = new Tag();
+        tag.setId(2L);
+        excluded.add(tag);
+
+        assertFalse(suggesterController.bookHasExcludedTag(book, excluded));
+    }
+
+    @Test
+    void bookHasExcludedTag_emptyListDoesNotExclude() {
+        Book book = new Book();
+        Tag bookTag = new Tag();
+        bookTag.setId(1L);
+        book.setTags(Set.of(bookTag));
+
+        assertFalse(suggesterController.bookHasExcludedTag(book, new ArrayList<>()));
+        assertFalse(suggesterController.bookHasExcludedTag(book, null));
+    }
+
+    @Test
     void bookStatusMatches_bookMatchesOne() {
         Book book = new Book();
         book.setId(1L);

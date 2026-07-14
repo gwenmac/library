@@ -12,7 +12,9 @@ public class SuggesterRequestBody {
     private boolean includeNoPageCount;
     private List<Language> languages;
     private List<Tag> tags;
+    private List<Tag> excludedTags;
     private List<Genre> genres;
+    private List<Genre> excludedGenres;
     private List<Status> statuses;
     private boolean includeNoStatus;
     private boolean wantNewSeries;
