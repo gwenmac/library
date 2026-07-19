@@ -110,4 +110,20 @@ export default {
   color: #e74c3c;
   font-weight: 600;
 }
+
+@media (max-width: 768px) {
+  .gauge-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .list-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .add-btn {
+    text-align: center;
+  }
+}
 </style>

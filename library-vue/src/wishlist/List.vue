@@ -19,7 +19,8 @@
     <p v-else-if="loading">Loading...</p>
     <p v-else-if="filteredBooks.length === 0">No books found.</p>
 
-    <table v-else>
+    <div v-else class="table-wrap">
+    <table>
       <thead>
       <tr>
         <th class="sortable" @click="toggleSort('title')">Title {{ sortField === 'title' ? (sortOrder === 'asc' ? '▲' : '▼') : '' }}</th>
@@ -31,14 +32,14 @@
       </thead>
       <tbody>
       <tr v-for="book in paginatedBooks" :key="book.id">
-        <td>{{ book.title }}</td>
-        <td>
+        <td data-label="Title">{{ book.title }}</td>
+        <td data-label="Author">
           <a v-if="book.authors !== '—'" class="filter-link" @click="search = book.authors">{{ book.authors }}</a>
           <span v-else>—</span>
         </td>
-        <td>{{ book.releaseDate }}</td>
-        <td>{{ book.notes }}</td>
-        <td class="actions">
+        <td data-label="Release Date">{{ book.releaseDate }}</td>
+        <td data-label="Notes">{{ book.notes }}</td>
+        <td data-label="Actions" class="actions">
           <router-link :to="'/wishlist/edit/' + book.id" class="edit-link">Edit</router-link>
           <router-link :to="'/wishlist/convert/' + book.id" class="edit-link">Add to Library</router-link>
           <button class="delete-btn" @click="deleteWishlistBook(book)">Delete</button>
@@ -46,6 +47,7 @@
       </tr>
       </tbody>
     </table>
+    </div>
 
     <div v-if="totalPages > 1" class="pagination">
       <button :disabled="currentPage === 1" @click="currentPage = 1">«</button>
@@ -323,5 +325,75 @@ export default {
   font-size: 0.9rem;
   color: #555;
   margin: 0 8px;
+}
+
+.table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 768px) {
+  .list-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .add-btn {
+    text-align: center;
+  }
+
+  .search-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-input {
+    max-width: none;
+  }
+
+  table thead {
+    display: none;
+  }
+
+  table tbody tr {
+    display: block;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    padding: 12px;
+  }
+
+  table tbody td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+    border-bottom: none;
+  }
+
+  table tbody td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #555;
+    margin-right: 12px;
+    flex-shrink: 0;
+  }
+
+  table tbody td.actions {
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    padding-top: 8px;
+    border-top: 1px solid #f0f0f0;
+    margin-top: 4px;
+  }
+
+  table tbody td.actions::before {
+    display: none;
+  }
+
+  .pagination {
+    flex-wrap: wrap;
+  }
 }
 </style>
