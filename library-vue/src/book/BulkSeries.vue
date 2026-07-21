@@ -183,6 +183,7 @@ export default {
 
 .volume-range .field {
   flex: 1;
+  min-width: 0;
 }
 
 .hint {
@@ -254,5 +255,6 @@ export default {
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 0.95rem;
+  box-sizing: border-box;
 }
 </style>
