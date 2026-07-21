@@ -10,7 +10,9 @@
 
         <label for="maxPageCount">Maximum</label>
         <input id="maxPageCount" v-model.number="form.maxPageCount" type="number" />
+      </div>
 
+      <div class="field">
         <label for="includeNoPageCount">Do you want to include books with no page count?</label>
         <input type="checkbox" id="includeNoPageCount" v-model="form.includeNoPageCount" />
       </div>
