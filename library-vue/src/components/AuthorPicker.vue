@@ -137,8 +137,6 @@ export default {
   display: flex;
   gap: 8px;
   align-items: center;
-  max-width: 100%;
-  box-sizing: border-box;
 }
 
 .picker-row select,

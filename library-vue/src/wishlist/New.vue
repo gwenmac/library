@@ -118,5 +118,6 @@ export default {
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 0.95rem;
+  box-sizing: border-box;
 }
 </style>
