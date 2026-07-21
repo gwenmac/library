@@ -1,17 +1,20 @@
 <template>
   <nav id="nav" v-if="user">
     <div class="nav-brand">📚 Library</div>
-    <ul>
-      <li><router-link to="/">Home</router-link></li>
-      <li><router-link to="/book/list">Books</router-link></li>
-      <li><router-link to="/series">Series</router-link></li>
-      <li><router-link to="/wishlist/list">Wishlist</router-link></li>
-      <li><router-link to="/gauge/list">Gauges</router-link></li>
-      <li><router-link to="/suggester">Suggester</router-link></li>
-      <li v-if="user && user.role === 'admin'"><router-link to="/admin/users">Users</router-link></li>
-      <li v-if="user && user.role === 'admin'"><router-link to="/admin/households">Households</router-link></li>
+    <button class="hamburger" @click="menuOpen = !menuOpen" aria-label="Toggle menu">
+      <span :class="{ open: menuOpen }"></span>
+    </button>
+    <ul :class="{ open: menuOpen }">
+      <li><router-link to="/" @click="menuOpen = false">Home</router-link></li>
+      <li><router-link to="/book/list" @click="menuOpen = false">Books</router-link></li>
+      <li><router-link to="/series" @click="menuOpen = false">Series</router-link></li>
+      <li><router-link to="/wishlist/list" @click="menuOpen = false">Wishlist</router-link></li>
+      <li><router-link to="/gauge/list" @click="menuOpen = false">Gauges</router-link></li>
+      <li><router-link to="/suggester" @click="menuOpen = false">Suggester</router-link></li>
+      <li v-if="user && user.role === 'admin'"><router-link to="/admin/users" @click="menuOpen = false">Users</router-link></li>
+      <li v-if="user && user.role === 'admin'"><router-link to="/admin/households" @click="menuOpen = false">Households</router-link></li>
     </ul>
-    <div class="nav-user">
+    <div class="nav-user" :class="{ open: menuOpen }">
       <span class="user-name">{{ user.displayName }}</span>
       <button class="logout-btn" @click="logout">Logout</button>
     </div>
@@ -25,7 +28,7 @@ import { getUser, clearAuth } from './auth/api.js'
 
 export default {
   data() {
-    return { user: getUser() }
+    return { user: getUser(), menuOpen: false }
   },
   watch: {
     '$route'() {
@@ -41,62 +44,5 @@ export default {
 }
 </script>
 <style>
-#nav {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 12px 16px;
-  background: #f8f8f8;
-  border-bottom: 1px solid #e0e0e0;
-}
-
-#nav .nav-brand {
-  font-weight: 700;
-  font-size: 1.1rem;
-}
-
-#nav ul {
-  display: flex;
-  list-style: none;
-  gap: 16px;
-  margin: 0;
-  padding: 0;
-  flex: 1;
-}
-
-#nav ul a {
-  text-decoration: none;
-  color: #333;
-  font-weight: 500;
-}
-
-#nav ul a.router-link-active {
-  color: #42b983;
-}
-
-.nav-user {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.user-name {
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: #ccc;
-}
-
-.logout-btn {
-  padding: 4px 12px;
-  background: none;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 0.85rem;
-  cursor: pointer;
-  color: #ccc;
-}
-
-.logout-btn:hover {
-  background: #eee;
-}
+/* Nav styles are in assets/main.css */
 </style>
