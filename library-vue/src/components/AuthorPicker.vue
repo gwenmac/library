@@ -137,15 +137,19 @@ export default {
   display: flex;
   gap: 8px;
   align-items: center;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .picker-row select,
 .name-input {
   flex: 1;
+  min-width: 0;
   padding: 8px 10px;
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 0.95rem;
+  box-sizing: border-box;
 }
 
 .picker-btn {

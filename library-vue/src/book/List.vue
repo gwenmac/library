@@ -518,4 +518,28 @@ export default {
   font-size: 0.9rem;
   text-align: center;
 }
+
+@media (max-width: 768px) {
+  .search-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-input {
+    max-width: none;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .status-filter {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .list-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
 </style>
