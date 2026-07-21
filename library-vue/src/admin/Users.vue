@@ -24,8 +24,7 @@
     <p v-if="error" class="error">{{ error }}</p>
     <p v-else-if="loading">Loading...</p>
 
-    <div v-else-if="users.length" class="table-wrap">
-    <table>
+    <table v-else-if="users.length">
       <thead>
         <tr>
           <th>Name</th>
@@ -38,9 +37,9 @@
       </thead>
       <tbody>
         <tr v-for="u in users" :key="u.id">
-          <td data-label="Name">{{ u.displayName }}</td>
-          <td data-label="Email">{{ u.email }}</td>
-          <td data-label="Household">
+          <td>{{ u.displayName }}</td>
+          <td>{{ u.email }}</td>
+          <td>
             <select
               :value="u.household?.id"
               @change="reassignHousehold(u, $event.target.value)"
@@ -49,9 +48,9 @@
               <option v-for="h in households" :key="h.id" :value="h.id">{{ h.name }}</option>
             </select>
           </td>
-          <td data-label="Role"><span class="role-badge" :class="u.role">{{ u.role }}</span></td>
-          <td data-label="Created">{{ formatDate(u.createdAt) }}</td>
-          <td data-label="Actions">
+          <td><span class="role-badge" :class="u.role">{{ u.role }}</span></td>
+          <td>{{ formatDate(u.createdAt) }}</td>
+          <td>
             <button
               v-if="u.role !== 'admin'"
               class="delete-btn"
@@ -61,7 +60,6 @@
         </tr>
       </tbody>
     </table>
-    </div>
   </div>
 </template>
 
@@ -270,55 +268,5 @@ th {
 
 .delete-btn:hover {
   background-color: #c0392b;
-}
-
-.table-wrap {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-@media (max-width: 768px) {
-  .list-header {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-  }
-
-  .form-row {
-    flex-direction: column;
-  }
-
-  .form-row input,
-  .form-row select {
-    min-width: auto;
-  }
-
-  table thead {
-    display: none;
-  }
-
-  table tbody tr {
-    display: block;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    margin-bottom: 12px;
-    padding: 12px;
-  }
-
-  table tbody td {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 4px 0;
-    border-bottom: none;
-  }
-
-  table tbody td::before {
-    content: attr(data-label);
-    font-weight: 600;
-    color: #555;
-    margin-right: 12px;
-    flex-shrink: 0;
-  }
 }
 </style>

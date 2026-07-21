@@ -94,8 +94,7 @@
     <div v-if="results" ref="results" class="results">
       <h2>Results ({{ results.length }})</h2>
       <p v-if="results.length === 0">No books match your criteria.</p>
-      <div v-else class="table-wrap">
-      <table>
+      <table v-else>
         <thead>
           <tr>
             <th>Title</th>
@@ -108,16 +107,15 @@
         </thead>
         <tbody>
           <tr v-for="book in results" :key="book.id">
-            <td data-label="Title"><router-link :to="'/book/edit/' + book.id">{{ book.title }}</router-link></td>
-            <td data-label="Author">{{ book.authors?.map(a => a.name).join(', ') || '—' }}</td>
-            <td data-label="Series">{{ book.series?.name || '—' }}</td>
-            <td data-label="Genres">{{ book.genres?.map(g => g.name).join(', ') || '—' }}</td>
-            <td data-label="Languages">{{ book.languages?.map(l => l.name).join(', ') || '—' }}</td>
-            <td data-label="Status">{{ book._status || '—' }}</td>
+            <td><router-link :to="'/book/edit/' + book.id">{{ book.title }}</router-link></td>
+            <td>{{ book.authors?.map(a => a.name).join(', ') || '—' }}</td>
+            <td>{{ book.series?.name || '—' }}</td>
+            <td>{{ book.genres?.map(g => g.name).join(', ') || '—' }}</td>
+            <td>{{ book.languages?.map(l => l.name).join(', ') || '—' }}</td>
+            <td>{{ book._status || '—' }}</td>
           </tr>
         </tbody>
       </table>
-      </div>
     </div>
   </div>
 </template>
@@ -322,48 +320,5 @@ export default {
 
 .results a:hover {
   text-decoration: underline;
-}
-
-.table-wrap {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-@media (max-width: 768px) {
-  .suggester {
-    max-width: none;
-  }
-
-  .field input[type="number"] {
-    width: 80px;
-  }
-
-  .results table thead {
-    display: none;
-  }
-
-  .results table tbody tr {
-    display: block;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    margin-bottom: 12px;
-    padding: 12px;
-  }
-
-  .results table tbody td {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 4px 0;
-    border-bottom: none;
-  }
-
-  .results table tbody td::before {
-    content: attr(data-label);
-    font-weight: 600;
-    color: #555;
-    margin-right: 12px;
-    flex-shrink: 0;
-  }
 }
 </style>

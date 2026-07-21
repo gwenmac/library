@@ -209,15 +209,4 @@ export default {
   background: #42b983;
   color: #fff;
 }
-
-@media (max-width: 768px) {
-  .picker-row {
-    flex-wrap: wrap;
-  }
-
-  .picker-row select,
-  .picker-row input {
-    min-width: 0;
-  }
-}
 </style>

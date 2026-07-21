@@ -105,19 +105,4 @@ export default {
   display: block;
   margin-bottom: 8px;
 }
-
-@media (max-width: 768px) {
-  .charts {
-    flex-direction: column;
-    gap: 20px;
-  }
-
-  .chart-card {
-    width: 100%;
-  }
-
-  .gauge-card a {
-    padding: 10px 12px;
-  }
-}
 </style>

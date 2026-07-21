@@ -21,8 +21,7 @@
       <EntryForm @submit="addEntry" />
 
       <h3>Entries</h3>
-      <div v-if="entries.length" class="table-wrap">
-      <table>
+      <table v-if="entries.length">
         <thead>
           <tr>
             <th>Date</th>
@@ -33,18 +32,17 @@
         </thead>
         <tbody>
           <tr v-for="e in reversedEntries" :key="e.id">
-            <td data-label="Date">{{ formatDate(e.createdAt) }}</td>
-            <td data-label="Delta" :class="{ positive: e.delta > 0, negative: e.delta < 0 }">
+            <td>{{ formatDate(e.createdAt) }}</td>
+            <td :class="{ positive: e.delta > 0, negative: e.delta < 0 }">
               {{ e.delta > 0 ? '+' : '' }}{{ e.delta }}
             </td>
-            <td data-label="Note">{{ e.note || '—' }}</td>
-            <td data-label="Actions">
+            <td>{{ e.note || '—' }}</td>
+            <td>
               <button class="delete-entry-btn" @click="deleteEntry(e)">✕</button>
             </td>
           </tr>
         </tbody>
       </table>
-      </div>
       <p v-else class="no-entries">No entries yet.</p>
     </template>
   </div>
@@ -216,53 +214,5 @@ th { font-weight: 600; }
 .error {
   color: #e74c3c;
   font-weight: 600;
-}
-
-.table-wrap {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-@media (max-width: 768px) {
-  .gauge-detail {
-    max-width: none;
-  }
-
-  .header {
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .delete-btn {
-    align-self: flex-start;
-  }
-
-  table thead {
-    display: none;
-  }
-
-  table tbody tr {
-    display: block;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    margin-bottom: 12px;
-    padding: 12px;
-  }
-
-  table tbody td {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 4px 0;
-    border-bottom: none;
-  }
-
-  table tbody td::before {
-    content: attr(data-label);
-    font-weight: 600;
-    color: #555;
-    margin-right: 12px;
-    flex-shrink: 0;
-  }
 }
 </style>

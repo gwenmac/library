@@ -177,14 +177,4 @@ export default {
   background: #42b983;
   color: #fff;
 }
-
-@media (max-width: 768px) {
-  .picker-row {
-    flex-wrap: wrap;
-  }
-
-  .name-input {
-    min-width: 0;
-  }
-}
 </style>

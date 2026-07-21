@@ -18,8 +18,7 @@
     <p v-if="error" class="error">{{ error }}</p>
     <p v-else-if="loading">Loading...</p>
 
-    <div v-else-if="households.length" class="table-wrap">
-    <table>
+    <table v-else-if="households.length">
       <thead>
         <tr>
           <th>Name</th>
@@ -30,7 +29,7 @@
       </thead>
       <tbody>
         <tr v-for="h in households" :key="h.id">
-          <td data-label="Name">
+          <td>
             <span v-if="editingId !== h.id">{{ h.name }}</span>
             <input
               v-else
@@ -40,9 +39,9 @@
               class="edit-input"
             />
           </td>
-          <td data-label="Members">{{ countUsers(h.id) }}</td>
-          <td data-label="Created">{{ formatDate(h.createdAt) }}</td>
-          <td data-label="Actions">
+          <td>{{ countUsers(h.id) }}</td>
+          <td>{{ formatDate(h.createdAt) }}</td>
+          <td>
             <button v-if="editingId !== h.id" class="edit-btn" @click="startEdit(h)">Rename</button>
             <template v-else>
               <button class="save-btn" @click="saveEdit(h)">Save</button>
@@ -52,7 +51,6 @@
         </tr>
       </tbody>
     </table>
-    </div>
     <p v-else>No households yet.</p>
   </div>
 </template>
@@ -265,46 +263,5 @@ th {
   font-size: 0.85rem;
   cursor: pointer;
   color: #333;
-}
-
-.table-wrap {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-@media (max-width: 768px) {
-  .list-header {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-  }
-
-  table thead {
-    display: none;
-  }
-
-  table tbody tr {
-    display: block;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    margin-bottom: 12px;
-    padding: 12px;
-  }
-
-  table tbody td {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 4px 0;
-    border-bottom: none;
-  }
-
-  table tbody td::before {
-    content: attr(data-label);
-    font-weight: 600;
-    color: #555;
-    margin-right: 12px;
-    flex-shrink: 0;
-  }
 }
 </style>
